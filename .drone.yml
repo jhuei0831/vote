@@ -1,0 +1,45 @@
+# 指定 pipeline，且由 docker runner 執行
+kind: pipeline
+type: docker
+name: default
+
+# 如果 docker runner 都跑在 arm64 的機器上（如 m1, raspberry pi)，這邊一定要給定 arm64
+# 否則預設 linux / amd64 會導致 pipeline 一直 pending
+platform:
+  os: linux
+  arch: arm64
+
+# 指定 pipeline trigger 的條件
+# 這邊想要在 tag release 版號後觸發 pipeline build code 並 upload
+# 因此 event 填入 tag
+trigger:
+  event:
+    - tag
+
+# for build code 使用，clone 時抓 depth = 1 即可，加快速度
+clone:
+  depth: 1
+
+# 這邊開始定義 pipeline 的每個步驟
+steps:
+  - name: build
+    image: golang:1.24
+    environment:
+      GO111MODULE: on
+    commands:
+      # 在這個 step， container 要跑的 shell command
+      - go mod tidy
+      - go build -o dist/myapp
+
+  - name: publish
+    # 官方提供的 plugin，可以將 build assets 上傳到 github release
+    image: plugins/github-release
+    settings:
+      api_key:
+        # 填入在 github 的 personal access token，使用secret管理
+        from_secret: github_api_token
+      files:
+        - dist/myapp
+      # 給定 release name，這邊直接採用 tag 的名稱
+      # 透過 drone 提供的環境變數，帶入目前 tag name（只有 tag event 才會有）
+      title: ${DRONE_TAG}

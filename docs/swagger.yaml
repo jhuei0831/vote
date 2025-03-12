@@ -1,0 +1,87 @@
+definitions:
+  controller.Login:
+    properties:
+      account:
+        example: account
+        type: string
+      password:
+        example: password
+        type: string
+    required:
+    - account
+    - password
+    type: object
+host: localhost:3000
+info:
+  contact:
+    name: Flynn Sun
+  description: Gin swagger
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  title: Gin swagger
+  version: "1.0"
+paths:
+  /v1/users:
+    post:
+      consumes:
+      - application/json
+      description: get string by ID
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: json
+        "400":
+          description: Bad Request
+          schema:
+            type: json
+      summary: Show an account
+      tags:
+      - user
+  /v1/users/{id}:
+    get:
+      parameters:
+      - default: 1
+        description: id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      tags:
+      - user
+  /v1/users/login:
+    post:
+      parameters:
+      - description: login
+        in: body
+        name: register
+        required: true
+        schema:
+          $ref: '#/definitions/controller.Login'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      tags:
+      - user
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
