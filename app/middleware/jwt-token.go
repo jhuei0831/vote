@@ -1,21 +1,23 @@
 package middleware
 
-import "github.com/golang-jwt/jwt/v5"
-
 import (
-	"time"
 	"errors"
 	"net/http"
+	"os"
 	"strings"
+	"time"
+
 	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt/v5"
 )
 
-var SecretKey = []byte("your-secret-key")
+var SecretKey = []byte(os.Getenv("JWT_SECRET_KEY"))
 
 const TokenExpireDuration = time.Hour * 2
 
 type MyClaims struct {
 	Account string `json:"account"`
+	Role    string `json:"role"`
 	jwt.RegisteredClaims
 }
 
@@ -25,7 +27,7 @@ func GenToken(account string) (string, error) {
 		Account: account,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(TokenExpireDuration)),
-			Issuer:    "Flynn",
+			Issuer: os.Getenv("APP_NAME"),
 		},
 	}
 	// Choose specific algorithm

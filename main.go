@@ -1,22 +1,18 @@
 package main
 
 import (
-	"github.com/chenyahui/gin-cache/persist"
-	"github.com/gin-gonic/gin"
-	"github.com/go-redis/redis/v8"
-	"github.com/joho/godotenv"
+	"os"
 	"vote/app/config"
 	"vote/app/database"
-	"vote/app/model"
 	"vote/app/middleware"
-	"os"
+
+	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 )
 
 // @title Gin swagger
 // @version 1.0
 // @description Gin swagger
-
-// @contact.name Flynn Sun
 
 // @license.name Apache 2.0
 // @license.url http://www.apache.org/licenses/LICENSE-2.0.html
@@ -48,23 +44,15 @@ func SetRouter() *gin.Engine {
 
 	// Initialize database
 	dbConfig := os.Getenv("DB_CONFIG")
-	db, err := database.Initialize(dbConfig)
+	_, err := database.Initialize(dbConfig)
 	if err != nil {
-		panic(err)
-	}
-	if err := db.AutoMigrate(&model.User{}); err != nil {
 		panic(err)
 	}
 
 	server := gin.Default()
-	redisStore := persist.NewRedisStore(redis.NewClient(&redis.Options{
-		Network: "tcp",
-		Addr:    "127.0.0.1:6379",
-		DB: 0,
-	}))
-	config.Routes(server, redisStore)
-	config.Swagger()
 	server.Use(middleware.LoggerToFile())
+	config.Routes(server, config.RedisStore())
+	config.Swagger()
 	server.Use(middleware.CORSMiddleware())
 
 	return server

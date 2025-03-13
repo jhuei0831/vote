@@ -9,9 +9,7 @@ const docTemplate = `{
     "info": {
         "description": "{{escape .Description}}",
         "title": "{{.Title}}",
-        "contact": {
-            "name": "Flynn Sun"
-        },
+        "contact": {},
         "license": {
             "name": "Apache 2.0",
             "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
@@ -23,28 +21,35 @@ const docTemplate = `{
     "paths": {
         "/v1/users": {
             "post": {
-                "description": "get string by ID",
-                "consumes": [
-                    "application/json"
-                ],
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "user"
                 ],
-                "summary": "Show an account",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "language",
+                        "name": "language",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "register",
+                        "name": "register",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controller.Register"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "json"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "json"
+                            "type": "string"
                         }
                     }
                 }
@@ -124,6 +129,28 @@ const docTemplate = `{
                 "account": {
                     "type": "string",
                     "example": "account"
+                },
+                "password": {
+                    "type": "string",
+                    "example": "password"
+                }
+            }
+        },
+        "controller.Register": {
+            "type": "object",
+            "required": [
+                "account",
+                "email",
+                "password"
+            ],
+            "properties": {
+                "account": {
+                    "type": "string",
+                    "example": "account"
+                },
+                "email": {
+                    "type": "string",
+                    "example": "test123@gmail.com"
                 },
                 "password": {
                     "type": "string",

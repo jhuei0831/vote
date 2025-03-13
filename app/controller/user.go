@@ -55,7 +55,7 @@ func (u UsersController) CreateUser (c *gin.Context){
 	if bindErr == nil {
 		err := service.RegisterOneUser(form.Account, form.Password, form.Email)
 		if err == nil {
-			go service.MultiSend(form.Email)
+			// go service.MultiSend(form.Email)
 			c.JSON(http.StatusOK, gin.H{
 				"status": 1,
 				"msg": t.Translate(c, "Response_Success"),
@@ -85,7 +85,7 @@ func (u UsersController) CreateUser (c *gin.Context){
 // @param id path int true "id" default(1)
 // @Success 200 string successful return data
 // @Router /v1/users/{id} [get]
-func (u UsersController) GetUser (c *gin.Context){
+func (u UsersController) GetUser (c *gin.Context) {
 	id := c.Params.ByName("id")
 
 	userId, err := strconv.ParseInt(id, 10, 64)
@@ -134,9 +134,10 @@ func (u UsersController) AuthHandler(c *gin.Context) {
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"status": -1,
-			"msg":    "Failed to parse params" + err.Error(),
+			"msg":    "Failed to parse params: " + err.Error(),
 			"data":   nil,
 		})
+		return
 	}
 
 	if userOne == nil {
@@ -145,22 +146,13 @@ func (u UsersController) AuthHandler(c *gin.Context) {
 			"msg":    "User not found",
 			"data":   nil,
 		})
-	}
-
-	if userOne != nil {
-		tokenString, _ := middleware.GenToken(form.Account)
-		c.JSON(http.StatusOK, gin.H{
-			"code": 0,
-			"msg":  "Success",
-			"data": gin.H{"token": tokenString},
-		})
 		return
 	}
 
+	tokenString, _ := middleware.GenToken(form.Account)
 	c.JSON(http.StatusOK, gin.H{
 		"code": 0,
-		"msg":  "Verified Failed.",
+		"msg":  "Success",
+		"data": gin.H{"token": tokenString},
 	})
-
-	return
 }

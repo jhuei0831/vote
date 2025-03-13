@@ -19,3 +19,15 @@ docker-compose up -d
 # Get response {"message":"health check: PORT 9443"}
 curl http://localhost:9443/hc
 ```
+
+## Database setup
+
+### 1. Create database
+
+* This project use [goose](https://github.com/pressly/goose) and [Go migrations](https://github.com/pressly/goose/tree/master/examples/go-migrations) to manage database schema.
+
+```bash
+# use the following command to create a new migration
+docker exec -it vote bash
+./migrator goose up
+```

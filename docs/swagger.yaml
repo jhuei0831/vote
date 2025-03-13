@@ -11,10 +11,25 @@ definitions:
     - account
     - password
     type: object
+  controller.Register:
+    properties:
+      account:
+        example: account
+        type: string
+      email:
+        example: test123@gmail.com
+        type: string
+      password:
+        example: password
+        type: string
+    required:
+    - account
+    - email
+    - password
+    type: object
 host: localhost:3000
 info:
-  contact:
-    name: Flynn Sun
+  contact: {}
   description: Gin swagger
   license:
     name: Apache 2.0
@@ -24,21 +39,25 @@ info:
 paths:
   /v1/users:
     post:
-      consumes:
-      - application/json
-      description: get string by ID
+      parameters:
+      - description: language
+        in: header
+        name: language
+        required: true
+        type: string
+      - description: register
+        in: body
+        name: register
+        required: true
+        schema:
+          $ref: '#/definitions/controller.Register'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            type: json
-        "400":
-          description: Bad Request
-          schema:
-            type: json
-      summary: Show an account
+            type: string
       tags:
       - user
   /v1/users/{id}:
