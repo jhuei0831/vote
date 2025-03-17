@@ -1,21 +1,33 @@
 package middleware
 
-// import "github.com/gin-gonic/gin"
+import (
+	"net/http"
+	"vote/app/database"
 
-// func rbac() gin.HandlerFunc {
-// 	return func(c *gin.Context) {
-// 		// Check if the user has the right to access the resource
-// 		// If the user has the right to access the resource, call ctx.Next()
-// 		// If the user does not have the right to access the resource, return an error message
-// 		tokenString := c.GetHeader("Authorization")
-//         token, _ := jwt.Parse(tokenString)
-//         claims, _ := token.Claims.(jwt.MapClaims)
-//         role := claims["role"].(string)
+	"github.com/gin-gonic/gin"
+)
 
-//         if role != RoleAdmin {
-//             c.AbortWithStatus(http.StatusForbidden)
-//             return
-//         }
-//         c.Next()
-// 	}
-// }
+func RoleMiddleware(obj string, act string) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		// Check if the user has the right to access the resource
+		// If the user has the right to access the resource, call ctx.Next()
+		// If the user does not have the right to access the resource, return an error message
+		account, exists := c.Get("account")
+		if !exists {
+			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "Account not found"})
+			return
+		}
+
+		ok, err := database.Enforcer.Enforce(account.(string), obj, act)
+		if err != nil {
+			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "error occurred when authorizing user"})
+			return
+		}
+		if !ok {
+			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "forbidden"})
+			return
+		}
+
+        c.Next()
+	}
+}

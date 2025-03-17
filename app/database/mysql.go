@@ -1,25 +1,26 @@
 package database
 
 import (
-	// "log"
-	// "os"
 	"time"
-	"vote/app/middleware"
+	"vote/app/utils"
 
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
-)
 
+	"github.com/casbin/casbin/v2"
+	gormadapter "github.com/casbin/gorm-adapter/v3"
+)
 
 var (
 	SqlSession *gorm.DB
+	Adapter *gormadapter.Adapter
+	Enforcer *casbin.Enforcer
 )
 
 func Initialize(dbConfig string) (*gorm.DB, error) {
 	newLogger := logger.New(
-		// log.New(os.Stdout, "\r\n", log.LstdFlags), // io writer
-		middleware.Logger(),
+		utils.Logger(),
 		logger.Config{
 			SlowThreshold:              time.Second,   // Slow SQL threshold
 			LogLevel:                   logger.Info, // Log level
@@ -34,4 +35,22 @@ func Initialize(dbConfig string) (*gorm.DB, error) {
 	})
 
 	return SqlSession, err
+}
+
+func Rbac() (*gormadapter.Adapter, *casbin.Enforcer, error) {
+	var err error
+
+	Adapter, err = gormadapter.NewAdapterByDB(SqlSession)
+	if err != nil {
+		return nil, nil, err
+	}
+	
+	Enforcer, err = casbin.NewEnforcer("app/config/rbac.conf", Adapter)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	Enforcer.EnableLog(true)
+	
+	return Adapter, Enforcer, err
 }

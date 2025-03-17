@@ -2,8 +2,8 @@ package service
 
 import (
 	"fmt"
+
 	"vote/app/database"
-	"vote/app/middleware"
 	"vote/app/model"
 	"vote/app/utils"
 
@@ -33,13 +33,13 @@ func RegisterOneUser(account string, password string, email string) error {
 	}
 
 	user := model.User{
-		Account: account,
+		Account:  account,
 		Password: passwordHash,
-		Email: email,
+		Email:    email,
 	}
 
 	insertErr := database.SqlSession.Model(&model.User{}).Create(&user).Error
-	middleware.Logger().WithFields(logrus.Fields{
+	utils.Logger().WithFields(logrus.Fields{
 		"name": "RegisterOneUser",
 	}).Error("error: ", insertErr)
 	return insertErr
@@ -49,6 +49,7 @@ func RegisterOneUser(account string, password string, email string) error {
 // 如果用戶存在，返回 true；否則返回 false。
 // 參數:
 //   - account: 用戶的帳號。
+//
 // 返回值:
 //   - bool: 如果用戶存在返回 true，否則返回 false。
 func CheckOneUser(account string) bool {
@@ -70,6 +71,7 @@ func CheckOneUser(account string) bool {
 // 參數:
 //   - account: 用戶帳號
 //   - password: 用戶密碼
+//
 // 返回值:
 //   - *model.User: 如果登錄成功，返回用戶資料
 //   - error: 如果登錄失敗，返回錯誤信息

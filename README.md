@@ -28,6 +28,17 @@ curl http://localhost:9443/hc
 
 ```bash
 # use the following command to create a new migration
-docker exec -it vote bash
 ./migrator goose up
+```
+## 2. Import data
+
+```bash
+# use the following command to import data
+./migrator goose -action=seed up
+```
+
+### 3. If create new migration
+```bash
+# use the following command to create a new migration
+go build -o migrator ./cmd/dbmigrate
 ```

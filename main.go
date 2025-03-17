@@ -2,6 +2,7 @@ package main
 
 import (
 	"os"
+
 	"vote/app/config"
 	"vote/app/database"
 	"vote/app/middleware"
@@ -45,6 +46,12 @@ func SetRouter() *gin.Engine {
 	// Initialize database
 	dbConfig := os.Getenv("DB_CONFIG")
 	_, err := database.Initialize(dbConfig)
+	if err != nil {
+		panic(err)
+	}
+	
+	// Initialize RBAC
+	_, _, err = database.Rbac()
 	if err != nil {
 		panic(err)
 	}

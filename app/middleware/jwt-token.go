@@ -16,8 +16,7 @@ var SecretKey = []byte(os.Getenv("JWT_SECRET_KEY"))
 const TokenExpireDuration = time.Hour * 2
 
 type MyClaims struct {
-	Account string `json:"account"`
-	Role    string `json:"role"`
+	Account  string `json:"account"`
 	jwt.RegisteredClaims
 }
 
@@ -48,6 +47,7 @@ func ParseToken(tokenString string) (*MyClaims, error) {
 	if claims, ok := token.Claims.(*MyClaims); ok && token.Valid {
 		return claims, nil
 	}
+
 	return nil, errors.New("invalid token")
 }
 

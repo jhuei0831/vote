@@ -4,7 +4,8 @@ import (
 	"net/smtp"
 	"os"
 	"sync"
-	"vote/app/middleware"
+
+	"vote/app/utils"
 
 	"github.com/joho/godotenv"
 	"github.com/sirupsen/logrus"
@@ -34,13 +35,13 @@ func Send(title string, body string, to string, wg *sync.WaitGroup) {
 		   from, []string{to}, []byte(msg))
 		   
 	if err != nil{
-		middleware.Logger().WithFields(logrus.Fields{
+		utils.Logger().WithFields(logrus.Fields{
 			"name": "Smtp",
 		}).Error("error: ", err)
 		return
 	}
 
-	middleware.Logger().WithFields(logrus.Fields{
+	utils.Logger().WithFields(logrus.Fields{
 		"name": "Smtp",
 	}).Info("Send from: ", from + ", To: ", to)
 }
@@ -51,7 +52,7 @@ func MultiSend(email string) {
 	go Send("Register Notification", "Welcome to become our membership", email, &wg)
 	go Send("Please review the rules", "Rules1:..........", email, &wg)
 	wg.Wait()
-	middleware.Logger().WithFields(logrus.Fields{
+	utils.Logger().WithFields(logrus.Fields{
 		"name": "Smtp",
 	}).Info("Finished all tasks")
 }
