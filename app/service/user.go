@@ -10,11 +10,16 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-var UserFields = []string{"id", "account", "email"}
+type UserService struct {
+}
 
-func SelectOneUsers(id int64) (*model.User, error) {
+func NewUserService() UserService {
+	return UserService{}
+}
+
+func (u UserService) SelectOneUsers(id int64) (*model.User, error) {
 	userOne := &model.User{}
-	err := database.SqlSession.Select(UserFields).Where("id=?", id).First(&userOne).Error
+	err := database.SqlSession.Select([]string{"id", "account", "email"}).Where("id=?", id).First(&userOne).Error
 	if err != nil {
 		return nil, err
 	} else {
@@ -22,8 +27,8 @@ func SelectOneUsers(id int64) (*model.User, error) {
 	}
 }
 
-func RegisterOneUser(account string, password string, email string) error {
-	if !CheckOneUser(account) {
+func (u UserService) RegisterOneUser(account string, password string, email string) error {
+	if !u.CheckOneUser(account) {
 		return fmt.Errorf("user exists")
 	}
 	var SHA256Hasher utils.SHA256Hasher
@@ -52,7 +57,7 @@ func RegisterOneUser(account string, password string, email string) error {
 //
 // 返回值:
 //   - bool: 如果用戶存在返回 true，否則返回 false。
-func CheckOneUser(account string) bool {
+func (u UserService) CheckOneUser(account string) bool {
 	result := false
 	var user model.User
 
@@ -75,7 +80,7 @@ func CheckOneUser(account string) bool {
 // 返回值:
 //   - *model.User: 如果登錄成功，返回用戶資料
 //   - error: 如果登錄失敗，返回錯誤信息
-func LoginOneUser(account string, password string) (*model.User, error) {
+func (u UserService) LoginOneUser(account string, password string) (*model.User, error) {
 	var user model.User
 	// Hash password
 	var SHA256Hasher utils.SHA256Hasher

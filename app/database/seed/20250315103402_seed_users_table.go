@@ -3,6 +3,7 @@ package seed
 import (
 	"context"
 	"database/sql"
+	"strconv"
 
 	"github.com/pressly/goose/v3"
 
@@ -38,10 +39,16 @@ func upSeedUsersTable(ctx context.Context, tx *sql.Tx) error {
 	}
 
 	// Create admin role
-	enforcer := database.Enforcer
-	_, err = enforcer.AddRoleForUser("admin", "ROLE_ADMIN")
-	enforcer.AddPolicy("ROLE_ADMIN", "users", "read")
-	enforcer.AddPolicy("ROLE_ADMIN", "users", "create")
+	_, enforcer, err := database.Rbac()
+	if err != nil {
+		transaction.Rollback()
+	}
+	userId := strconv.FormatUint(user.ID, 10)
+	_, err = enforcer.AddRoleForUser(userId, "ADMIN")
+	enforcer.AddPolicy("ADMIN", "users", "read")
+	enforcer.AddPolicy("ADMIN", "users", "create")
+	enforcer.AddPolicy("ADMIN", "vote", "read")
+	enforcer.AddPolicy("ADMIN", "vote", "create")
 	if err != nil {
 		transaction.Rollback()
 	}
@@ -59,8 +66,6 @@ func downSeedUsersTable(ctx context.Context, tx *sql.Tx) error {
 		transaction.Rollback()
 		return err
 	}
-
-	transaction.Migrator().DropTable("casbin_rule")
 
 	return transaction.Commit().Error
 }

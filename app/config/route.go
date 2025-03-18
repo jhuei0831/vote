@@ -30,15 +30,37 @@ func Routes(r *gin.Engine, m *persist.RedisStore) {
 	// Swagger
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	// User
-	posts := r.Group("/v1/users")
+	posts := r.Group("/v1/user")
 	{
-		posts.POST("/", controller.NewUsersController().CreateUser)
-		posts.POST("/login", controller.QueryUsersController().AuthHandler)
+		posts.POST("/", controller.NewUserController().CreateUser)
+		posts.POST("/login", controller.NewUserController().AuthHandler)
 		posts.GET("/:id",
 			middleware.JWTAuthMiddleware(),
-			middleware.RoleMiddleware("users", "read"),
+			middleware.RoleMiddleware("user", "read"),
 			// cache.CacheByRequestURI(m, 2*time.Hour),
-			controller.QueryUsersController().GetUser,
+			controller.NewUserController().GetUser,
+		)
+	}
+
+	// Vote
+	votes := r.Group("/v1/vote")
+	{
+		votes.POST("/create",
+			middleware.JWTAuthMiddleware(),
+			middleware.RoleMiddleware("vote", "create"),
+			controller.NewVoteController().CreateVote,
+		)
+		votes.GET("/:id",
+			middleware.JWTAuthMiddleware(),
+			middleware.RoleMiddleware("vote", "read"),
+			// cache.CacheByRequestURI(m, 2*time.Hour),
+			controller.NewVoteController().SelectOneVote,
+		)
+		votes.GET("/list",
+			middleware.JWTAuthMiddleware(),
+			middleware.RoleMiddleware("vote", "read"),
+			// cache.CacheByRequestURI(m, 2*time.Hour),
+			controller.NewVoteController().SelectAllVotes,
 		)
 	}
 }

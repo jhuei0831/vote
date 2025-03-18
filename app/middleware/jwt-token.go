@@ -16,14 +16,18 @@ var SecretKey = []byte(os.Getenv("JWT_SECRET_KEY"))
 const TokenExpireDuration = time.Hour * 2
 
 type MyClaims struct {
-	Account  string `json:"account"`
+	ID	     uint64   `json:"id"`
+	Account  string   `json:"account"`
+	IsAdmin	 bool 	  `json:"isAdmin"`
 	jwt.RegisteredClaims
 }
 
 // GenToken Create a new token
-func GenToken(account string) (string, error) {
+func GenToken(Id uint64, account string, isAdmin bool) (string, error) {
 	c := MyClaims{
+		ID: Id,
 		Account: account,
+		IsAdmin: isAdmin,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(TokenExpireDuration)),
 			Issuer: os.Getenv("APP_NAME"),
@@ -85,7 +89,9 @@ func JWTAuthMiddleware() func(c *gin.Context) {
 			return
 		}
 		// Store Account info into Context
+		c.Set("id", mc.ID)
 		c.Set("account", mc.Account)
+		c.Set("isAdmin", mc.IsAdmin)
 		// After that, we can get Account info from c.Get("account")
 		c.Next()
 	}

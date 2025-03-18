@@ -3,6 +3,8 @@ package controller
 import (
 	"net/http"
 	"strconv"
+	"vote/app/database"
+	"vote/app/enum"
 	"vote/app/middleware"
 	"vote/app/service"
 	"vote/app/utils"
@@ -11,24 +13,19 @@ import (
 	"github.com/gogf/gf/i18n/gi18n"
 )
 
-
 type UsersController struct {}
 
-func NewUsersController() UsersController {
+func NewUserController() UsersController {
 	return UsersController{}
 }
 
-func QueryUsersController() UsersController {
-	return UsersController{}
-}
-
-type Register struct {
+type UserRegister struct {
 	Account string `json:"account" binding:"required" example:"account"`
 	Password string `json:"password" binding:"required" example:"password"`
 	Email string `json:"email" binding:"required" example:"test123@gmail.com"`
 }
 
-type Login struct {
+type UserLogin struct {
 	Account string `json:"account" binding:"required" example:"account"`
 	Password string `json:"password" binding:"required" example:"password"`
 }
@@ -41,9 +38,9 @@ type Login struct {
 // @param register body Register true "register"
 // @Success 200 string successful return value
 // @Router /v1/users [post]
-func (u UsersController) CreateUser (c *gin.Context){
+func (u UsersController) CreateUser (c *gin.Context) {
 	t := gi18n.New()
-	var form Register
+	var form UserRegister
 	bindErr := c.BindJSON(&form)
 
 	lan := c.Request.Header.Get("language")
@@ -53,9 +50,9 @@ func (u UsersController) CreateUser (c *gin.Context){
 	t.SetLanguage(lan)
 	
 	if bindErr == nil {
-		err := service.RegisterOneUser(form.Account, form.Password, form.Email)
+		err := service.NewUserService().RegisterOneUser(form.Account, form.Password, form.Email)
 		if err == nil {
-			// go service.MultiSend(form.Email)
+			// go service.NewSmtpService().MultiSend(form.Email)
 			c.JSON(http.StatusOK, gin.H{
 				"status": 1,
 				"msg": t.Translate(c, "Response_Success"),
@@ -96,8 +93,7 @@ func (u UsersController) GetUser (c *gin.Context) {
 			"data": nil,
 		})
 	}
-
-	userOne, err := service.SelectOneUsers(userId)
+	userOne, err := service.NewUserService().SelectOneUsers(userId)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{
 			"status": -1,
@@ -121,7 +117,7 @@ func (u UsersController) GetUser (c *gin.Context) {
 // @Success 200 string successful return token
 // @Router /v1/users/login [post]
 func (u UsersController) AuthHandler(c *gin.Context) {
-	var form Login
+	var form UserLogin
 	bindErr := c.BindJSON(&form)
 	if bindErr != nil {
 		c.JSON(http.StatusOK, gin.H{
@@ -130,7 +126,7 @@ func (u UsersController) AuthHandler(c *gin.Context) {
 		})
 		return
 	}
-	userOne, err := service.LoginOneUser(form.Account, form.Password)
+	userOne, err := service.NewUserService().LoginOneUser(form.Account, form.Password)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"status": -1,
@@ -148,8 +144,8 @@ func (u UsersController) AuthHandler(c *gin.Context) {
 		})
 		return
 	}
-
-	tokenString, _ := middleware.GenToken(form.Account)
+	isAdmin, _ := database.Enforcer.HasRoleForUser(strconv.FormatUint(userOne.ID, 10), enum.Roles.Admin)
+	tokenString, _ := middleware.GenToken(userOne.ID, form.Account, isAdmin)
 	c.JSON(http.StatusOK, gin.H{
 		"code": 0,
 		"msg":  "Success",

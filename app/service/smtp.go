@@ -11,7 +11,14 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func Send(title string, body string, to string, wg *sync.WaitGroup) {
+type SmtpService struct {
+}
+
+func NewSmtpService() SmtpService {
+	return SmtpService{}
+}
+
+func (s SmtpService) Send(title string, body string, to string, wg *sync.WaitGroup) {
 	defer wg.Done()
 	
 	envErr := godotenv.Load()
@@ -46,11 +53,11 @@ func Send(title string, body string, to string, wg *sync.WaitGroup) {
 	}).Info("Send from: ", from + ", To: ", to)
 }
 
-func MultiSend(email string) {
+func (s SmtpService) MultiSend(email string) {
 	var wg sync.WaitGroup
 	wg.Add(2)
-	go Send("Register Notification", "Welcome to become our membership", email, &wg)
-	go Send("Please review the rules", "Rules1:..........", email, &wg)
+	go s.Send("Register Notification", "Welcome to become our membership", email, &wg)
+	go s.Send("Please review the rules", "Rules1:..........", email, &wg)
 	wg.Wait()
 	utils.Logger().WithFields(logrus.Fields{
 		"name": "Smtp",
