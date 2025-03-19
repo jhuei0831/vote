@@ -3,7 +3,11 @@ package controller
 import (
 	"net/http"
 	"strconv"
+	"vote/app/database"
+	"vote/app/enum"
+	"vote/app/model"
 	"vote/app/service"
+	"vote/app/utils"
 
 	"github.com/gin-gonic/gin"
 )
@@ -13,13 +17,6 @@ type VoteController struct {
 
 func NewVoteController() VoteController {
 	return VoteController{}
-}
-
-type VoteCreate struct {
-	Title       string `json:"title" binding:"required" example:"title"`
-	Description string `json:"description" binding:"required" example:"description"`
-	StartTime   string `json:"startTime" binding:"required" example:"2021-01-01 00:00:00"`
-	EndTime     string `json:"endTime" binding:"required" example:"2021-01-01 00:00:00"`
 }
 
 // SelectOneVote 根據提供的 ID 檢查投票是否存在。
@@ -70,9 +67,26 @@ func (v VoteController) SelectOneVote (c *gin.Context) {
 // @Success 200 {string} string "ok"
 // @Router /vote/all [get]
 func (v VoteController) SelectAllVotes (c *gin.Context) {
-	isAdmin, _ := c.Get("isAdmin")
-	userId, _ := c.Get("id")
-	votes, err := service.NewVoteService().SelectAllVotes(isAdmin.(bool), userId.(uint64))
+	userId, exists := c.Get("id")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"status": -1,
+			"msg":    "User ID not found in context",
+			"data":   nil,
+		})
+		return
+	}
+	// 檢查用戶是否是管理員
+	isAdmin, err := database.Enforcer.HasRoleForUser(strconv.FormatUint(userId.(uint64), 10), enum.Roles.Admin)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"status": -1,
+			"msg": "Failed to check user role" + err.Error(),
+			"data": nil,
+		})
+	}
+	// 根據用戶ID及權限檢索所有投票
+	votes, err := service.NewVoteService().SelectAllVotes(isAdmin, userId.(uint64))
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{
 			"status": -1,
@@ -101,20 +115,19 @@ func (v VoteController) SelectAllVotes (c *gin.Context) {
 // @Success 200 {string} string "ok"
 // @Router /vote/create [post]
 func (v VoteController) CreateVote (c *gin.Context) {
-	var form VoteCreate
+	var form model.VoteCreate
 	bindErr := c.BindJSON(&form)
 	if bindErr != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"code": -1,
-			"msg":  "Invalid params",
+			"msg":  "Invalid params" + utils.ValidationErrorMessage(bindErr),
 		})
 		return
 	}
 	// 把創建者的ID從Header的JWT中取出來
-	creatorId, _ := c.Get("id")
-
-	insertErr := service.NewVoteService().
-		CreateOneVote(form.Title, form.Description, creatorId.(uint64), form.StartTime, form.EndTime)
+	userId, _ := c.Get("id")
+	form.UserID = userId.(uint64)
+	insertErr := service.NewVoteService().CreateOneVote(form)
 	if insertErr != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"status": -1,
@@ -127,6 +140,58 @@ func (v VoteController) CreateVote (c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"status": 0,
 		"msg":    "Successfully create vote",
+		"data":   &form,
+	})
+}
+
+// UpdateVote @Summary
+// @tags 投票
+// @Summary 更新一個投票
+// @Description 更新一個投票
+// @Accept json
+// @Produce json
+// @Param id path int true "投票ID"
+// @Param title query string true "投票標題"
+// @Param description query string true "投票描述"
+// @Param startTime query string true "開始時間"
+// @Param endTime query string true "結束時間"
+// @Success 200 {string} string "ok"
+// @Router /vote/update/{id} [put]
+// TODO: 除了ADMIN，只有投票的創建者才能更新投票
+func (v VoteController) UpdateVote (c *gin.Context) {
+	id := c.Params.ByName("id")
+	voteId, err := strconv.ParseUint(id, 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status": -1,
+			"msg": "Failed to parse params" + err.Error(),
+			"data": nil,
+		})
+	}
+
+	var form model.VoteUpdate
+	bindErr := c.BindJSON(&form)
+	if bindErr != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"code": -1,
+			"msg":  "Invalid params: " + utils.ValidationErrorMessage(bindErr),
+		})
+		return
+	}
+
+	updateErr := service.NewVoteService().UpdateOneVote(voteId, form)
+	if updateErr != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status": -1,
+			"msg":    "Failed to parse params: " + updateErr.Error(),
+			"data":   nil,
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"status": 0,
+		"msg":    "Successfully update vote",
 		"data":   &form,
 	})
 }

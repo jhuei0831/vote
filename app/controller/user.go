@@ -4,7 +4,6 @@ import (
 	"net/http"
 	"strconv"
 	"vote/app/database"
-	"vote/app/enum"
 	"vote/app/middleware"
 	"vote/app/service"
 	"vote/app/utils"
@@ -35,9 +34,9 @@ type UserLogin struct {
 // @version 1.0
 // @produce application/json
 // @param language header string true "language"
-// @param register body Register true "register"
+// @param register body UserRegister true "register"
 // @Success 200 string successful return value
-// @Router /v1/users [post]
+// @Router /v1/user/create [post]
 func (u UsersController) CreateUser (c *gin.Context) {
 	t := gi18n.New()
 	var form UserRegister
@@ -81,7 +80,7 @@ func (u UsersController) CreateUser (c *gin.Context) {
 // @Security BearerAuth
 // @param id path int true "id" default(1)
 // @Success 200 string successful return data
-// @Router /v1/users/{id} [get]
+// @Router /v1/user/{id} [get]
 func (u UsersController) GetUser (c *gin.Context) {
 	id := c.Params.ByName("id")
 
@@ -113,9 +112,9 @@ func (u UsersController) GetUser (c *gin.Context) {
 // @Tags user
 // @version 1.0
 // @produce application/json
-// @param register body Login true "login"
+// @param register body UserLogin true "login"
 // @Success 200 string successful return token
-// @Router /v1/users/login [post]
+// @Router /v1/user/login [post]
 func (u UsersController) AuthHandler(c *gin.Context) {
 	var form UserLogin
 	bindErr := c.BindJSON(&form)
@@ -144,8 +143,16 @@ func (u UsersController) AuthHandler(c *gin.Context) {
 		})
 		return
 	}
-	isAdmin, _ := database.Enforcer.HasRoleForUser(strconv.FormatUint(userOne.ID, 10), enum.Roles.Admin)
-	tokenString, _ := middleware.GenToken(userOne.ID, form.Account, isAdmin)
+	roles, err := database.Enforcer.GetRolesForUser(strconv.FormatUint(userOne.ID, 10))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"status": -1,
+			"msg":    "Failed to get roles: " + err.Error(),
+			"data":   nil,
+		})
+		return
+	}
+	tokenString, _ := middleware.GenToken(userOne.ID, form.Account, roles)
 	c.JSON(http.StatusOK, gin.H{
 		"code": 0,
 		"msg":  "Success",

@@ -1,5 +1,5 @@
 definitions:
-  controller.Login:
+  controller.UserLogin:
     properties:
       account:
         example: account
@@ -11,7 +11,7 @@ definitions:
     - account
     - password
     type: object
-  controller.Register:
+  controller.UserRegister:
     properties:
       account:
         example: account
@@ -50,7 +50,7 @@ paths:
         name: register
         required: true
         schema:
-          $ref: '#/definitions/controller.Register'
+          $ref: '#/definitions/controller.UserRegister'
       produces:
       - application/json
       responses:
@@ -88,7 +88,7 @@ paths:
         name: register
         required: true
         schema:
-          $ref: '#/definitions/controller.Login'
+          $ref: '#/definitions/controller.UserLogin'
       produces:
       - application/json
       responses:
@@ -98,6 +98,78 @@ paths:
             type: string
       tags:
       - user
+  /vote/{id}:
+    get:
+      consumes:
+      - application/json
+      description: 根據提供的 ID 檢查投票是否存在
+      parameters:
+      - description: 投票ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+      summary: 根據提供的 ID 檢查投票是否存在
+      tags:
+      - 投票
+  /vote/all:
+    get:
+      consumes:
+      - application/json
+      description: 檢索所有投票
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+      summary: 檢索所有投票
+      tags:
+      - 投票
+  /vote/create:
+    post:
+      consumes:
+      - application/json
+      description: 創建一個新的投票
+      parameters:
+      - description: 投票標題
+        in: query
+        name: title
+        required: true
+        type: string
+      - description: 投票描述
+        in: query
+        name: description
+        required: true
+        type: string
+      - description: 開始時間
+        in: query
+        name: startTime
+        required: true
+        type: string
+      - description: 結束時間
+        in: query
+        name: endTime
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+      summary: 創建一個新的投票
+      tags:
+      - 投票
 securityDefinitions:
   BearerAuth:
     in: header

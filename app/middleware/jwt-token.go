@@ -18,16 +18,16 @@ const TokenExpireDuration = time.Hour * 2
 type MyClaims struct {
 	ID	     uint64   `json:"id"`
 	Account  string   `json:"account"`
-	IsAdmin	 bool 	  `json:"isAdmin"`
+	Roles	 []string 	  `json:"roles"`
 	jwt.RegisteredClaims
 }
 
 // GenToken Create a new token
-func GenToken(Id uint64, account string, isAdmin bool) (string, error) {
+func GenToken(Id uint64, account string, roles []string) (string, error) {
 	c := MyClaims{
 		ID: Id,
 		Account: account,
-		IsAdmin: isAdmin,
+		Roles: roles,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(TokenExpireDuration)),
 			Issuer: os.Getenv("APP_NAME"),
@@ -91,7 +91,7 @@ func JWTAuthMiddleware() func(c *gin.Context) {
 		// Store Account info into Context
 		c.Set("id", mc.ID)
 		c.Set("account", mc.Account)
-		c.Set("isAdmin", mc.IsAdmin)
+		c.Set("roles", mc.Roles)
 		// After that, we can get Account info from c.Get("account")
 		c.Next()
 	}

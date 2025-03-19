@@ -41,7 +41,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/controller.Register"
+                            "$ref": "#/definitions/controller.UserRegister"
                         }
                     }
                 ],
@@ -70,7 +70,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/controller.Login"
+                            "$ref": "#/definitions/controller.UserLogin"
                         }
                     }
                 ],
@@ -116,10 +116,118 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/vote/all": {
+            "get": {
+                "description": "檢索所有投票",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "投票"
+                ],
+                "summary": "檢索所有投票",
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/vote/create": {
+            "post": {
+                "description": "創建一個新的投票",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "投票"
+                ],
+                "summary": "創建一個新的投票",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "投票標題",
+                        "name": "title",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "投票描述",
+                        "name": "description",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "開始時間",
+                        "name": "startTime",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "結束時間",
+                        "name": "endTime",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/vote/{id}": {
+            "get": {
+                "description": "根據提供的 ID 檢查投票是否存在",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "投票"
+                ],
+                "summary": "根據提供的 ID 檢查投票是否存在",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "投票ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
-        "controller.Login": {
+        "controller.UserLogin": {
             "type": "object",
             "required": [
                 "account",
@@ -136,7 +244,7 @@ const docTemplate = `{
                 }
             }
         },
-        "controller.Register": {
+        "controller.UserRegister": {
             "type": "object",
             "required": [
                 "account",

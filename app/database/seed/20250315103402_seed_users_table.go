@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"strconv"
+	"strings"
 
 	"github.com/pressly/goose/v3"
 
@@ -21,18 +22,25 @@ func upSeedUsersTable(ctx context.Context, tx *sql.Tx) error {
 	transaction := database.SqlSession.Begin()
 
 	var SHA256Hasher utils.SHA256Hasher
-	passwordHash, err := SHA256Hasher.HashPassword("admin")
+	passwordHash, err := SHA256Hasher.HashPassword("password")
 	if err != nil {
 		transaction.Rollback()
 		return err
 	}
 	// Create admin user
-	user := model.User{
-		Account:  "admin",
-		Password: passwordHash,
-		Email:    "admin@example.com",
+	users := []model.User{
+		{
+			Account:  "admin",
+			Password: passwordHash,
+			Email:    "admin@example.com",
+		},
+		{
+			Account:  "creator",
+			Password: passwordHash,
+			Email:    "creator@example.com",
+		},
 	}
-	err = transaction.Model(&model.User{}).Create(&user).Error
+	err = transaction.Model(&model.User{}).Create(&users).Error
 	if err != nil {
 		transaction.Rollback()
 		return err
@@ -43,12 +51,20 @@ func upSeedUsersTable(ctx context.Context, tx *sql.Tx) error {
 	if err != nil {
 		transaction.Rollback()
 	}
-	userId := strconv.FormatUint(user.ID, 10)
-	_, err = enforcer.AddRoleForUser(userId, "ADMIN")
-	enforcer.AddPolicy("ADMIN", "users", "read")
-	enforcer.AddPolicy("ADMIN", "users", "create")
-	enforcer.AddPolicy("ADMIN", "vote", "read")
-	enforcer.AddPolicy("ADMIN", "vote", "create")
+	for _, user := range users {
+		role := strings.ToUpper(user.Account)
+		userId := strconv.FormatUint(user.ID, 10)
+		_, err = enforcer.AddRoleForUser(userId, role)
+		enforcer.AddPolicy(role, "user", "create")
+		enforcer.AddPolicy(role, "user", "read")
+		enforcer.AddPolicy(role, "user", "update")
+		enforcer.AddPolicy(role, "user", "delete")
+		enforcer.AddPolicy(role, "vote", "create")
+		enforcer.AddPolicy(role, "vote", "read")
+		enforcer.AddPolicy(role, "vote", "update")
+		enforcer.AddPolicy(role, "vote", "delete")
+	}
+	
 	if err != nil {
 		transaction.Rollback()
 	}

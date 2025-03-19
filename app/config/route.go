@@ -32,8 +32,12 @@ func Routes(r *gin.Engine, m *persist.RedisStore) {
 	// User
 	posts := r.Group("/v1/user")
 	{
-		posts.POST("/", controller.NewUserController().CreateUser)
 		posts.POST("/login", controller.NewUserController().AuthHandler)
+		posts.POST("/create", 
+			middleware.JWTAuthMiddleware(),
+			middleware.RoleMiddleware("user", "create"),
+			controller.NewUserController().CreateUser,
+		)
 		posts.GET("/:id",
 			middleware.JWTAuthMiddleware(),
 			middleware.RoleMiddleware("user", "read"),
@@ -43,24 +47,23 @@ func Routes(r *gin.Engine, m *persist.RedisStore) {
 	}
 
 	// Vote
-	votes := r.Group("/v1/vote")
+	votes := r.Group("/v1/vote", middleware.JWTAuthMiddleware())
 	{
 		votes.POST("/create",
-			middleware.JWTAuthMiddleware(),
 			middleware.RoleMiddleware("vote", "create"),
 			controller.NewVoteController().CreateVote,
 		)
 		votes.GET("/:id",
-			middleware.JWTAuthMiddleware(),
 			middleware.RoleMiddleware("vote", "read"),
-			// cache.CacheByRequestURI(m, 2*time.Hour),
 			controller.NewVoteController().SelectOneVote,
 		)
 		votes.GET("/list",
-			middleware.JWTAuthMiddleware(),
 			middleware.RoleMiddleware("vote", "read"),
-			// cache.CacheByRequestURI(m, 2*time.Hour),
 			controller.NewVoteController().SelectAllVotes,
+		)
+		votes.PUT("/:id",
+			middleware.RoleMiddleware("vote", "update"),
+			controller.NewVoteController().UpdateVote,
 		)
 	}
 }

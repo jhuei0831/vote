@@ -16,7 +16,7 @@ type User struct {
 	Account      string    `gorm:"size:100;not null;unique" json:"account"`
 	Password     string    `gorm:"size:100;not null;" json:"password"`
 	Email        string    `gorm:"size:100;not null;unique" json:"email"`
-	CreatedAt    time.Time `gorm:"type:timestamp;default:CURRENT_TIMESTAMP" json:"created_at"`
-	UpdatedAt    time.Time `gorm:"type:timestamp;default:CURRENT_TIMESTAMP" json:"updated_at"`
+	CreatedAt    time.Time `gorm:"type:datetime;default:CURRENT_TIMESTAMP" json:"created_at"`
+	UpdatedAt    time.Time `gorm:"type:datetime;default:CURRENT_TIMESTAMP" json:"updated_at"`
 	Votes        []Vote    `gorm:"foreignKey:UserID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 }

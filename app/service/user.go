@@ -82,18 +82,15 @@ func (u UserService) CheckOneUser(account string) bool {
 //   - error: 如果登錄失敗，返回錯誤信息
 func (u UserService) LoginOneUser(account string, password string) (*model.User, error) {
 	var user model.User
-	// Hash password
 	var SHA256Hasher utils.SHA256Hasher
-	passwordHash, err := SHA256Hasher.HashPassword(password)
-	if err != nil {
-		return nil, err
-	}
+
+	// Get user info
+	dbResult := database.SqlSession.Where("account = ?", account).First(&user)
+
 	// Check password
-	if !SHA256Hasher.ComparePassword(password, passwordHash) {
+	if !SHA256Hasher.ComparePassword(password, user.Password) {
 		return nil, fmt.Errorf("password error")
 	}
-
-	dbResult := database.SqlSession.Where("account = ?", account).First(&user)
 
 	if dbResult.Error != nil {
 		return nil, dbResult.Error
