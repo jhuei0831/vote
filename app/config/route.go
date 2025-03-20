@@ -65,5 +65,9 @@ func Routes(r *gin.Engine, m *persist.RedisStore) {
 			middleware.RoleMiddleware("vote", "update"),
 			controller.NewVoteController().UpdateVote,
 		)
+		votes.DELETE("/",
+			middleware.RoleMiddleware("vote", "delete"),
+			controller.NewVoteController().DeleteVote,
+		)
 	}
 }

@@ -1,35 +1,41 @@
 services:
-  mysql:
-    container_name: mysql8.0
-    image: mysql:8.0
+  postgresql:
+    container_name: postgresql
+    image: postgres:17
     platform: ${DOCKER_BUILD_PLATFORM}
-    restart: always
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-q", "-d", "vote", "-U", "vote" ]
+      timeout: 45s
+      interval: 10s
+      retries: 10
     ports:
-      - 3306:3306
+      - "5432:5432"
     environment:
-      MYSQL_ROOT_PASSWORD: ${DOCKER_MYSQL_ROOT_PASSWORD}
-      MYSQL_DATABASE: ${DOCKER_MYSQL_DATABASE}
-      MYSQL_USER: ${DOCKER_MYSQL_USER}
-      MYSQL_PASSWORD: ${DOCKER_MYSQL_PASSWORD}
+      - POSTGRES_DB=${DOCKER_POSTGRES_DB}
+      - POSTGRES_USER=${DOCKER_POSTGRES_USER}
+      - POSTGRES_PASSWORD=${DOCKER_POSTGRES_PASSWORD}
+    volumes:
+      - ./docker/db:/docker-entrypoint-initdb.d/
     networks:
       vote_net:
         ipv4_address: 172.20.0.9
+    restart: always
 
-  phpmyadmin:
-    container_name: phpmyadmin
-    image: phpmyadmin
+  pgadmin:
+    container_name: pgadmin4
+    image: dpage/pgadmin4
     platform: ${DOCKER_BUILD_PLATFORM}
     restart: always
     ports:
-      - '9444:80'
+      - "9444:80"
     environment:
-      PMA_HOST: mysql
-      MYSQL_ROOT_PASSWORD: ${DOCKER_MYSQL_ROOT_PASSWORD}
+      PGADMIN_DEFAULT_EMAIL: ${DOCKER_PGADMIN_DEFAULT_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${DOCKER_PGADMIN_DEFAULT_PASSWORD}
     networks:
       vote_net:
         ipv4_address: 172.20.0.10
-    depends_on:
-      - mysql
+    volumes:
+      - ./docker/pgadmin-data:/var/lib/pgadmin
 
   redis:
     container_name: redis
@@ -56,7 +62,7 @@ services:
       vote_net:
         ipv4_address: 172.20.0.80
     depends_on:
-      - mysql
+      - postgresql
       - redis
 
   drone:

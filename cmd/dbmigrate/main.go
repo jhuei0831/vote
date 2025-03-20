@@ -97,7 +97,7 @@ func main() {
 	}
 
     // 設定 goose 的資料庫方言
-    if err := goose.SetDialect("mysql"); err != nil {
+    if err := goose.SetDialect("postgres"); err != nil {
         panic(err)
     }
 

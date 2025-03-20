@@ -1,6 +1,8 @@
 package controller
 
 import (
+	"encoding/json"
+	"io"
 	"net/http"
 	"strconv"
 	"vote/app/database"
@@ -10,6 +12,7 @@ import (
 	"vote/app/utils"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 type VoteController struct {
@@ -31,13 +34,14 @@ func NewVoteController() VoteController {
 // @Router /vote/{id} [get]
 func (v VoteController) SelectOneVote (c *gin.Context) {
 	id := c.Params.ByName("id")
-	voteId, err := strconv.ParseInt(id, 10, 64)
+	voteId, err := uuid.Parse(id)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"status": -1,
-			"msg": "Failed to parse params" + err.Error(),
-			"data": nil,
+			"msg":    "Invalid UUID format: " + err.Error(),
+			"data":   nil,
 		})
+		return
 	}
 
 	voteOne, err := service.NewVoteService().SelectOneVote(voteId)
@@ -127,7 +131,7 @@ func (v VoteController) CreateVote (c *gin.Context) {
 	// 把創建者的ID從Header的JWT中取出來
 	userId, _ := c.Get("id")
 	form.UserID = userId.(uint64)
-	insertErr := service.NewVoteService().CreateOneVote(form)
+	insertErr := service.NewVoteService().CreateVote(form)
 	if insertErr != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"status": -1,
@@ -157,18 +161,17 @@ func (v VoteController) CreateVote (c *gin.Context) {
 // @Param endTime query string true "結束時間"
 // @Success 200 {string} string "ok"
 // @Router /vote/update/{id} [put]
-// TODO: 除了ADMIN，只有投票的創建者才能更新投票
 func (v VoteController) UpdateVote (c *gin.Context) {
 	id := c.Params.ByName("id")
-	voteId, err := strconv.ParseUint(id, 10, 64)
+	voteId, err := uuid.Parse(id)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"status": -1,
-			"msg": "Failed to parse params" + err.Error(),
-			"data": nil,
+			"msg":    "Invalid UUID format: " + err.Error(),
+			"data":   nil,
 		})
+		return
 	}
-
 	var form model.VoteUpdate
 	bindErr := c.BindJSON(&form)
 	if bindErr != nil {
@@ -178,8 +181,36 @@ func (v VoteController) UpdateVote (c *gin.Context) {
 		})
 		return
 	}
+	userId := c.MustGet("id").(uint64)
+	// 檢查投票是否存在
+	voteOne, err := service.NewVoteService().SelectOneVote(voteId)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"status": -1,
+			"msg": "Vote not found " + err.Error(),
+			"data": nil,
+		})
+	}
+	// 檢查用戶是否是管理員
+	isAdmin, err := database.Enforcer.HasRoleForUser(strconv.FormatUint(userId, 10), enum.Roles.Admin)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"status": -1,
+			"msg": "Failed to check user role" + err.Error(),
+			"data": nil,
+		})
+	}
+	if !isAdmin && voteOne.UserID != userId {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"status": -1,
+			"msg":    "Permission denied",
+			"data":   nil,
+		})
+		return
+	}
 
-	updateErr := service.NewVoteService().UpdateOneVote(voteId, form)
+	// 檢查用戶是否是管理員
+	vote, updateErr := service.NewVoteService().UpdateVote(voteId, form)
 	if updateErr != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"status": -1,
@@ -192,6 +223,81 @@ func (v VoteController) UpdateVote (c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"status": 0,
 		"msg":    "Successfully update vote",
-		"data":   &form,
+		"data":   &vote,
+	})
+}
+
+// DeleteVote @Summary
+// @tags 投票
+// @Summary 刪除投票
+// @Description 刪除投票
+// @Accept json
+// @Produce json
+// @Param id path int true "投票ID"
+// @Success 200 {string} string "ok"
+// @Router /vote/delete/{id} [delete]
+func (v VoteController) DeleteVote (c *gin.Context) {
+	jsonData, _ := io.ReadAll(c.Request.Body)
+	// json to Array
+	var ids []string
+	err := json.Unmarshal(jsonData, &ids)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status": -1,
+			"msg":    "Invalid JSON format: " + err.Error(),
+			"data":   nil,
+		})
+		return
+	}
+	if len(ids) == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status": -1,
+			"msg":    "No vote IDs provided",
+			"data":   nil,
+		})
+		return
+	}
+
+	userId := c.MustGet("id").(uint64)
+	var voteIds []uuid.UUID
+	for _, id := range ids {
+		voteId, err := uuid.Parse(id)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"status": -1,
+				"msg":    "Invalid UUID format: " + err.Error(),
+				"data":   nil,
+			})
+			return
+		}
+		voteIds = append(voteIds, voteId)
+	}
+
+	// 檢查用戶是否是管理員
+	isAdmin, err := database.Enforcer.HasRoleForUser(strconv.FormatUint(userId, 10), enum.Roles.Admin)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"status": -1,
+			"msg":    "Failed to check user role: " + err.Error(),
+			"data":   nil,
+		})
+		return
+	}
+
+	// 刪除投票
+	deletedVotes, deleteErr := service.NewVoteService().DeleteVote(voteIds, isAdmin, userId)
+	if deleteErr != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status": -1,
+			"msg":    "Failed to delete votes: " + deleteErr.Error(),
+			"data":   nil,
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"status": 0,
+		"msg":    "Successfully deleted votes",
+		"data":   deletedVotes,
 	})
 }
