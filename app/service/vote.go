@@ -42,7 +42,7 @@ func (v VoteService) SelectAllVotes(isAdmin bool, userId uint64) ([]model.Vote, 
 	return votes, err
 }
 
-// CreateOneVote 創建一個新的投票。
+// CreateOneVote 創建新的投票。
 func (v VoteService) CreateVote(form model.VoteCreate) error {
 	vote := model.Vote{
 		Title:       form.Title,
@@ -56,7 +56,7 @@ func (v VoteService) CreateVote(form model.VoteCreate) error {
 	return insertErr
 }
 
-// UpdateOneVote 更新一個投票。
+// UpdateOneVote 更新投票。
 func (v VoteService) UpdateVote(id uuid.UUID, form model.VoteUpdate) (model.Vote, error) {
 	var vote model.Vote
 	// 更新投票
@@ -68,26 +68,17 @@ func (v VoteService) UpdateVote(id uuid.UUID, form model.VoteUpdate) (model.Vote
 	return vote, update.Error
 }
 
-// DeleteOneVote 刪除一個投票。
+// DeleteOneVote 刪除投票。
 func (v VoteService) DeleteVote(voteIds []uuid.UUID, isAdmin bool, userId uint64) ([]model.Vote, error) {
 	var votes []model.Vote
-	var err error
-	if isAdmin {
-		err = database.SqlSession.
-			Clauses(clause.Returning{}).
-			Where("id IN (?)", voteIds).
-			Delete(&votes).
-			Error
+	query := database.SqlSession.
+		Clauses(clause.Returning{}).
+		Where("id IN (?)", voteIds)
 
-		return votes, err
+	if !isAdmin {
+		query = query.Where("user_id = ?", userId)
 	}
 
-	err = database.SqlSession.
-		Clauses(clause.Returning{}).
-		Where("id IN (?)", voteIds).
-		Where("user_id = ?", userId).
-		Delete(&votes).
-		Error
-
+	err := query.Delete(&votes).Error
 	return votes, err
 }

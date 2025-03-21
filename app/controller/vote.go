@@ -4,9 +4,7 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
-	"strconv"
 	"vote/app/database"
-	"vote/app/enum"
 	"vote/app/model"
 	"vote/app/service"
 	"vote/app/utils"
@@ -32,7 +30,7 @@ func NewVoteController() VoteController {
 // @Param id path int true "投票ID"
 // @Success 200 {string} string "ok"
 // @Router /vote/{id} [get]
-func (v VoteController) SelectOneVote (c *gin.Context) {
+func (v VoteController) SelectOneVote(c *gin.Context) {
 	id := c.Params.ByName("id")
 	voteId, err := uuid.Parse(id)
 	if err != nil {
@@ -49,14 +47,14 @@ func (v VoteController) SelectOneVote (c *gin.Context) {
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{
 			"status": -1,
-			"msg": "Vote not found " + err.Error(),
-			"data": nil,
+			"msg":    "Vote not found " + err.Error(),
+			"data":   nil,
 		})
 	} else {
 		c.JSON(http.StatusOK, gin.H{
 			"status": 0,
-			"msg":  "Successfully get vote data",
-			"vote": &voteOne,
+			"msg":    "Successfully get vote data",
+			"vote":   &voteOne,
 		})
 	}
 }
@@ -70,7 +68,7 @@ func (v VoteController) SelectOneVote (c *gin.Context) {
 // @Produce json
 // @Success 200 {string} string "ok"
 // @Router /vote/all [get]
-func (v VoteController) SelectAllVotes (c *gin.Context) {
+func (v VoteController) SelectAllVotes(c *gin.Context) {
 	userId, exists := c.Get("id")
 	if !exists {
 		c.JSON(http.StatusUnauthorized, gin.H{
@@ -80,28 +78,29 @@ func (v VoteController) SelectAllVotes (c *gin.Context) {
 		})
 		return
 	}
-	// 檢查用戶是否是管理員
-	isAdmin, err := database.Enforcer.HasRoleForUser(strconv.FormatUint(userId.(uint64), 10), enum.Roles.Admin)
+
+	isAdmin, err := database.CheckIfAdmin(userId.(uint64))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"status": -1,
-			"msg": "Failed to check user role" + err.Error(),
-			"data": nil,
+			"msg":    "Failed to check user role: " + err.Error(),
+			"data":   nil,
 		})
+		return
 	}
-	// 根據用戶ID及權限檢索所有投票
+
 	votes, err := service.NewVoteService().SelectAllVotes(isAdmin, userId.(uint64))
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{
 			"status": -1,
-			"msg": "Vote not found " + err.Error(),
-			"data": nil,
+			"msg":    "Vote not found: " + err.Error(),
+			"data":   nil,
 		})
 	} else {
 		c.JSON(http.StatusOK, gin.H{
 			"status": 0,
-			"msg":  "Successfully get vote data",
-			"vote": &votes,
+			"msg":    "Successfully get vote data",
+			"vote":   &votes,
 		})
 	}
 }
@@ -118,7 +117,7 @@ func (v VoteController) SelectAllVotes (c *gin.Context) {
 // @Param endTime query string true "結束時間"
 // @Success 200 {string} string "ok"
 // @Router /vote/create [post]
-func (v VoteController) CreateVote (c *gin.Context) {
+func (v VoteController) CreateVote(c *gin.Context) {
 	var form model.VoteCreate
 	bindErr := c.BindJSON(&form)
 	if bindErr != nil {
@@ -161,7 +160,7 @@ func (v VoteController) CreateVote (c *gin.Context) {
 // @Param endTime query string true "結束時間"
 // @Success 200 {string} string "ok"
 // @Router /vote/update/{id} [put]
-func (v VoteController) UpdateVote (c *gin.Context) {
+func (v VoteController) UpdateVote(c *gin.Context) {
 	id := c.Params.ByName("id")
 	voteId, err := uuid.Parse(id)
 	if err != nil {
@@ -187,19 +186,22 @@ func (v VoteController) UpdateVote (c *gin.Context) {
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{
 			"status": -1,
-			"msg": "Vote not found " + err.Error(),
-			"data": nil,
+			"msg":    "Vote not found " + err.Error(),
+			"data":   nil,
 		})
+		return
 	}
-	// 檢查用戶是否是管理員
-	isAdmin, err := database.Enforcer.HasRoleForUser(strconv.FormatUint(userId, 10), enum.Roles.Admin)
+
+	isAdmin, err := database.CheckIfAdmin(userId)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"status": -1,
-			"msg": "Failed to check user role" + err.Error(),
-			"data": nil,
+			"msg":    "Failed to check user role: " + err.Error(),
+			"data":   nil,
 		})
+		return
 	}
+
 	if !isAdmin && voteOne.UserID != userId {
 		c.JSON(http.StatusUnauthorized, gin.H{
 			"status": -1,
@@ -236,7 +238,7 @@ func (v VoteController) UpdateVote (c *gin.Context) {
 // @Param id path int true "投票ID"
 // @Success 200 {string} string "ok"
 // @Router /vote/delete/{id} [delete]
-func (v VoteController) DeleteVote (c *gin.Context) {
+func (v VoteController) DeleteVote(c *gin.Context) {
 	jsonData, _ := io.ReadAll(c.Request.Body)
 	// json to Array
 	var ids []string
@@ -273,8 +275,7 @@ func (v VoteController) DeleteVote (c *gin.Context) {
 		voteIds = append(voteIds, voteId)
 	}
 
-	// 檢查用戶是否是管理員
-	isAdmin, err := database.Enforcer.HasRoleForUser(strconv.FormatUint(userId, 10), enum.Roles.Admin)
+	isAdmin, err := database.CheckIfAdmin(userId)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"status": -1,

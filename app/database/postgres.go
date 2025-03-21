@@ -1,7 +1,9 @@
 package database
 
 import (
+	"strconv"
 	"time"
+	"vote/app/enum"
 	"vote/app/utils"
 
 	"gorm.io/driver/postgres"
@@ -50,7 +52,12 @@ func Rbac() (*gormadapter.Adapter, *casbin.Enforcer, error) {
 		return nil, nil, err
 	}
 
-	Enforcer.EnableLog(true)
+	// Enforcer.EnableLog(true)
 	
 	return Adapter, Enforcer, err
+}
+
+// checkIfAdmin 檢查使用者是否為管理員
+func CheckIfAdmin(userId uint64) (bool, error) {
+	return Enforcer.HasRoleForUser(strconv.FormatUint(userId, 10), enum.Roles.Admin)
 }

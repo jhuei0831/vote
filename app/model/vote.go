@@ -10,14 +10,15 @@ func (Vote) TableName() string {
 }
 
 type Vote struct {
-	ID    		uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4();comment:ID" json:"id"`
-	Title       string 	  `gorm:"size:100;not null;" json:"title"`
-	Description string 	  `gorm:"size:255;not null;" json:"description"`
-	StartTime   string 	  `gorm:"not null;" json:"start_time"`
-	EndTime     string 	  `gorm:"not null;" json:"end_time"`
-	UserID      uint64 	  `gorm:"index;not null;" json:"user_id"`
-	CreatedAt   time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"created_at"`
-	UpdatedAt   time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"updated_at"`
+	ID    		uuid.UUID  `gorm:"type:uuid;default:uuid_generate_v4();comment:ID" json:"id"`
+	Title       string 	   `gorm:"size:100;not null;" json:"title"`
+	Description string 	   `gorm:"size:255;not null;" json:"description"`
+	StartTime   string 	   `gorm:"not null;" json:"start_time"`
+	EndTime     string 	   `gorm:"not null;" json:"end_time"`
+	UserID      uint64 	   `gorm:"index;not null;" json:"user_id"`
+	CreatedAt   time.Time  `gorm:"default:CURRENT_TIMESTAMP" json:"created_at"`
+	UpdatedAt   time.Time  `gorm:"default:CURRENT_TIMESTAMP" json:"updated_at"`
+	Questions   []Question `gorm:"foreignKey:VoteID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 }
 
 type VoteCreate struct {

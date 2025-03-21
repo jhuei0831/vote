@@ -29,6 +29,11 @@ func Routes(r *gin.Engine, m *persist.RedisStore) {
 	})
 	// Swagger
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	// RBAC
+	r.GET("/rbac/init", 
+		middleware.JWTAuthMiddleware(),
+		controller.NewRbacController().Initial,
+	)
 	// User
 	posts := r.Group("/v1/user")
 	{
@@ -69,5 +74,30 @@ func Routes(r *gin.Engine, m *persist.RedisStore) {
 			middleware.RoleMiddleware("vote", "delete"),
 			controller.NewVoteController().DeleteVote,
 		)
+	}
+
+	// Question
+	questions := r.Group("/v1/question", middleware.JWTAuthMiddleware())
+	{
+		questions.POST("/create",
+			middleware.RoleMiddleware("question", "create"),
+			controller.NewQuestionController().CreateQuestion,
+		)
+		questions.GET("/:vote_id/:id",
+			middleware.RoleMiddleware("question", "read"),
+			controller.NewQuestionController().SelectOneQuestion,
+		)
+		questions.GET("/:vote_id",
+			middleware.RoleMiddleware("question", "read"),
+			controller.NewQuestionController().SelectAllQuestions,
+		)
+		// questions.PUT("/:id",
+		// 	middleware.RoleMiddleware("question", "update"),
+		// 	controller.NewQuestionController().UpdateQuestion,
+		// )
+		// questions.DELETE("/",
+		// 	middleware.RoleMiddleware("question", "delete"),
+		// 	controller.NewQuestionController().DeleteQuestion,
+		// )
 	}
 }
