@@ -12,11 +12,12 @@ func (Question) TableName() string {
 
 type Question struct {
 	ID          uint64 		`gorm:"primary_key;auto_increment" json:"id"`
-	VoteID      uuid.UUID   `gorm:"index;not null;" json:"vote_id"`
+	VoteID      uuid.UUID   `gorm:"index;type:uuid;not null;" json:"vote_id"`
 	Title       string 		`gorm:"size:100;not null;" json:"title"`
 	Description string 		`gorm:"size:255;not null;" json:"description"`
 	CreatedAt   time.Time   `gorm:"default:CURRENT_TIMESTAMP" json:"created_at"`
 	UpdatedAt   time.Time   `gorm:"default:CURRENT_TIMESTAMP" json:"updated_at"`
+	Candidates  []Candidate `gorm:"foreignKey:QuestionID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"candidates,omitempty"`
 }
 
 type QuestionCreate struct {

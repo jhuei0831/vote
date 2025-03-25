@@ -15,20 +15,7 @@ func init() {
 
 func upCreateVotesTable00003(ctx context.Context, tx *sql.Tx) error {
 	// This code is executed when the migration is applied.
-	err := database.SqlSession.Migrator().CreateTable(&model.Vote{})
-	if err != nil {
-		return err
-	}
-
-	_, err = tx.ExecContext(ctx, `
-		CREATE OR REPLACE TRIGGER update_votes_updated_at
-		BEFORE UPDATE
-		ON votes
-		FOR EACH ROW
-		EXECUTE FUNCTION update_updated_at_column();
-	`)
-
-	return err
+	return database.SqlSession.Migrator().CreateTable(&model.Vote{})
 }
 
 func downCreateVotesTable00003(ctx context.Context, tx *sql.Tx) error {

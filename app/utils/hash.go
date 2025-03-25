@@ -13,7 +13,6 @@ type Hasher interface {
 // SHA256Hasher 是一個實現了 Hasher 接口的結構體，使用 SHA-256 進行雜湊。
 type SHA256Hasher struct{}
 
-
 // HashPassword 使用 bcrypt 演算法將密碼進行雜湊處理。
 // 傳入的密碼會被轉換為 byte slice，並使用成本參數 14 進行雜湊。
 // 返回雜湊後的密碼字串和可能發生的錯誤。

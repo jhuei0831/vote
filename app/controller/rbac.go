@@ -63,14 +63,31 @@ func (r RbacController) Initial(c *gin.Context) {
 	}
 	// Creator role
 	creator := enum.Roles.Creator
+	// vote
 	enforcer.AddPolicy(creator, "vote", "create")
 	enforcer.AddPolicy(creator, "vote", "read")
 	enforcer.AddPolicy(creator, "vote", "update")
 	enforcer.AddPolicy(creator, "vote", "delete")
+	// question
 	enforcer.AddPolicy(creator, "question", "create")
 	enforcer.AddPolicy(creator, "question", "read")
 	enforcer.AddPolicy(creator, "question", "update")
 	enforcer.AddPolicy(creator, "question", "delete")
+	// candidate
+	enforcer.AddPolicy(creator, "candidate", "create")
+	enforcer.AddPolicy(creator, "candidate", "read")
+	enforcer.AddPolicy(creator, "candidate", "update")
+	enforcer.AddPolicy(creator, "candidate", "delete")
+	// password
+	enforcer.AddPolicy(creator, "password", "create")
+	enforcer.AddPolicy(creator, "password", "read")
+	enforcer.AddPolicy(creator, "password", "update")
+	enforcer.AddPolicy(creator, "password", "delete")
+	// ballot
+	enforcer.AddPolicy(creator, "ballot", "create")
+	enforcer.AddPolicy(creator, "ballot", "read")
+	enforcer.AddPolicy(creator, "ballot", "update")
+	enforcer.AddPolicy(creator, "ballot", "delete")
 	
 	// Admin role
 	admin := enum.Roles.Admin

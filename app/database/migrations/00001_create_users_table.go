@@ -16,34 +16,7 @@ func init() {
 
 func upCreateUsersTable00001(ctx context.Context, tx *sql.Tx) error {
 	// This code is executed when the migration is applied.
-	_, err := tx.ExecContext(ctx, `
-		CREATE OR REPLACE FUNCTION update_updated_at_column()
-		RETURNS TRIGGER AS $$
-		BEGIN
-			NEW.updated_at = NOW();
-			RETURN NEW;
-		END;
-		$$ LANGUAGE plpgsql;
-	`)
-
-	if err != nil {
-		return err
-	}
-
-	err = database.SqlSession.Migrator().CreateTable(&model.User{})
-
-	if err != nil {
-		return err
-	}
-	_, err = tx.ExecContext(ctx, `
-		CREATE OR REPLACE TRIGGER update_users_updated_at
-		BEFORE UPDATE
-		ON users
-		FOR EACH ROW
-		EXECUTE FUNCTION update_updated_at_column();
-	`)
-
-	return err
+	return database.SqlSession.Migrator().CreateTable(&model.User{})
 }
 
 func downCreateUsersTable00001(ctx context.Context, tx *sql.Tx) error {

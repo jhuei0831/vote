@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"vote/app/database"
 	"vote/app/middleware"
+	"vote/app/model"
 	"vote/app/service"
 	"vote/app/utils"
 
@@ -18,28 +19,17 @@ func NewUserController() UsersController {
 	return UsersController{}
 }
 
-type UserRegister struct {
-	Account string `json:"account" binding:"required" example:"account"`
-	Password string `json:"password" binding:"required" example:"password"`
-	Email string `json:"email" binding:"required" example:"test123@gmail.com"`
-}
-
-type UserLogin struct {
-	Account string `json:"account" binding:"required" example:"account"`
-	Password string `json:"password" binding:"required" example:"password"`
-}
-
 // CreateUser @Summary
 // @Tags user
 // @version 1.0
 // @produce application/json
 // @param language header string true "language"
-// @param register body UserRegister true "register"
+// @param register body UserCreate true "register"
 // @Success 200 string successful return value
 // @Router /v1/user/create [post]
 func (u UsersController) CreateUser (c *gin.Context) {
 	t := gi18n.New()
-	var form UserRegister
+	var form model.UserCreate
 	bindErr := c.BindJSON(&form)
 
 	lan := c.Request.Header.Get("language")
@@ -116,7 +106,7 @@ func (u UsersController) GetUser (c *gin.Context) {
 // @Success 200 string successful return token
 // @Router /v1/user/login [post]
 func (u UsersController) AuthHandler(c *gin.Context) {
-	var form UserLogin
+	var form model.UserLogin
 	bindErr := c.BindJSON(&form)
 	if bindErr != nil {
 		c.JSON(http.StatusOK, gin.H{

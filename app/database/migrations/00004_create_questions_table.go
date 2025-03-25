@@ -14,20 +14,7 @@ func init() {
 }
 
 func upCreateQuestionsTable00004(ctx context.Context, tx *sql.Tx) error {
-	err := database.SqlSession.Migrator().CreateTable(&model.Question{})
-	if err != nil {
-		return err
-	}
-
-	_, err = tx.ExecContext(ctx, `
-		CREATE OR REPLACE TRIGGER update_questions_updated_at
-		BEFORE UPDATE
-		ON questions
-		FOR EACH ROW
-		EXECUTE FUNCTION update_updated_at_column();
-	`)
-
-	return err
+	return database.SqlSession.Migrator().CreateTable(&model.Question{})
 }
 
 func downCreateQuestionsTable00004(ctx context.Context, tx *sql.Tx) error {

@@ -34,6 +34,8 @@ func Routes(r *gin.Engine, m *persist.RedisStore) {
 		middleware.JWTAuthMiddleware(),
 		controller.NewRbacController().Initial,
 	)
+	// Anon
+	r.POST("/v1/anon/login", controller.NewAnonController().AnonLogin)
 	// User
 	posts := r.Group("/v1/user")
 	{
@@ -83,11 +85,11 @@ func Routes(r *gin.Engine, m *persist.RedisStore) {
 			middleware.RoleMiddleware("question", "create"),
 			controller.NewQuestionController().CreateQuestion,
 		)
-		questions.GET("/:vote_id/:id",
+		questions.GET("/:id",
 			middleware.RoleMiddleware("question", "read"),
 			controller.NewQuestionController().SelectOneQuestion,
 		)
-		questions.GET("/:vote_id",
+		questions.GET("list/:vote_id",
 			middleware.RoleMiddleware("question", "read"),
 			controller.NewQuestionController().SelectAllQuestions,
 		)
@@ -99,5 +101,43 @@ func Routes(r *gin.Engine, m *persist.RedisStore) {
 		// 	middleware.RoleMiddleware("question", "delete"),
 		// 	controller.NewQuestionController().DeleteQuestion,
 		// )
+	}
+
+	// Candidate
+	candidates := r.Group("/v1/candidate", middleware.JWTAuthMiddleware())
+	{
+		candidates.POST("/create",
+			middleware.RoleMiddleware("candidate", "create"),
+			controller.NewCandidateController().CreateCandidate,
+		)
+		candidates.GET("/:id",
+			middleware.RoleMiddleware("candidate", "read"),
+			controller.NewCandidateController().SelectOneCandidate,
+		)
+		candidates.GET("/list/:question_id",
+			middleware.RoleMiddleware("candidate", "read"),
+			controller.NewCandidateController().SelectAllCandidates,
+		)
+		// candidates.PUT("/:id",
+		// 	middleware.RoleMiddleware("candidate", "update"),
+		// 	controller.NewCandidateController().UpdateCandidate,
+		// )
+		// candidates.DELETE("/",
+		// 	middleware.RoleMiddleware("candidate", "delete"),
+		// 	controller.NewCandidateController().DeleteCandidate,
+		// )
+	}
+
+	// Password
+	passwords := r.Group("/v1/password", middleware.JWTAuthMiddleware())
+	{
+		passwords.POST("/create",
+			middleware.RoleMiddleware("password", "create"),
+			controller.NewPasswordController().CreatePassword,
+		)
+		passwords.POST("/decrypt",
+			middleware.RoleMiddleware("password", "read"),
+			controller.NewPasswordController().DecryptPassword,
+		)
 	}
 }

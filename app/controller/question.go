@@ -26,20 +26,11 @@ func NewQuestionController() QuestionController {
 // @Accept json
 // @Produce json
 // @Param id path int true "問題ID"
+// @Param candidates query bool false "是否檢索候選人"
 // @Success 200 {string} string "ok"
 // @Router /question/{id} [get]
 func (q QuestionController) SelectOneQuestion(c *gin.Context) {
-	id := c.Params.ByName("id")
-	voteId := c.Params.ByName("vote_id")
-	voteUuid, err := uuid.Parse(voteId)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"status": -1,
-			"msg":    "Invalid vote ID",
-			"data":   nil,
-		})
-		return
-	}
+	id := c.Param("id")
 	questionID, err := strconv.ParseUint(id, 10, 64)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -50,18 +41,37 @@ func (q QuestionController) SelectOneQuestion(c *gin.Context) {
 		return
 	}
 
-	questionOne, err := service.NewQuestionService().SelectOneQuestion(voteUuid, questionID)
+	userId := c.MustGet("id").(uint64)
+	isAdmin, err := database.CheckIfAdmin(userId)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"status": -1,
+			"msg":    "Failed to check user role: " + err.Error(),
+			"data":   nil,
+		})
+		return
+	}
+
+	// 檢索問題及其候選人。
+	var questionOne *model.Question
+	candidates := c.Query("candidates")
+	questionService := service.NewQuestionService()
+	if candidates == "true" {
+		questionOne, err = questionService.SelectQuestionWithCandidates(questionID, isAdmin, userId)
+	} else {
+		questionOne, err = questionService.SelectOneQuestion(questionID, isAdmin, userId)
+	}
 
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{
 			"status": -1,
-			"msg":    "Question not found " + err.Error(),
+			"msg":    "Question not found: " + err.Error(),
 			"data":   nil,
 		})
 	} else {
 		c.JSON(http.StatusOK, gin.H{
 			"status": 0,
-			"msg":    "Successfully get question data",
+			"msg":    "Successfully retrieved question data",
 			"question":   &questionOne,
 		})
 	}
@@ -78,7 +88,7 @@ func (q QuestionController) SelectOneQuestion(c *gin.Context) {
 // @Success 200 {string} string "ok"
 // @Router /question [get]
 func (q QuestionController) SelectAllQuestions(c *gin.Context) {
-	voteId := c.Params.ByName("vote_id")
+	voteId := c.Param("vote_id")
 	voteUuid, err := uuid.Parse(voteId)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -104,13 +114,13 @@ func (q QuestionController) SelectAllQuestions(c *gin.Context) {
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{
 			"status": -1,
-			"msg":    "Questions not found " + err.Error(),
+			"msg":    "Questions not found: " + err.Error(),
 			"data":   nil,
 		})
 	} else {
 		c.JSON(http.StatusOK, gin.H{
 			"status": 0,
-			"msg":    "Successfully get questions data",
+			"msg":    "Successfully retrieved questions data",
 			"questions":   &questions,
 		})
 	}
@@ -184,4 +194,34 @@ func (q QuestionController) CreateQuestion(c *gin.Context) {
 			"data":   &question,
 		})
 	}
+}
+
+// TODO: UpdateQuestion
+// UpdateQuestion @Summary
+// @tags 問題
+// @Summary 更新問題
+// @Description 更新問題
+// @Accept json
+// @Produce json
+// @Param vote_id query int true "投票ID"
+// @Param title query string true "問題標題"
+// @Param description query string true "問題描述"
+// @Success 200 {string} string "ok"
+// @Router /question [put]
+func (q QuestionController) UpdateQuestion(c *gin.Context) {
+}
+
+// TODO: DeleteQuestion
+// DeleteQuestion @Summary
+// @tags 問題
+// @Summary 刪除問題
+// @Description 刪除問題
+// @Accept json
+// @Produce json
+// @Param vote_id query int true "投票ID"
+// @Param title query string true "問題標題"
+// @Param description query string true "問題描述"
+// @Success 200 {string} string "ok"
+// @Router /question [delete]
+func (q QuestionController) DeleteQuestion(c *gin.Context) {
 }

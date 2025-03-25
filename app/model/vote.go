@@ -16,9 +16,11 @@ type Vote struct {
 	StartTime   string 	   `gorm:"not null;" json:"start_time"`
 	EndTime     string 	   `gorm:"not null;" json:"end_time"`
 	UserID      uint64 	   `gorm:"index;not null;" json:"user_id"`
+	Status		int	   	   `gorm:"default:0;not null;" json:"status"`
 	CreatedAt   time.Time  `gorm:"default:CURRENT_TIMESTAMP" json:"created_at"`
 	UpdatedAt   time.Time  `gorm:"default:CURRENT_TIMESTAMP" json:"updated_at"`
-	Questions   []Question `gorm:"foreignKey:VoteID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	Questions   []Question `gorm:"foreignKey:VoteID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"questions,omitempty"`
+	Passwords   []Password `gorm:"foreignKey:VoteID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"passwords,omitempty"`
 }
 
 type VoteCreate struct {
@@ -35,4 +37,5 @@ type VoteUpdate struct {
 	UserID      uint64 `json:"user_id" example:"1"`
 	StartTime   string `json:"startTime" example:"2006-01-02 15:04:05"`
 	EndTime     string `json:"endTime" example:"2006-01-02 15:04:05"`
+	UpdatedAt   time.Time `json:"updated_at"`
 }
