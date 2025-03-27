@@ -98,14 +98,14 @@ func (u UsersController) GetUser (c *gin.Context) {
 	}
 }
 
-// AuthHandler @Summary
+// Login @Summary
 // @Tags user
 // @version 1.0
 // @produce application/json
 // @param register body UserLogin true "login"
 // @Success 200 string successful return token
 // @Router /v1/user/login [post]
-func (u UsersController) AuthHandler(c *gin.Context) {
+func (u UsersController) Login(c *gin.Context) {
 	var form model.UserLogin
 	bindErr := c.BindJSON(&form)
 	if bindErr != nil {
@@ -142,10 +142,113 @@ func (u UsersController) AuthHandler(c *gin.Context) {
 		})
 		return
 	}
-	tokenString, _ := middleware.GenToken(userOne.ID, form.Account, roles)
+	tokenString, refreshTokenString, err := middleware.GenToken(userOne.ID, form.Account, roles)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"status": -1,
+			"msg":    "Failed to generate token: " + err.Error(),
+			"data":   nil,
+		})
+		return
+	}
+	// Set the token in the cookie
+	c.SetCookie("token", tokenString, 3600, "/", "", true, true)
+	c.SetCookie("refresh_token", refreshTokenString, 3600*24*7, "/", "", true, true)
 	c.JSON(http.StatusOK, gin.H{
 		"code": 0,
 		"msg":  "Success",
-		"data": gin.H{"token": tokenString},
+		"data": gin.H{"token": tokenString, "refresh_token": refreshTokenString},
+	})
+}
+
+// CheckAlive @Summary
+// @Tags user
+// @version 1.0
+// @produce application/json
+// @Security BearerAuth
+// @Success 200 string successful return value
+// @Router /v1/user/alive [get]
+func (u UsersController) CheckAuth(c *gin.Context) {
+	// 核心思維是前端會問後端token是否有效，如果無效就會重新登入，有效則使用refresh token取得新的token
+	// 這邊的token是從cookie中取得的
+	token, err := c.Cookie("token")
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"code": -1,
+			"msg":  "Authorization token not found in Cookie",
+		})
+		return
+	}
+	claims, err := middleware.ParseToken(token)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"code": -1,
+			"msg":  "Invalid Token.",
+		})
+		return
+	}
+	// renew token
+	tokenString, _, _ := middleware.GenToken(claims.ID, claims.Account, claims.Roles)
+	c.SetCookie("token", tokenString, 3600, "/", "", true, true)
+
+	c.JSON(http.StatusOK, gin.H{
+		"code": 0,
+		"msg":  "Success",
+		"data": gin.H{
+			"id":      claims.ID,
+			"account": claims.Account,
+			"roles":   claims.Roles,
+		},
+	})		
+}
+
+// RefreshToken @Summary
+// @Tags user
+// @version 1.0
+// @produce application/json
+// @Security BearerAuth
+// @Success 200 string successful return value
+// @Router /v1/user/refresh-token [post]
+func (u UsersController) RefreshToken(c *gin.Context) {
+	refreshToken, err := c.Cookie("refresh_token")
+	if err != nil || refreshToken == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"code": -1,
+			"msg":  "Refresh token not found in Cookie",
+		})
+		return
+	}
+
+	// Validate the refresh token
+	err = middleware.ParseRefreshToken(refreshToken)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"code": -1,
+			"msg":  "Invalid or expired refresh token",
+		})
+		return
+	}
+
+	// Generate new access token
+	id := c.GetUint64("id")            // Retrieve user ID from context or database
+	account := c.GetString("account")  // Retrieve account info
+	roles := c.GetStringSlice("roles") // Retrieve roles
+
+	accessToken, newRefreshToken, err := middleware.GenToken(id, account, roles)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code": -1,
+			"msg":  "Failed to generate new tokens",
+		})
+		return
+	}
+	// Set the token in the cookie
+	c.SetCookie("token", accessToken, 3600, "/", "", true, true)
+	c.SetCookie("refresh_token", newRefreshToken, 3600*24*7, "/", "", true, true)
+
+	c.JSON(http.StatusOK, gin.H{
+		"code": 0,
+		"msg":  "Success",
+		"data": gin.H{"token": accessToken, "refresh_token": newRefreshToken},
 	})
 }

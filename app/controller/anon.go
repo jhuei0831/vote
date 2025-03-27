@@ -69,10 +69,10 @@ func (a AnonController) AnonLogin(c *gin.Context) {
 		return
 	}
 	// 產生Token
-	tokenString, _ := middleware.GenToken(password.ID, "anon", []string{"anon"})
+	tokenString, refreshTokenString, _ := middleware.GenToken(password.ID, "anon", []string{"anon"})
 	c.JSON(http.StatusOK, gin.H{
 		"code": 0,
 		"msg":  "Anon login success",
-		"data": gin.H{"token": tokenString},
+		"data": gin.H{"token": tokenString, "refresh_token": refreshTokenString},
 	})
 }
