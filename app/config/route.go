@@ -97,7 +97,7 @@ func Routes(r *gin.Engine, m *persist.RedisStore) {
 			middleware.RoleMiddleware("question", "read"),
 			controller.NewQuestionController().SelectOneQuestion,
 		)
-		questions.GET("list/:vote_id",
+		questions.GET("/list/:vote_id",
 			middleware.RoleMiddleware("question", "read"),
 			controller.NewQuestionController().SelectAllQuestions,
 		)
@@ -122,7 +122,7 @@ func Routes(r *gin.Engine, m *persist.RedisStore) {
 			middleware.RoleMiddleware("candidate", "read"),
 			controller.NewCandidateController().SelectOneCandidate,
 		)
-		candidates.GET("/list/:question_id",
+		candidates.GET("/list/:vote_id",
 			middleware.RoleMiddleware("candidate", "read"),
 			controller.NewCandidateController().SelectAllCandidates,
 		)
@@ -146,6 +146,10 @@ func Routes(r *gin.Engine, m *persist.RedisStore) {
 		passwords.POST("/decrypt",
 			middleware.RoleMiddleware("password", "read"),
 			controller.NewPasswordController().DecryptPassword,
+		)
+		passwords.GET("/list/:vote_id",
+			middleware.RoleMiddleware("password", "read"),
+			controller.NewPasswordController().SelectAllPasswords,
 		)
 	}
 }

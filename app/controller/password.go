@@ -100,6 +100,67 @@ func (p PasswordController) CreatePassword(c *gin.Context) {
 	})
 }
 
+// SelectPassword 根據提供的投票ID，檢索所有密碼。
+// @Summary
+// @tags 密碼
+// @Summary 根據提供的投票ID，檢索所有密碼。
+// @Description 根據提供的投票ID，檢索所有密碼。
+// @Accept json
+// @Produce json
+// @Param vote_id path string true "投票ID"
+// @Param status query bool false "狀態"
+// @Success 200 {object} model.Password "ok"
+// @Router /password/list [get]
+func (p PasswordController) SelectAllPasswords(c *gin.Context) {
+	voteId := c.Param("vote_id")
+	voteUuid, err := uuid.Parse(voteId)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status": -1,
+			"msg":    "Invalid vote ID",
+			"data":   nil,
+		})
+		return
+	}
+
+	var passwordQuery model.PasswordQuery
+	if err := c.ShouldBindQuery(&passwordQuery); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status": -1,
+			"msg":    "Invalid request: " + utils.ValidationErrorMessage(err),
+			"data":   nil,
+		})
+		return
+	}
+
+	page := passwordQuery.Page
+	size := passwordQuery.Size
+
+	passwordService := service.NewPasswordService()
+	passwords, total, err := passwordService.SelectPassword(voteUuid, passwordQuery)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"status": -1,
+			"msg":    "Failed to select passwords: " + err.Error(),
+			"data":   nil,
+		})
+		return
+	}
+
+	totalPages := (total + int64(size) - 1) / int64(size)
+	c.JSON(http.StatusOK, gin.H{
+		"status": 0,
+		"msg":    "successfully get passwords",
+		"data":   passwords,
+		"pagination": gin.H{
+			"total":       total,
+			"page":        page,
+			"size":        size,
+			"total_pages": totalPages,
+		},
+	})
+}
+
 // DecryptPassword 解密密碼
 // @Summary
 // @tags 密碼

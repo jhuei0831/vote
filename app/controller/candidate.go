@@ -8,6 +8,7 @@ import (
 	"vote/app/service"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 // CandidateController 候選人控制器。
@@ -80,12 +81,12 @@ func (ca CandidateController) SelectOneCandidate(c *gin.Context) {
 // @Success 200 {string} string "ok"
 // @Router /question/{question_id}/candidate [get]
 func (ca CandidateController) SelectAllCandidates(c *gin.Context) {
-	questionId := c.Param("question_id")
-	questionID, err := strconv.ParseUint(questionId, 10, 64)
+	voteId := c.Param("vote_id")
+	voteUuid, err := uuid.Parse(voteId)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"status": -1,
-			"msg":    "Invalid question ID",
+			"msg":    "Invalid vote ID",
 			"data":   nil,
 		})
 		return
@@ -103,7 +104,7 @@ func (ca CandidateController) SelectAllCandidates(c *gin.Context) {
 	}
 
 	candidateService := service.NewCandidateService()
-	candidates, err := candidateService.SelectAllCandidates(questionID, isAdmin, userId)
+	candidates, err := candidateService.SelectAllCandidates(voteUuid, isAdmin, userId)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"status": -1,

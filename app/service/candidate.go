@@ -4,6 +4,7 @@ import (
 	"vote/app/database"
 	"vote/app/model"
 
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
@@ -35,15 +36,15 @@ func (c CandidateService) SelectOneCandidate(id uint64, isAdmin bool, userId uin
 }
 
 // SelectAllCandidates 檢索所有候選人。
-func (c CandidateService) SelectAllCandidates(questionId uint64, isAdmin bool, userId uint64) ([]model.Candidate, error) {
+func (c CandidateService) SelectAllCandidates(voteId uuid.UUID, isAdmin bool, userId uint64) ([]model.Candidate, error) {
 	var candidates []model.Candidate
 	query := database.SqlSession.
-		Where("candidates.question_id = ?", questionId)
+		Joins("JOIN questions ON candidates.question_id = questions.id").
+		Joins("JOIN votes ON questions.vote_id = votes.id").
+		Where("votes.id = ?", voteId)
 		
 	if !isAdmin {
 		query = query.
-			Joins("JOIN questions ON candidates.question_id = questions.id").
-			Joins("JOIN votes ON questions.vote_id = votes.id").
 			Where("votes.user_id = ?", userId)
 	}
 

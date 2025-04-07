@@ -6,6 +6,7 @@ import (
 	"vote/app/database"
 	"vote/app/model"
 	"vote/app/service"
+	"vote/app/utils"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -99,6 +100,19 @@ func (q QuestionController) SelectAllQuestions(c *gin.Context) {
 		return
 	}
 
+	var QuestionQuery model.QuestionQuery
+	if err := c.ShouldBindQuery(&QuestionQuery); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status": -1,
+			"msg":    "Invalid params: " + utils.ValidationErrorMessage(err),
+			"data":   nil,
+		})
+		return
+	}
+
+	page := QuestionQuery.Page
+	size := QuestionQuery.Size
+
 	userId := c.MustGet("id").(uint64)
 	isAdmin, err := database.CheckIfAdmin(userId)
 	if err != nil {
@@ -109,7 +123,7 @@ func (q QuestionController) SelectAllQuestions(c *gin.Context) {
 		})
 		return
 	}
-	questions, err := service.NewQuestionService().SelectAllQuestions(voteUuid, isAdmin, userId)
+	questions, total, err := service.NewQuestionService().SelectAllQuestions(voteUuid, isAdmin, userId, QuestionQuery)
 
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{
@@ -118,10 +132,17 @@ func (q QuestionController) SelectAllQuestions(c *gin.Context) {
 			"data":   nil,
 		})
 	} else {
+		totalPages := (total + int64(size) - 1) / int64(size)
 		c.JSON(http.StatusOK, gin.H{
 			"status": 0,
 			"msg":    "Successfully retrieved questions data",
-			"questions":   &questions,
+			"data":   &questions,
+			"pagination": gin.H{
+				"total":       total,
+				"page":        page,
+				"size":        size,
+				"total_pages": totalPages,
+			},
 		})
 	}
 }
@@ -142,7 +163,7 @@ func (q QuestionController) CreateQuestion(c *gin.Context) {
 	if err := c.ShouldBindJSON(&form); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"status": -1,
-			"msg":    "Invalid params: " + err.Error(),
+			"msg":    "Invalid params: " + utils.ValidationErrorMessage(err),
 			"data":   nil,
 		})
 		return

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+	// "strconv"
 	"vote/app/database"
 	"vote/app/model"
 	"vote/app/service"
@@ -54,7 +55,7 @@ func (v VoteController) SelectOneVote(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"status": 0,
 			"msg":    "Successfully get vote data",
-			"vote":   &voteOne,
+			"data":   &voteOne,
 		})
 	}
 }
@@ -88,8 +89,22 @@ func (v VoteController) SelectAllVotes(c *gin.Context) {
 		})
 		return
 	}
+	// 解析查詢參數
+	var voteQuery model.VoteQuery
+	queryErr := c.ShouldBindQuery(&voteQuery)
+	if queryErr != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status": -1,
+			"msg":    "Invalid query parameters: " + utils.ValidationErrorMessage(queryErr),
+			"data":   nil,
+		})
+		return
+	}
 
-	votes, err := service.NewVoteService().SelectAllVotes(isAdmin, userId.(uint64))
+	page := voteQuery.Page
+	size := voteQuery.Size
+
+	votes, total, err := service.NewVoteService().SelectAllVotes(isAdmin, userId.(uint64), voteQuery)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{
 			"status": -1,
@@ -97,10 +112,17 @@ func (v VoteController) SelectAllVotes(c *gin.Context) {
 			"data":   nil,
 		})
 	} else {
+		totalPages := (total + int64(size) - 1) / int64(size)
 		c.JSON(http.StatusOK, gin.H{
 			"status": 0,
 			"msg":    "Successfully get vote data",
-			"vote":   &votes,
+			"data":   &votes,
+			"pagination": gin.H{
+				"total":       total,
+				"page":        page,
+				"size":        size,
+				"total_pages": totalPages,
+			},
 		})
 	}
 }
@@ -123,14 +145,15 @@ func (v VoteController) CreateVote(c *gin.Context) {
 	if bindErr != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"code": -1,
-			"msg":  "Invalid params" + utils.ValidationErrorMessage(bindErr),
+			"msg":  "Invalid params: " + utils.ValidationErrorMessage(bindErr),
+			"data":   &form,
 		})
 		return
 	}
 	// 把創建者的ID從Header的JWT中取出來
 	userId, _ := c.Get("id")
 	form.UserID = userId.(uint64)
-	insertErr := service.NewVoteService().CreateVote(form)
+	vote, insertErr := service.NewVoteService().CreateVote(form)
 	if insertErr != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"status": -1,
@@ -143,7 +166,7 @@ func (v VoteController) CreateVote(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"status": 0,
 		"msg":    "Successfully create vote",
-		"data":   &form,
+		"data":   &vote,
 	})
 }
 

@@ -30,20 +30,38 @@ func (v VoteService) SelectOneVote(id uuid.UUID) (*model.Vote, error) {
 }
 
 // SelectAllVotes 檢索所有投票。
-func (v VoteService) SelectAllVotes(isAdmin bool, userId uint64) ([]model.Vote, error) {
+func (v VoteService) SelectAllVotes(isAdmin bool, userId uint64, voteQuery model.VoteQuery) ([]model.Vote, int64, error) {
 	var votes []model.Vote
-	var err error
-	if isAdmin {
-		err = database.SqlSession.Find(&votes).Error
-	} else {
-		err = database.SqlSession.Where("user_id = ?", userId).Find(&votes).Error
+	var total int64
+	query := database.SqlSession.Model(&model.Vote{})
+
+	if !isAdmin {
+		query = query.Where("user_id = ?", userId)
 	}
 
-	return votes, err
+	// 設定查詢條件
+	page := voteQuery.Page
+	size := voteQuery.Size
+
+	// 計算總筆數
+	err := query.Count(&total).Error
+	if err != nil {
+		return nil, 0, err
+	}
+
+	// 如果有 page 和 size，加入分頁條件
+	if page > 0 && size > 0 {
+		offset := (page - 1) * size
+		query = query.Offset(offset).Limit(size)
+	}
+
+	// 查詢資料
+	err = query.Find(&votes).Error
+	return votes, total, err
 }
 
 // CreateOneVote 創建新的投票。
-func (v VoteService) CreateVote(form model.VoteCreate) error {
+func (v VoteService) CreateVote(form model.VoteCreate) (model.Vote, error) {
 	vote := model.Vote{
 		Title:       form.Title,
 		Description: form.Description,
@@ -53,7 +71,7 @@ func (v VoteService) CreateVote(form model.VoteCreate) error {
 	}
 
 	insertErr := database.SqlSession.Model(&model.Vote{}).Create(&vote).Error
-	return insertErr
+	return vote, insertErr
 }
 
 // UpdateOneVote 更新投票。

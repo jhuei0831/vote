@@ -30,3 +30,11 @@ type AnonLogin struct {
 	VoteID   uuid.UUID `json:"vote_id" binding:"required" example:"00000000-0000-0000-0000-000000000000"`
 	Password string    `json:"password" binding:"required" example:"password"`
 }
+
+type PasswordQuery struct {
+	VoteID 		uuid.UUID 	`json:"vote_id" example:"00000000-0000-0000-0000-000000000000"`
+	Password 	string    	`json:"password" example:"password"`
+	Status 		bool      	`json:"status" example:"false"`
+	Page	 	int    		`form:"page,default=1" json:"page" binding:"min=1" example:"1"`
+	Size	 	int    		`form:"size,default=10" json:"size" binding:"min=1" example:"10"`
+}

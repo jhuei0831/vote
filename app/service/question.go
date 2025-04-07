@@ -50,19 +50,34 @@ func (q QuestionService) selectQuestion(id uint64, isAdmin bool, userId uint64, 
 }
 
 // SelectAllQuestions 檢索所有問題。
-func (q QuestionService) SelectAllQuestions(voteId uuid.UUID, isAdmin bool, userId uint64) ([]model.Question, error) {
+func (q QuestionService) SelectAllQuestions(voteId uuid.UUID, isAdmin bool, userId uint64, questionQuery model.QuestionQuery) ([]model.Question, int64, error) {
 	var questions []model.Question
-	query := database.SqlSession.Where("vote_id = ?", voteId)
+	var total int64
+	query := database.SqlSession.Model(&questions).Where("vote_id = ?", voteId)
 
 	if !isAdmin {
 		query = query.Joins("JOIN votes ON questions.vote_id = votes.id").Where("votes.user_id = ?", userId)
 	}
 
-	err := query.Find(&questions).Error
+	// 設定查詢條件
+	page := questionQuery.Page
+	size := questionQuery.Size
+
+	// 計算總筆數
+	err := query.Count(&total).Error
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
-	return questions, nil
+
+	// 如果有 page 和 size，加入分頁條件
+	if page > 0 && size > 0 {
+		offset := (page - 1) * size
+		query = query.Offset(offset).Limit(size)
+	}
+
+	// 查詢資料
+	err = query.Find(&questions).Error
+	return questions, total, err
 }
 
 // CreateOneQuestion 創建新的問題。
