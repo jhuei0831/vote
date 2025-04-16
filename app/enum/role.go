@@ -4,14 +4,14 @@ var Roles = newRoleRegistry()
 
 func newRoleRegistry() *roleRegistry {
     return &roleRegistry{
-        Admin:   "ADMIN",
-        Creator: "CREATOR",
-        Anon:    "ANON",
+        Admin:      "ADMIN",
+        Creator:    "CREATOR",
+        Voter:      "VOTER",
     }
 }
 
 type roleRegistry struct {
-    Admin   string
-    Creator string
-    Anon    string
+    Admin       string
+    Creator     string
+    Voter       string
 }

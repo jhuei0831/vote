@@ -90,7 +90,7 @@ func generateRandomString(chars []rune, length int) (string, error) {
 
 // Encrypt 加密字串
 func (p *Password) Encrypt(text string) (string, error) {
-	password := os.Getenv("ANON_PASSWORD_ENCRYPT_KEY")
+	password := os.Getenv("VOTER_PASSWORD_ENCRYPT_KEY")
 	// 使用提供的密碼創建一個新的 AES 密碼區塊
 	block, err := aes.NewCipher([]byte(password))
 	if err != nil {
@@ -98,7 +98,7 @@ func (p *Password) Encrypt(text string) (string, error) {
 	}
 
 	// 從 base64 解碼初始化向量 (IV)
-	ivDecoded, err := base64.StdEncoding.DecodeString(os.Getenv("ANON_PASSWORD_ENCRYPT_IV"))
+	ivDecoded, err := base64.StdEncoding.DecodeString(os.Getenv("VOTER_PASSWORD_ENCRYPT_IV"))
 	if err != nil {
 		return "", err
 	}
@@ -119,13 +119,13 @@ func (p *Password) Encrypt(text string) (string, error) {
 // Decrypt 解密字串
 func (p *Password) Decrypt(text string) (string, error) {
 	// 使用提供的密碼創建一個新的 AES 密碼區塊
-	block, err := aes.NewCipher([]byte(os.Getenv("ANON_PASSWORD_ENCRYPT_KEY")))
+	block, err := aes.NewCipher([]byte(os.Getenv("VOTER_PASSWORD_ENCRYPT_KEY")))
 	if err != nil {
 		return "", err
 	}
 
 	// 從 base64 解碼初始化向量 (IV)
-	ivDecoded, err := base64.StdEncoding.DecodeString(os.Getenv("ANON_PASSWORD_ENCRYPT_IV"))
+	ivDecoded, err := base64.StdEncoding.DecodeString(os.Getenv("VOTER_PASSWORD_ENCRYPT_IV"))
 	if err != nil {
 		return "", err
 	}

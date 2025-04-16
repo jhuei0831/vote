@@ -49,35 +49,47 @@ func (q QuestionService) selectQuestion(id uint64, isAdmin bool, userId uint64, 
 	return questionOne, nil
 }
 
-// SelectAllQuestions 檢索所有問題。
+// SelectQuestions 處理所有問題查詢的共用邏輯，根據 needCandidates 決定是否預載 Candidates。
 func (q QuestionService) SelectAllQuestions(voteId uuid.UUID, isAdmin bool, userId uint64, questionQuery model.QuestionQuery) ([]model.Question, int64, error) {
 	var questions []model.Question
 	var total int64
-	query := database.SqlSession.Model(&questions).Where("vote_id = ?", voteId)
 
+	query := database.SqlSession.Model(&model.Question{}).Where("vote_id = ?", voteId)
+
+	// 非管理員需檢查所屬 user
 	if !isAdmin {
 		query = query.Joins("JOIN votes ON questions.vote_id = votes.id").Where("votes.user_id = ?", userId)
 	}
 
-	// 設定查詢條件
-	page := questionQuery.Page
-	size := questionQuery.Size
+	// 標題模糊查詢
+	if questionQuery.Title != "" {
+		query = query.Where("questions.title LIKE ?", "%"+questionQuery.Title+"%")
+	}
 
 	// 計算總筆數
-	err := query.Count(&total).Error
-	if err != nil {
+	if err := query.Count(&total).Error; err != nil {
 		return nil, 0, err
 	}
 
-	// 如果有 page 和 size，加入分頁條件
+	// 分頁
+	page := questionQuery.Page
+	size := questionQuery.Size
 	if page > 0 && size > 0 {
 		offset := (page - 1) * size
 		query = query.Offset(offset).Limit(size)
 	}
 
-	// 查詢資料
-	err = query.Find(&questions).Error
-	return questions, total, err
+	// 查詢資料，根據 needCandidates 決定是否預載 Candidates
+	if questionQuery.Candidates {
+		if err := query.Preload("Candidates").Find(&questions).Error; err != nil {
+			return nil, 0, err
+		}
+	} else {
+		if err := query.Find(&questions).Error; err != nil {
+			return nil, 0, err
+		}
+	}
+	return questions, total, nil
 }
 
 // CreateOneQuestion 創建新的問題。

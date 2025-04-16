@@ -11,14 +11,14 @@ import (
 	"github.com/google/uuid"
 )
 
-type AnonController struct {
+type VoterController struct {
 }
 
-func NewAnonController() AnonController {
-	return AnonController{}
+func NewVoterController() VoterController {
+	return VoterController{}
 }
 
-// AnonLogin 匿名投票登入
+// VoterLogin 匿名投票登入
 // @Summary 匿名投票登入
 // @tags 匿名投票
 // @Summary 匿名投票登入
@@ -26,9 +26,9 @@ func NewAnonController() AnonController {
 // @Accept json
 // @Produce json
 // @Success 200 {string} string "ok"
-// @Router /anon/login [post]
-func (a AnonController) AnonLogin(c *gin.Context) {
-	var form model.AnonLogin
+// @Router /voter/login [post]
+func (a VoterController) VoterLogin(c *gin.Context) {
+	var form model.VoterLogin
 	bindErr := c.BindJSON(&form)
 	if bindErr != nil {
 		c.JSON(http.StatusOK, gin.H{
@@ -69,10 +69,20 @@ func (a AnonController) AnonLogin(c *gin.Context) {
 		return
 	}
 	// 產生Token
-	tokenString, refreshTokenString, _ := middleware.GenToken(password.ID, "anon", []string{"anon"})
+	tokenString, refreshTokenString, err := middleware.GenVoterToken(password.ID, voteUUID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code": -1,
+			"msg":  "Failed to generate new tokens",
+		})
+		return
+	}
+	// Set the token in the cookie
+	c.SetCookie("voter-token", tokenString, 3600, "/", "", true, true)
+	
 	c.JSON(http.StatusOK, gin.H{
 		"code": 0,
-		"msg":  "Anon login success",
+		"msg":  "Voter login success",
 		"data": gin.H{"token": tokenString, "refresh_token": refreshTokenString},
 	})
 }

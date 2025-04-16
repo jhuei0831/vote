@@ -26,7 +26,7 @@ type PasswordCreate struct {
 	Format string    `json:"format" binding:"required,oneof=int en mix mixExcl mixLower mixUpper" example:"Aa1"`
 }
 
-type AnonLogin struct {
+type VoterLogin struct {
 	VoteID   uuid.UUID `json:"vote_id" binding:"required" example:"00000000-0000-0000-0000-000000000000"`
 	Password string    `json:"password" binding:"required" example:"password"`
 }

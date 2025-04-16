@@ -31,5 +31,5 @@ type QuestionQuery struct {
 	Title	  	string    	`json:"title" example:"title"`
 	Page	 	int    		`form:"page,default=1" json:"page" binding:"min=1" example:"1"`
 	Size	 	int    		`form:"size,default=1" json:"size" binding:"min=1" example:"10"`
-	Candidates  bool 		`form:"candidates,default=true" json:"candidates" example:"true"`
+	Candidates  bool 		`form:"candidates,default=false" json:"candidates" example:"false"`
 }

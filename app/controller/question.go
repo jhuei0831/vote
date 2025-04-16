@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"strconv"
 	"vote/app/database"
+	"vote/app/middleware"
 	"vote/app/model"
 	"vote/app/service"
 	"vote/app/utils"
@@ -145,6 +146,69 @@ func (q QuestionController) SelectAllQuestions(c *gin.Context) {
 			},
 		})
 	}
+}
+
+// SelectVoterCandidate 檢索投票者的候選人。
+// @Summary
+// @tags 候選人
+// @Summary 檢索投票者的候選人
+// @Description 檢索投票者的候選人
+// @Accept json
+// @Produce json
+// @Success 200 {string} string "ok"
+// @Router /v1/voter/question [get]
+func (q QuestionController) SelectVoterQuestions(c *gin.Context) {
+	// 從voter token中取得投票場次ID
+	token, err := c.Cookie("voter-token")
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"code": -1,
+			"msg":  "Authorization token not found in Cookie",
+		})
+		return
+	}
+	claims, err := middleware.ParseVoterToken(token)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"code": -1,
+			"msg":  "Invalid Token.",
+		})
+		return
+	}
+	voteId := claims.VoteID
+
+	// 檢查投票場次是否存在
+	voteService := service.NewVoteService()
+	_, err = voteService.SelectOneVote(voteId)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"status": -1,
+			"msg":    "Failed to select vote: " + err.Error(),
+			"data":   nil,
+		})
+		return
+	}	
+	
+	questionService := service.NewQuestionService()
+	questions, _, err := questionService.SelectAllQuestions(voteId, true, claims.ID, model.QuestionQuery{
+		Page: 1,
+		Size: 9999,
+		Candidates: true,
+	})
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"status": -1,
+			"msg":    "Failed to select questions: " + err.Error(),
+			"data":   nil,
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"status": 0,
+		"msg":    "ok",
+		"data":   questions,
+	})
 }
 
 // CreateQuestion @Summary
