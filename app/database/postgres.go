@@ -59,5 +59,5 @@ func Rbac() (*gormadapter.Adapter, *casbin.Enforcer, error) {
 
 // checkIfAdmin 檢查使用者是否為管理員
 func CheckIfAdmin(userId uint64) (bool, error) {
-	return Enforcer.HasRoleForUser(strconv.FormatUint(userId, 10), enum.Roles.Admin)
+	return Enforcer.HasRoleForUser(strconv.FormatUint(userId, 10), string(enum.Admin))
 }

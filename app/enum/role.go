@@ -1,17 +1,9 @@
 package enum
 
-var Roles = newRoleRegistry()
+type Role string
 
-func newRoleRegistry() *roleRegistry {
-    return &roleRegistry{
-        Admin:      "ADMIN",
-        Creator:    "CREATOR",
-        Voter:      "VOTER",
-    }
-}
-
-type roleRegistry struct {
-    Admin       string
-    Creator     string
-    Voter       string
-}
+const (
+    Admin   Role = "ADMIN"
+    Creator Role = "CREATOR"
+    Voter   Role = "VOTER"
+)

@@ -40,6 +40,10 @@ func Routes(r *gin.Engine, m *persist.RedisStore) {
 		middleware.JWTAuthMiddleware(false),
 		controller.NewQuestionController().SelectVoterQuestions,
 	)
+	r.POST("/v1/voter/ballot/create",
+		middleware.JWTAuthMiddleware(false),
+		controller.NewBallotController().CreateBallots,
+	)
 	// User
 	posts := r.Group("/v1/user")
 	{
@@ -155,6 +159,10 @@ func Routes(r *gin.Engine, m *persist.RedisStore) {
 		passwords.GET("/list/:vote_id",
 			middleware.RoleMiddleware("password", "read"),
 			controller.NewPasswordController().SelectAllPasswords,
+		)
+		passwords.PUT("/update-status",
+			middleware.RoleMiddleware("password", "update"),
+			controller.NewPasswordController().UpdatePasswordStatus,
 		)
 	}
 }

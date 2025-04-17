@@ -86,3 +86,51 @@ func (a VoterController) VoterLogin(c *gin.Context) {
 		"data": gin.H{"token": tokenString, "refresh_token": refreshTokenString},
 	})
 }
+
+// CheckIsVoted 檢查投票者是否已經投票
+// @Summary 檢查投票者是否已經投票
+// @tags 匿名投票
+// @Description 檢查投票者是否已經投票
+// @Accept json
+// @Produce json
+// @Success 200 {string} string "ok"
+// @Router /voter/is-voted [get]
+func (a VoterController) CheckIsVoted(c *gin.Context) {
+	token, err := c.Cookie("voter-token")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code": -1,
+			"msg":  "Authorization token not found in Cookie",
+		})
+		return
+	}
+	claims, err := middleware.ParseVoterToken(token)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code": -1,
+			"msg":  "Invalid Token.",
+		})
+		return
+	}
+
+	ballotService := service.NewBallotService()
+	voter := claims.ID
+	if hasVoted, err := ballotService.CheckIfVoterHasVoted(voter); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code": -1,
+			"msg":  "Failed to check if voter has voted: " + err.Error(),
+		})
+		return
+	} else if hasVoted {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code": -1,
+			"msg":  "Voter has already voted.",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"code": 0,
+		"msg":  "Voter has not voted yet",
+	})
+}

@@ -214,3 +214,82 @@ func (p PasswordController) DecryptPassword(c *gin.Context) {
 		"data":   decrypts,
 	})
 }
+
+// ChangePasswordStatus 更新密碼狀態
+// @Summary
+// @tags 密碼
+// @Summary 更新密碼狀態
+// @Description 更新密碼狀態
+// @Accept json
+// @Produce json
+// @Param vote_id path string true "投票ID"
+// @Param password_id path string true "密碼ID"
+// @Param status path bool true "狀態"
+// @Success 200 {string} string "ok"
+// @Router /password/update [put]
+func (p PasswordController) UpdatePasswordStatus(c *gin.Context) {
+	var form model.PasswordStatusQuery
+	if err := c.ShouldBindJSON(&form); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status": -1,
+			"msg":    "Invalid request: " + utils.ValidationErrorMessage(err),
+			"data":   nil,
+		})
+		return
+	}
+	voteUUID, err := uuid.Parse(form.VoteID.String())
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status": -1,
+			"msg":    "Invalid vote ID",
+			"data":   nil,
+		})
+		return
+	}
+
+	userId := c.MustGet("id").(uint64)
+	isAdmin, err := database.CheckIfAdmin(userId)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"status": -1,
+			"msg":    "Failed to check user role: " + err.Error(),
+			"data":   nil,
+		})
+		return
+	}
+
+	voteService := service.NewVoteService()
+	vote, err := voteService.SelectOneVote(voteUUID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"status": -1,
+			"msg":    "Failed to select vote: " + err.Error(),
+			"data":   nil,
+		})
+		return
+	}
+
+	if !isAdmin && vote.UserID != userId {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"status": -1,
+			"msg":    "Permission denied",
+			"data":   nil,
+		})
+		return
+	}
+	passwordService := service.NewPasswordService()
+	err = passwordService.UpdatePasswordStatus(voteUUID, form.Passwords, form.Status)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"status": -1,
+			"msg":    "Failed to update password status: " + err.Error(),
+			"data":   nil,
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"status": 0,
+		"msg":    "successfully update password status",
+		"data":   nil,
+	})
+}

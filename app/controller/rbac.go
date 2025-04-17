@@ -62,7 +62,7 @@ func (r RbacController) Initial(c *gin.Context) {
 		return
 	}
 	// Creator role
-	creator := enum.Roles.Creator
+	creator := enum.Creator
 	// vote
 	enforcer.AddPolicy(creator, "vote", "create")
 	enforcer.AddPolicy(creator, "vote", "read")
@@ -90,12 +90,12 @@ func (r RbacController) Initial(c *gin.Context) {
 	enforcer.AddPolicy(creator, "ballot", "delete")
 	
 	// Admin role
-	admin := enum.Roles.Admin
+	admin := enum.Admin
 	enforcer.AddPolicy(admin, "user", "create")
 	enforcer.AddPolicy(admin, "user", "read")
 	enforcer.AddPolicy(admin, "user", "update")
 	enforcer.AddPolicy(admin, "user", "delete")
-	enforcer.AddRoleForUser(admin, creator)
+	enforcer.AddRoleForUser(string(admin), string(creator))
 	
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{

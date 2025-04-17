@@ -19,7 +19,7 @@ func NewPasswordService() PasswordService {
 func (p PasswordService) SelectOnePassword(voteId uuid.UUID, password string) (*model.Password, error) {
 	passwordModel := model.Password{}
 	err := database.SqlSession.
-		Where("vote_id = ? AND password = ?", voteId, password).
+		Where("vote_id = ? AND password = ? AND status = true", voteId, password).
 		First(&passwordModel).
 		Error
 		
@@ -96,4 +96,17 @@ func (p PasswordService) CreatePassword(voteId uuid.UUID, number int, length int
 	}
 
 	return transaction.Commit().Error
+}
+
+// UpdatePasswordStatus 更新密碼狀態
+func (p PasswordService) UpdatePasswordStatus(voteId uuid.UUID, passwordIDs []any, status bool) error {
+	err := database.SqlSession.Model(&model.Password{}).
+		Where("vote_id = ? AND id IN ?", voteId, passwordIDs).
+		Update("status", status).Error
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

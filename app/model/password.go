@@ -38,3 +38,9 @@ type PasswordQuery struct {
 	Page	 	int    		`form:"page,default=1" json:"page" binding:"min=1" example:"1"`
 	Size	 	int    		`form:"size,default=10" json:"size" binding:"min=1" example:"10"`
 }
+
+type PasswordStatusQuery struct {
+	VoteID    uuid.UUID   `json:"voteId" example:"00000000-0000-0000-0000-000000000000"`
+	Passwords []any       `json:"passwords" example:"[1,2,3,\"abc\"]"`
+	Status    bool        `json:"status" example:"false"`
+}
