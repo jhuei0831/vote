@@ -161,6 +161,24 @@ func (u UsersController) Login(c *gin.Context) {
 	})
 }
 
+// Logout @Summary
+// @Tags user
+// @version 1.0
+// @produce application/json
+// @Security BearerAuth
+// @Success 200 string successful return value
+// @Router /v1/user/logout [post]
+func (u UsersController) Logout(c *gin.Context) {
+	// Clear the token from the cookie
+	c.SetCookie("user-token", "", -1, "/", "", true, true)
+	c.SetCookie("user-refresh_token", "", -1, "/", "", true, true)
+
+	c.JSON(http.StatusOK, gin.H{
+		"code": 0,
+		"msg":  "Logout successful",
+	})
+}
+
 // CheckAlive @Summary
 // @Tags user
 // @version 1.0

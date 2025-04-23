@@ -48,6 +48,10 @@ func Routes(r *gin.Engine, m *persist.RedisStore) {
 	posts := r.Group("/v1/user")
 	{
 		posts.POST("/login", controller.NewUserController().Login)
+		posts.POST("/logout",
+			middleware.JWTAuthMiddleware(true),
+			controller.NewUserController().Logout,
+		)
 		posts.POST("/check-auth",
 			middleware.JWTAuthMiddleware(true),
 			controller.NewUserController().CheckAuth,
