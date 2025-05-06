@@ -56,6 +56,9 @@ func (p PasswordService) SelectPassword(voteId uuid.UUID, passwordQuery model.Pa
 		query = query.Offset(offset).Limit(size)
 	}
 
+	// 排序
+	query = query.Order("id ASC")
+
 	err = query.Find(&passwords).Error
 	if err != nil {
 		return nil, 0, err

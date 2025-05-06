@@ -68,8 +68,20 @@ func (a VoterController) VoterLogin(c *gin.Context) {
 		})
 		return
 	}
+	voter := password.ID
+	var isVoted = false
+	if hasVoted, err := service.NewBallotService().CheckIfVoterHasVoted(voter); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code": -1,
+			"msg":  "Failed to check if voter has voted: " + err.Error(),
+		})
+		return
+	} else {
+		isVoted = hasVoted
+	}
+	
 	// 產生Token
-	tokenString, refreshTokenString, err := middleware.GenVoterToken(password.ID, voteUUID)
+	tokenString, _, err := middleware.GenVoterToken(password.ID, voteUUID, isVoted)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"code": -1,
@@ -79,11 +91,78 @@ func (a VoterController) VoterLogin(c *gin.Context) {
 	}
 	// Set the token in the cookie
 	c.SetCookie("voter-token", tokenString, 3600, "/", "", true, true)
-	
+
 	c.JSON(http.StatusOK, gin.H{
 		"code": 0,
 		"msg":  "Voter login success",
-		"data": gin.H{"token": tokenString, "refresh_token": refreshTokenString},
+		"data": gin.H{"token": tokenString},
+	})
+}
+
+// CheckAuth 檢查投票者的Token
+// @Summary 檢查投票者的Token
+// @tags 匿名投票
+// @Description 檢查投票者的Token
+// @Accept json
+// @Produce json
+// @Success 200 {string} string "ok"
+// @Router /voter/check-auth [post]
+func (a VoterController) CheckAuth(c *gin.Context) {
+	token, err := c.Cookie("voter-token")
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"code": -1,
+			"msg":  "Authorization token not found in Cookie",
+		})
+		return
+	}
+	claims, err := middleware.ParseVoterToken(token)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"code": -1,
+			"msg":  "Invalid Token.",
+		})
+		return
+	}
+	// 重新產生 token
+	var isVoted = false
+	if hasVoted, err := service.NewBallotService().CheckIfVoterHasVoted(claims.ID); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code": -1,
+			"msg":  "Failed to check if voter has voted: " + err.Error(),
+		})
+		return
+	} else {
+		isVoted = hasVoted
+	}
+	tokenString, _, err := middleware.GenVoterToken(claims.ID, claims.VoteID, isVoted)
+	c.SetCookie("voter-token", tokenString, 3600, "/", "", true, true)
+
+	c.JSON(http.StatusOK, gin.H{
+		"code": 0,
+		"msg":  "Success",
+		"data": gin.H{
+			"id":           claims.ID,
+			"voteId":       claims.VoteID,
+			"voted":        isVoted,
+		},
+	})
+}
+
+// Logout @Summary
+// @Tags voter
+// @version 1.0
+// @produce application/json
+// @Security BearerAuth
+// @Success 200 string successful return value
+// @Router /v1/voter/logout [post]
+func (a VoterController) Logout(c *gin.Context) {
+	// Clear the token from the cookie
+	c.SetCookie("voter-token", "", -1, "/", "", true, true)
+
+	c.JSON(http.StatusOK, gin.H{
+		"code": 0,
+		"msg":  "Logout successful",
 	})
 }
 

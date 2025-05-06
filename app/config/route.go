@@ -36,6 +36,14 @@ func Routes(r *gin.Engine, m *persist.RedisStore) {
 	)
 	// Voter
 	r.POST("/v1/voter/login", controller.NewVoterController().VoterLogin)
+	r.POST("/v1/voter/logout",
+		middleware.JWTAuthMiddleware(false),
+		controller.NewVoterController().Logout,
+	)
+	r.POST("/v1/voter/check-auth", 
+		middleware.JWTAuthMiddleware(false),
+		controller.NewVoterController().CheckAuth,
+	)
 	r.GET("/v1/voter/questions", 
 		middleware.JWTAuthMiddleware(false),
 		controller.NewQuestionController().SelectVoterQuestions,

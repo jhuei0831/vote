@@ -27,7 +27,7 @@ func NewUserController() UsersController {
 // @param register body UserCreate true "register"
 // @Success 200 string successful return value
 // @Router /v1/user/create [post]
-func (u UsersController) CreateUser (c *gin.Context) {
+func (u UsersController) CreateUser(c *gin.Context) {
 	t := gi18n.New()
 	var form model.UserCreate
 	bindErr := c.BindJSON(&form)
@@ -71,7 +71,7 @@ func (u UsersController) CreateUser (c *gin.Context) {
 // @param id path int true "id" default(1)
 // @Success 200 string successful return data
 // @Router /v1/user/{id} [get]
-func (u UsersController) GetUser (c *gin.Context) {
+func (u UsersController) GetUser(c *gin.Context) {
 	id := c.Params.ByName("id")
 
 	userId, err := strconv.ParseInt(id, 10, 64)
@@ -185,7 +185,7 @@ func (u UsersController) Logout(c *gin.Context) {
 // @produce application/json
 // @Security BearerAuth
 // @Success 200 string successful return value
-// @Router /v1/user/alive [get]
+// @Router /v1/user/check-auth [post]
 func (u UsersController) CheckAuth(c *gin.Context) {
 	// 核心思維是前端會問後端token是否有效，如果無效就會重新登入，有效則使用refresh token取得新的token
 	// 這邊的token是從cookie中取得的

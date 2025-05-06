@@ -28,8 +28,9 @@ type UserClaims struct {
 
 // VoterClaims 投票者 JWT 令牌
 type VoterClaims struct {
-	ID		uint64 		`json:"id"`
+	ID			uint64 			`json:"id"`
 	VoteID  uuid.UUID 	`json:"voteId"`
+	IsVoted   bool			`json:"isVoted"`
 	jwt.RegisteredClaims
 }
 
@@ -50,10 +51,11 @@ func GenUserToken(Id uint64, account string, roles []string) (string, string, er
 }
 
 // GenVoterToken 生成投票者 JWT 令牌
-func GenVoterToken(Id uint64, voteId uuid.UUID) (string, string, error) {
+func GenVoterToken(Id uint64, voteId uuid.UUID, isVoted bool) (string, string, error) {
 	accessClaims := VoterClaims{
 		ID:      Id,
 		VoteID:  voteId,
+		IsVoted: isVoted,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(TokenExpireDuration)),
 			Issuer:    os.Getenv("APP_NAME"),
