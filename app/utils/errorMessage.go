@@ -3,6 +3,8 @@ package utils
 import (
 	"fmt"
 	"io"
+
+	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	log "github.com/sirupsen/logrus"
 )
@@ -11,7 +13,6 @@ import (
 type ValidationFieldError struct {
 	Err validator.FieldError
 }
-
 
 // String 會根據驗證錯誤的標籤 (Tag) 生成對應的錯誤訊息。
 // 支援的標籤包括 "required", "max", "min", "email", "len", "gt", "gte", "lt", "lte", "oneof"。
@@ -69,4 +70,17 @@ func ValidationErrorMessage(err error) string {
 	}
 
 	return "validationErrs with no error message"
+}
+
+// HandleError 通用的錯誤處理函數
+func HandleError(c *gin.Context, status int, code int, msg string, err error) {
+	if err != nil {
+		msg = msg + ": " + err.Error()
+	}
+
+	c.JSON(status, gin.H{
+		"code": code,
+		"msg":  msg,
+		"data": nil,
+	})
 }

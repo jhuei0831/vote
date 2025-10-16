@@ -42,3 +42,8 @@ curl http://localhost:9443/hc
 # use the following command to create a new migration
 go build -o migrator ./cmd/dbmigrate
 ```
+
+## Build & Run
+```bash
+gin -a 3000 -p 9443 run main.go
+```

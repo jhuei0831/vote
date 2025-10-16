@@ -62,40 +62,29 @@ func (r RbacController) Initial(c *gin.Context) {
 		return
 	}
 	// Creator role
-	creator := enum.Creator
-	// vote
-	enforcer.AddPolicy(creator, "vote", "create")
-	enforcer.AddPolicy(creator, "vote", "read")
-	enforcer.AddPolicy(creator, "vote", "update")
-	enforcer.AddPolicy(creator, "vote", "delete")
-	// question
-	enforcer.AddPolicy(creator, "question", "create")
-	enforcer.AddPolicy(creator, "question", "read")
-	enforcer.AddPolicy(creator, "question", "update")
-	enforcer.AddPolicy(creator, "question", "delete")
-	// candidate
-	enforcer.AddPolicy(creator, "candidate", "create")
-	enforcer.AddPolicy(creator, "candidate", "read")
-	enforcer.AddPolicy(creator, "candidate", "update")
-	enforcer.AddPolicy(creator, "candidate", "delete")
-	// password
-	enforcer.AddPolicy(creator, "password", "create")
-	enforcer.AddPolicy(creator, "password", "read")
-	enforcer.AddPolicy(creator, "password", "update")
-	enforcer.AddPolicy(creator, "password", "delete")
-	// ballot
-	enforcer.AddPolicy(creator, "ballot", "create")
-	enforcer.AddPolicy(creator, "ballot", "read")
-	enforcer.AddPolicy(creator, "ballot", "update")
-	enforcer.AddPolicy(creator, "ballot", "delete")
-	
+	creator := string(enum.Creator)
+	actions := []string{"create", "read", "update", "delete"}
+	resources := []string{"vote", "question", "candidate", "password", "ballot"}
+
+	for _, res := range resources {
+		for _, act := range actions {
+			if _, err = enforcer.AddPolicy(creator, res, act); err != nil {
+				break
+			}
+		}
+		if err != nil {
+			break
+		}
+	}
+
 	// Admin role
-	admin := enum.Admin
-	enforcer.AddPolicy(admin, "user", "create")
-	enforcer.AddPolicy(admin, "user", "read")
-	enforcer.AddPolicy(admin, "user", "update")
-	enforcer.AddPolicy(admin, "user", "delete")
-	enforcer.AddRoleForUser(string(admin), string(creator))
+	admin := string(enum.Admin)
+	for _, act := range actions {
+		if _, err = enforcer.AddPolicy(admin, "user", act); err != nil {
+			break
+		}
+	}
+	enforcer.AddRoleForUser(admin, creator)
 	
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{

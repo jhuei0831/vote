@@ -62,3 +62,10 @@ func (b BallotService) CheckIfVoterHasVoted(voterId uint64) (bool, error) {
 
 	return count > 0, nil
 }
+
+// GetBallotByVoterId 根據投票者ID獲取選票
+func (b BallotService) GetBallotByVoterId(voterId uint64) ([][]string) {
+	// database.SqlSession.Model(&model.Ballot{}).Where("vote")
+
+	return make([][]string, 1)
+}
