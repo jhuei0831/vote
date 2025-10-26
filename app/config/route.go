@@ -19,6 +19,11 @@ import (
 )
 
 func Routes(r *gin.Engine, m *persist.RedisStore) {
+	// Graphql
+	r.POST("/query", middleware.JWTAuthMiddleware(true), graphqlHandler())
+	r.GET("/", playgroundHandler())
+
+	// Restful API
 	r.GET("/hc", func(c *gin.Context) {
 		c.JSON(200, gin.H{
 			"message": "health check: PORT " + os.Getenv("PORT"),

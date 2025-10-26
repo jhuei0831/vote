@@ -57,6 +57,7 @@ func SetRouter() *gin.Engine {
 	}
 
 	server := gin.Default()
+	server.Use(middleware.GinContextToContextMiddleware())
 	server.Use(middleware.CORSMiddleware())
 	server.Use(middleware.LoggerToFile())
 	config.Routes(server, config.RedisStore())

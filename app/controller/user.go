@@ -13,7 +13,7 @@ import (
 	"github.com/gogf/gf/i18n/gi18n"
 )
 
-type UsersController struct {}
+type UsersController struct{}
 
 func NewUserController() UsersController {
 	return UsersController{}
@@ -37,28 +37,28 @@ func (u UsersController) CreateUser(c *gin.Context) {
 		lan = "en"
 	}
 	t.SetLanguage(lan)
-	
+
 	if bindErr == nil {
-		err := service.NewUserService().RegisterOneUser(form.Account, form.Password, form.Email)
+		_, err := service.NewUserService().CreateUser(form)
 		if err == nil {
 			// go service.NewSmtpService().MultiSend(form.Email)
 			c.JSON(http.StatusOK, gin.H{
 				"status": 1,
-				"msg": t.Translate(c, "Response_Success"),
-				"data": nil,
+				"msg":    t.Translate(c, "Response_Success"),
+				"data":   nil,
 			})
 		} else {
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"status": -1,
-				"msg": "Register Failed: " + err.Error(),
-				"data": nil,
+				"msg":    "Register Failed: " + err.Error(),
+				"data":   nil,
 			})
 		}
 	} else {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"status": -1,
-			"msg": "Failed to parse register data: " + utils.ValidationErrorMessage(bindErr),
-			"data": nil,
+			"msg":    "Failed to parse register data: " + utils.ValidationErrorMessage(bindErr),
+			"data":   nil,
 		})
 	}
 }
@@ -78,22 +78,22 @@ func (u UsersController) GetUser(c *gin.Context) {
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"status": -1,
-			"msg": "Failed to parse params" + err.Error(),
-			"data": nil,
+			"msg":    "Failed to parse params" + err.Error(),
+			"data":   nil,
 		})
 	}
-	userOne, err := service.NewUserService().SelectOneUsers(userId)
+	userOne, err := service.NewUserService().GetUserById(userId)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{
 			"status": -1,
-			"msg": "User not found" + err.Error(),
-			"data": nil,
+			"msg":    "User not found" + err.Error(),
+			"data":   nil,
 		})
 	} else {
 		c.JSON(http.StatusOK, gin.H{
 			"status": 0,
-			"msg":  "Successfully get user data",
-			"user": &userOne,
+			"msg":    "Successfully get user data",
+			"user":   &userOne,
 		})
 	}
 }
@@ -217,7 +217,7 @@ func (u UsersController) CheckAuth(c *gin.Context) {
 			"account": claims.Account,
 			"roles":   claims.Roles,
 		},
-	})		
+	})
 }
 
 // RefreshToken @Summary

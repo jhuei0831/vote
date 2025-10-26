@@ -22,12 +22,12 @@ type User struct {
 }
 
 type UserCreate struct {
-	Account string `json:"account" binding:"required" example:"account"`
-	Password string `json:"password" binding:"required" example:"password"`
-	Email string `json:"email" binding:"required" example:"test123@gmail.com"`
+	Account 	string  `json:"account" binding:"required" example:"account"`
+	Password 	string 	`json:"password" binding:"required" example:"password"`
+	Email 		string  `json:"email" binding:"required,email" example:"test123@gmail.com"`
 }
 
 type UserLogin struct {
-	Account string `json:"account" binding:"required" example:"account"`
-	Password string `json:"password" binding:"required" example:"password"`
+	Account 	string  `json:"account" binding:"required" example:"account"`
+	Password 	string 	`json:"password" binding:"required" example:"password"`
 }

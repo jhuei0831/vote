@@ -17,57 +17,90 @@ func NewUserService() UserService {
 	return UserService{}
 }
 
-func (u UserService) SelectOneUsers(id int64) (*model.User, error) {
-	userOne := &model.User{}
-	err := database.SqlSession.Select([]string{"id", "account", "email"}).Where("id=?", id).First(&userOne).Error
+func (u UserService) GetUserById(id int64) (*model.User, error) {
+	user := &model.User{}
+	err := database.SqlSession.Select([]string{"id", "account", "email"}).Where("id=?", id).First(&user).Error
 	if err != nil {
 		return nil, err
 	} else {
-		return userOne, nil
+		return user, nil
 	}
 }
 
-func (u UserService) RegisterOneUser(account string, password string, email string) error {
-	if !u.CheckOneUser(account) {
-		return fmt.Errorf("user exists")
+func (u UserService) GetUsers() ([]*model.User, error) {
+	var users []*model.User
+
+	err := database.SqlSession.Select([]string{"id", "account", "email"}).Find(&users).Error
+
+	if err != nil {
+		return nil, err
+	} else {
+		return users, err
+	}
+}
+
+func (u UserService) CreateUser(input model.UserCreate) (*model.User, error) {
+	if u.CheckAccountExist(input.Account) {
+		return nil, fmt.Errorf("account exists")
+	}
+	if u.CheckEmailExist(input.Email) {
+		return nil, fmt.Errorf("email exists")
 	}
 	var SHA256Hasher utils.SHA256Hasher
-	passwordHash, err := SHA256Hasher.HashPassword(password)
+	passwordHash, err := SHA256Hasher.HashPassword(input.Password)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	user := model.User{
-		Account:  account,
+		Account:  input.Account,
 		Password: passwordHash,
-		Email:    email,
+		Email:    input.Email,
 	}
 
 	insertErr := database.SqlSession.Model(&model.User{}).Create(&user).Error
 	utils.Logger().WithFields(logrus.Fields{
-		"name": "RegisterOneUser",
+		"name": "CreateUser",
 	}).Error("error: ", insertErr)
-	return insertErr
+
+	return &user, insertErr
 }
 
-// CheckOneUser 根據提供的帳號檢查用戶是否存在。
+// CheckAccountExist 根據提供的帳號檢查用戶是否存在。
 // 如果用戶存在，返回 true；否則返回 false。
 // 參數:
 //   - account: 用戶的帳號。
 //
 // 返回值:
 //   - bool: 如果用戶存在返回 true，否則返回 false。
-func (u UserService) CheckOneUser(account string) bool {
-	result := false
+func (u UserService) CheckAccountExist(account string) bool {
 	var user model.User
+	dbResult := database.SqlSession.Model(&model.User{}).Select("id").Where("account = ?", account).Limit(1).Find(&user)
 
-	dbResult := database.SqlSession.Where("account = ?", account).Find(&user)
 	if dbResult.Error != nil {
-		fmt.Printf("Get User Info Failed:%v\n", dbResult.Error)
-	} else {
-		result = true
+		utils.Logger().WithFields(logrus.Fields{
+			"name":    "CheckAccountExist",
+			"account": account,
+		}).Error(dbResult.Error)
+		return false
 	}
-	return result
+
+	return dbResult.RowsAffected > 0
+}
+
+func (u UserService) CheckEmailExist(email string) bool {
+	var user model.User
+	dbResult := database.SqlSession.Model(&model.User{}).Select("id").Where("email = ?", email).Limit(1).Find(&user)
+
+	if dbResult.Error != nil {
+		utils.Logger().WithFields(logrus.Fields{
+			"name":  "CheckEmailExist",
+			"email": email,
+		}).Error(dbResult.Error)
+		return false
+	}
+
+	return dbResult.RowsAffected > 0
 }
 
 // LoginOneUser 根據提供的帳號和密碼登錄用戶。
