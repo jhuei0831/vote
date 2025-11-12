@@ -11,6 +11,7 @@ import (
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/introspection"
+	"github.com/google/uuid"
 	gqlparser "github.com/vektah/gqlparser/v2"
 	"github.com/vektah/gqlparser/v2/ast"
 )
@@ -35,6 +36,7 @@ type Config struct {
 type ResolverRoot interface {
 	Mutation() MutationResolver
 	Query() QueryResolver
+	Vote() VoteResolver
 }
 
 type DirectiveRoot struct {
@@ -43,16 +45,49 @@ type DirectiveRoot struct {
 type ComplexityRoot struct {
 	Mutation struct {
 		CreateUser func(childComplexity int, input model.UserCreate) int
+		CreateVote func(childComplexity int, input model.VoteCreate) int
+		DeleteVote func(childComplexity int, uuids []uuid.UUID) int
+		UpdateVote func(childComplexity int, uuid uuid.UUID, input model.VoteUpdate) int
+	}
+
+	PageInfo struct {
+		EndCursor       func(childComplexity int) int
+		HasNextPage     func(childComplexity int) int
+		HasPreviousPage func(childComplexity int) int
+		StartCursor     func(childComplexity int) int
 	}
 
 	Query struct {
 		Users func(childComplexity int) int
+		Votes func(childComplexity int, input *model.VoteQuery) int
 	}
 
 	User struct {
 		Account func(childComplexity int) int
 		Email   func(childComplexity int) int
 		ID      func(childComplexity int) int
+	}
+
+	Vote struct {
+		Creator     func(childComplexity int) int
+		Description func(childComplexity int) int
+		EndTime     func(childComplexity int) int
+		ID          func(childComplexity int) int
+		StartTime   func(childComplexity int) int
+		Status      func(childComplexity int) int
+		Title       func(childComplexity int) int
+		Uuid        func(childComplexity int) int
+	}
+
+	VoteConnection struct {
+		Edges      func(childComplexity int) int
+		PageInfo   func(childComplexity int) int
+		TotalCount func(childComplexity int) int
+	}
+
+	VoteEdge struct {
+		Cursor func(childComplexity int) int
+		Node   func(childComplexity int) int
 	}
 }
 
@@ -87,12 +122,88 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.Mutation.CreateUser(childComplexity, args["input"].(model.UserCreate)), true
 
+	case "Mutation.createVote":
+		if e.complexity.Mutation.CreateVote == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_createVote_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.CreateVote(childComplexity, args["input"].(model.VoteCreate)), true
+
+	case "Mutation.deleteVote":
+		if e.complexity.Mutation.DeleteVote == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_deleteVote_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.DeleteVote(childComplexity, args["uuids"].([]uuid.UUID)), true
+
+	case "Mutation.updateVote":
+		if e.complexity.Mutation.UpdateVote == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_updateVote_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.UpdateVote(childComplexity, args["uuid"].(uuid.UUID), args["input"].(model.VoteUpdate)), true
+
+	case "PageInfo.endCursor":
+		if e.complexity.PageInfo.EndCursor == nil {
+			break
+		}
+
+		return e.complexity.PageInfo.EndCursor(childComplexity), true
+
+	case "PageInfo.hasNextPage":
+		if e.complexity.PageInfo.HasNextPage == nil {
+			break
+		}
+
+		return e.complexity.PageInfo.HasNextPage(childComplexity), true
+
+	case "PageInfo.hasPreviousPage":
+		if e.complexity.PageInfo.HasPreviousPage == nil {
+			break
+		}
+
+		return e.complexity.PageInfo.HasPreviousPage(childComplexity), true
+
+	case "PageInfo.startCursor":
+		if e.complexity.PageInfo.StartCursor == nil {
+			break
+		}
+
+		return e.complexity.PageInfo.StartCursor(childComplexity), true
+
 	case "Query.users":
 		if e.complexity.Query.Users == nil {
 			break
 		}
 
 		return e.complexity.Query.Users(childComplexity), true
+
+	case "Query.votes":
+		if e.complexity.Query.Votes == nil {
+			break
+		}
+
+		args, err := ec.field_Query_votes_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.Votes(childComplexity, args["input"].(*model.VoteQuery)), true
 
 	case "User.account":
 		if e.complexity.User.Account == nil {
@@ -115,6 +226,97 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.User.ID(childComplexity), true
 
+	case "Vote.creator":
+		if e.complexity.Vote.Creator == nil {
+			break
+		}
+
+		return e.complexity.Vote.Creator(childComplexity), true
+
+	case "Vote.description":
+		if e.complexity.Vote.Description == nil {
+			break
+		}
+
+		return e.complexity.Vote.Description(childComplexity), true
+
+	case "Vote.endTime":
+		if e.complexity.Vote.EndTime == nil {
+			break
+		}
+
+		return e.complexity.Vote.EndTime(childComplexity), true
+
+	case "Vote.id":
+		if e.complexity.Vote.ID == nil {
+			break
+		}
+
+		return e.complexity.Vote.ID(childComplexity), true
+
+	case "Vote.startTime":
+		if e.complexity.Vote.StartTime == nil {
+			break
+		}
+
+		return e.complexity.Vote.StartTime(childComplexity), true
+
+	case "Vote.status":
+		if e.complexity.Vote.Status == nil {
+			break
+		}
+
+		return e.complexity.Vote.Status(childComplexity), true
+
+	case "Vote.title":
+		if e.complexity.Vote.Title == nil {
+			break
+		}
+
+		return e.complexity.Vote.Title(childComplexity), true
+
+	case "Vote.uuid":
+		if e.complexity.Vote.Uuid == nil {
+			break
+		}
+
+		return e.complexity.Vote.Uuid(childComplexity), true
+
+	case "VoteConnection.edges":
+		if e.complexity.VoteConnection.Edges == nil {
+			break
+		}
+
+		return e.complexity.VoteConnection.Edges(childComplexity), true
+
+	case "VoteConnection.pageInfo":
+		if e.complexity.VoteConnection.PageInfo == nil {
+			break
+		}
+
+		return e.complexity.VoteConnection.PageInfo(childComplexity), true
+
+	case "VoteConnection.totalCount":
+		if e.complexity.VoteConnection.TotalCount == nil {
+			break
+		}
+
+		return e.complexity.VoteConnection.TotalCount(childComplexity), true
+
+	case "VoteEdge.cursor":
+		if e.complexity.VoteEdge.Cursor == nil {
+			break
+		}
+
+		return e.complexity.VoteEdge.Cursor(childComplexity), true
+
+	case "VoteEdge.node":
+		if e.complexity.VoteEdge.Node == nil {
+			break
+		}
+
+		return e.complexity.VoteEdge.Node(childComplexity), true
+
 	}
 	return 0, false
 }
@@ -124,6 +326,9 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	ec := executionContext{opCtx, e, 0, 0, make(chan graphql.DeferredResult)}
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
 		ec.unmarshalInputUserCreate,
+		ec.unmarshalInputVoteCreate,
+		ec.unmarshalInputVoteQuery,
+		ec.unmarshalInputVoteUpdate,
 	)
 	first := true
 
@@ -239,6 +444,79 @@ type Query {
 
 type Mutation {
   createUser(input: UserCreate!): User!
+}`, BuiltIn: false},
+	{Name: "../vote.graphqls", Input: `scalar Time
+scalar UUID
+scalar Int64
+
+type Vote {
+  id: ID!
+  uuid: UUID!
+  title: String!
+  description: String!
+  startTime: Time!
+  endTime: Time!
+  creator: User!
+  status: Int64!
+}
+
+type VoteConnection {
+  edges: [VoteEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int64!
+}
+
+type VoteEdge {
+  node: Vote!
+  cursor: ID!
+}
+
+type PageInfo {
+  startCursor: String
+  endCursor: String
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+}
+
+"""
+Input for creating a vote.
+All time fields must be in RFC3339/ISO8601 format (e.g., "2025-11-06T12:00:00Z")
+"""
+input VoteCreate {
+  title: String!
+  description: String
+  startTime: Time!
+  endTime: Time!
+}
+
+input VoteUpdate {
+  title: String
+  description: String
+  startTime: Time
+  endTime: Time
+  UpdatedAt: Time
+}
+
+input VoteQuery {
+  id: ID
+  uuid: UUID
+  title: String
+  startTime: Time
+  endTime: Time
+  first: Int64
+  after: String
+  last: Int64
+  before: String
+}
+
+extend type Query {
+  votes(input: VoteQuery): [VoteConnection!]!
+}
+
+extend type Mutation {
+  createVote(input: VoteCreate!): Vote!
+  updateVote(uuid: UUID!, input: VoteUpdate!): Vote!
+  deleteVote(uuids: [UUID!]!): [Vote!]!
 }`, BuiltIn: false},
 }
 var parsedSchema = gqlparser.MustLoadSchema(sources...)

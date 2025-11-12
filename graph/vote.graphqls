@@ -1,0 +1,73 @@
+scalar Time
+scalar UUID
+scalar Int64
+
+type Vote {
+  id: ID!
+  uuid: UUID!
+  title: String!
+  description: String!
+  startTime: Time!
+  endTime: Time!
+  creator: User!
+  status: Int64!
+}
+
+type VoteConnection {
+  edges: [VoteEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int64!
+}
+
+type VoteEdge {
+  node: Vote!
+  cursor: ID!
+}
+
+type PageInfo {
+  startCursor: String
+  endCursor: String
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+}
+
+"""
+Input for creating a vote.
+All time fields must be in RFC3339/ISO8601 format (e.g., "2025-11-06T12:00:00Z")
+"""
+input VoteCreate {
+  title: String!
+  description: String
+  startTime: Time!
+  endTime: Time!
+}
+
+input VoteUpdate {
+  title: String
+  description: String
+  startTime: Time
+  endTime: Time
+  UpdatedAt: Time
+}
+
+input VoteQuery {
+  id: ID
+  uuid: UUID
+  title: String
+  startTime: Time
+  endTime: Time
+  first: Int64
+  after: String
+  last: Int64
+  before: String
+}
+
+extend type Query {
+  votes(input: VoteQuery): [VoteConnection!]!
+}
+
+extend type Mutation {
+  createVote(input: VoteCreate!): Vote!
+  updateVote(uuid: UUID!, input: VoteUpdate!): Vote!
+  deleteVote(uuids: [UUID!]!): [Vote!]!
+}

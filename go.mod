@@ -136,3 +136,5 @@ replace vote/app/service => ./app/service
 replace vote/app/controller => ./app/controller
 
 replace vote/app/utils => ./app/utils
+
+replace vote/app/repository => ./app/repository

@@ -98,10 +98,10 @@ func Routes(r *gin.Engine, m *persist.RedisStore) {
 		// 	middleware.RoleMiddleware("vote", "read"),
 		// 	controller.NewVoteController().SelectOneVote,
 		// )
-		votes.GET("/list",
-			middleware.RoleMiddleware("vote", "read"),
-			controller.NewVoteController().SelectAllVotes,
-		)
+		// votes.GET("/list",
+		// 	middleware.RoleMiddleware("vote", "read"),
+		// 	controller.NewVoteController().SelectAllVotes,
+		// )
 		votes.PUT("/:id",
 			middleware.RoleMiddleware("vote", "update"),
 			controller.NewVoteController().UpdateVote,

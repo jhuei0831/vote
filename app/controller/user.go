@@ -157,7 +157,12 @@ func (u UsersController) Login(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"code": 0,
 		"msg":  "Success",
-		"data": gin.H{"token": tokenString, "refresh_token": refreshTokenString},
+		"data": gin.H{
+			"token_type": "Bearer",
+			"expires_in": 3600,
+			"token": tokenString, 
+			"refresh_token": refreshTokenString,
+		},
 	})
 }
 
@@ -267,6 +272,11 @@ func (u UsersController) RefreshToken(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"code": 0,
 		"msg":  "Success",
-		"data": gin.H{"token": accessToken, "refresh_token": newRefreshToken},
+		"data": gin.H{
+			"token_type": "Bearer",
+			"expires_in": 3600,
+			"token": accessToken, 
+			"refresh_token": newRefreshToken,
+		},
 	})
 }

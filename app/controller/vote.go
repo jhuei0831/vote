@@ -69,63 +69,63 @@ func (v VoteController) SelectOneVote(c *gin.Context) {
 // @Produce json
 // @Success 200 {string} string "ok"
 // @Router /vote/all [get]
-func (v VoteController) SelectAllVotes(c *gin.Context) {
-	userId, exists := c.Get("id")
-	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{
-			"status": -1,
-			"msg":    "User ID not found in context",
-			"data":   nil,
-		})
-		return
-	}
+// func (v VoteController) SelectAllVotes(c *gin.Context) {
+// 	userId, exists := c.Get("id")
+// 	if !exists {
+// 		c.JSON(http.StatusUnauthorized, gin.H{
+// 			"status": -1,
+// 			"msg":    "User ID not found in context",
+// 			"data":   nil,
+// 		})
+// 		return
+// 	}
 
-	isAdmin, err := database.CheckIfAdmin(userId.(uint64))
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"status": -1,
-			"msg":    "Failed to check user role: " + err.Error(),
-			"data":   nil,
-		})
-		return
-	}
-	// 解析查詢參數
-	var voteQuery model.VoteQuery
-	queryErr := c.ShouldBindQuery(&voteQuery)
-	if queryErr != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"status": -1,
-			"msg":    "Invalid query parameters: " + utils.ValidationErrorMessage(queryErr),
-			"data":   nil,
-		})
-		return
-	}
+// 	isAdmin, err := database.CheckIfAdmin(userId.(uint64))
+// 	if err != nil {
+// 		c.JSON(http.StatusInternalServerError, gin.H{
+// 			"status": -1,
+// 			"msg":    "Failed to check user role: " + err.Error(),
+// 			"data":   nil,
+// 		})
+// 		return
+// 	}
+// 	// 解析查詢參數
+// 	var voteQuery *model.VoteQuery
+// 	queryErr := c.ShouldBindQuery(&voteQuery)
+// 	if queryErr != nil {
+// 		c.JSON(http.StatusBadRequest, gin.H{
+// 			"status": -1,
+// 			"msg":    "Invalid query parameters: " + utils.ValidationErrorMessage(queryErr),
+// 			"data":   nil,
+// 		})
+// 		return
+// 	}
 
-	page := voteQuery.Page
-	size := voteQuery.Size
+// 	first := voteQuery.First
+// 	after := voteQuery.After
 
-	votes, total, err := service.NewVoteService().SelectAllVotes(isAdmin, userId.(uint64), voteQuery)
-	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{
-			"status": -1,
-			"msg":    "Vote not found: " + err.Error(),
-			"data":   nil,
-		})
-	} else {
-		totalPages := (total + int64(size) - 1) / int64(size)
-		c.JSON(http.StatusOK, gin.H{
-			"status": 0,
-			"msg":    "Successfully get vote data",
-			"data":   &votes,
-			"pagination": gin.H{
-				"total":       total,
-				"page":        page,
-				"size":        size,
-				"total_pages": totalPages,
-			},
-		})
-	}
-}
+// 	votes, err := service.NewVoteService().SelectAllVotes(isAdmin, userId.(uint64), voteQuery)
+// 	if err != nil {
+// 		c.JSON(http.StatusNotFound, gin.H{
+// 			"status": -1,
+// 			"msg":    "Vote not found: " + err.Error(),
+// 			"data":   nil,
+// 		})
+// 	} else {
+// 		totalPages := (total + int64(first) - 1) / int64(first)
+// 		c.JSON(http.StatusOK, gin.H{
+// 			"status": 0,
+// 			"msg":    "Successfully get vote data",
+// 			"data":   &votes,
+// 			"pagination": gin.H{
+// 				"total":       total,
+// 				"first":        first,
+// 				"after":        after,
+// 				"total_pages": totalPages,
+// 			},
+// 		})
+// 	}
+// }
 
 // CreateVote @Summary
 // @tags 投票

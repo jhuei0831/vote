@@ -1,8 +1,10 @@
 package service
 
 import (
+	"strconv"
 	"vote/app/database"
 	"vote/app/model"
+	"vote/app/utils"
 
 	"github.com/google/uuid"
 	"gorm.io/gorm/clause"
@@ -30,7 +32,7 @@ func (v VoteService) SelectOneVote(id uuid.UUID) (*model.Vote, error) {
 }
 
 // SelectAllVotes 檢索所有投票。
-func (v VoteService) SelectAllVotes(isAdmin bool, userId uint64, voteQuery model.VoteQuery) ([]model.Vote, int64, error) {
+func (v VoteService) SelectAllVotes(isAdmin bool, userId uint64, voteQuery *model.VoteQuery) ([]*model.VoteConnection, error) {
 	var votes []model.Vote
 	var total int64
 	query := database.SqlSession.Model(&model.Vote{})
@@ -39,29 +41,51 @@ func (v VoteService) SelectAllVotes(isAdmin bool, userId uint64, voteQuery model
 		query = query.Where("user_id = ?", userId)
 	}
 
-	// 設定查詢條件
-	page := voteQuery.Page
-	size := voteQuery.Size
-
 	// 計算總筆數
 	err := query.Count(&total).Error
 	if err != nil {
-		return nil, 0, err
+		return nil, err
 	}
 
-	// 如果有 page 和 size，加入分頁條件
-	if page > 0 && size > 0 {
-		offset := (page - 1) * size
-		query = query.Offset(offset).Limit(size)
+	// 使用分頁服務處理分頁
+	paginationService := NewPaginationService[*model.VoteQuery, model.Vote]()
+	query, err = paginationService.Handler(query, voteQuery)
+	if err != nil {
+		return nil, err
 	}
 
 	// 查詢資料
 	err = query.Find(&votes).Error
-	return votes, total, err
+	votes, hasPreviousPage, hasNextPage := paginationService.HasPreviousNextPage(votes, voteQuery)
+
+	var edges []model.VoteEdge
+	for _, vote := range votes {
+		cursor, _ := (&utils.Password{}).Encrypt(strconv.FormatUint(vote.ID, 10))
+		edges = append(edges, model.VoteEdge{
+			Node:   vote,
+			Cursor: cursor,
+		})
+	}
+
+	voteConnection := &model.VoteConnection{
+		Edges: edges,
+		PageInfo: model.PageInfo{
+			StartCursor:     edges[0].Cursor,
+			EndCursor:       edges[len(edges)-1].Cursor,
+			HasNextPage:     hasNextPage,
+			HasPreviousPage: hasPreviousPage,
+		},
+		TotalCount: total,
+	}
+
+	var result []*model.VoteConnection
+	result = append(result, voteConnection)
+	
+	return result, err
 }
 
 // CreateOneVote 創建新的投票。
-func (v VoteService) CreateVote(form model.VoteCreate) (model.Vote, error) {
+func (v VoteService) CreateVote(form model.VoteCreate) (*model.Vote, error) {
 	vote := model.Vote{
 		Title:       form.Title,
 		Description: form.Description,
@@ -71,27 +95,27 @@ func (v VoteService) CreateVote(form model.VoteCreate) (model.Vote, error) {
 	}
 
 	insertErr := database.SqlSession.Model(&model.Vote{}).Create(&vote).Error
-	return vote, insertErr
+	return &vote, insertErr
 }
 
 // UpdateOneVote 更新投票。
-func (v VoteService) UpdateVote(id uuid.UUID, form model.VoteUpdate) (model.Vote, error) {
-	var vote model.Vote
-	// 更新投票
-	update := database.SqlSession.Model(&vote).
-		Clauses(clause.Returning{}).
-		Where("id=?", id).
-		Updates(&form)
-	
-	return vote, update.Error
+func (v VoteService) UpdateVote(uuid uuid.UUID, form model.VoteUpdate) (*model.Vote, error) {
+    var vote model.Vote
+    // 更新投票並掃描返回的結果
+    update := database.SqlSession.Model(&vote).
+        Clauses(clause.Returning{}).
+        Where("uuid=?", uuid).
+        Updates(&form)
+
+    return &vote, update.Error
 }
 
 // DeleteOneVote 刪除投票。
-func (v VoteService) DeleteVote(voteIds []uuid.UUID, isAdmin bool, userId uint64) ([]model.Vote, error) {
-	var votes []model.Vote
+func (v VoteService) DeleteVote(voteUuids []uuid.UUID, isAdmin bool, userId uint64) ([]*model.Vote, error) {
+	var votes []*model.Vote
 	query := database.SqlSession.
 		Clauses(clause.Returning{}).
-		Where("id IN (?)", voteIds)
+		Where("uuid IN (?)", voteUuids)
 
 	if !isAdmin {
 		query = query.Where("user_id = ?", userId)
