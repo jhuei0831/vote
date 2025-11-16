@@ -65,7 +65,7 @@ func main() {
     command := args[0]
 
     // 從環境變數取得資料庫設定
-    dbConfig := os.Getenv("DB_CONFIG")
+    dbConfig := database.DbConfig()
     // 初始化資料庫
     db, err := database.Initialize(dbConfig)
     if err != nil {

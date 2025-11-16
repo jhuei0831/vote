@@ -20,18 +20,31 @@ import (
 
 type MutationResolver interface {
 	CreateUser(ctx context.Context, input model.UserCreate) (*model.User, error)
+	CreateQuestion(ctx context.Context, input model.QuestionCreate) (*model.Question, error)
 	CreateVote(ctx context.Context, input model.VoteCreate) (*model.Vote, error)
 	UpdateVote(ctx context.Context, uuid uuid.UUID, input model.VoteUpdate) (*model.Vote, error)
 	DeleteVote(ctx context.Context, uuids []uuid.UUID) ([]*model.Vote, error)
 }
 type QueryResolver interface {
 	Users(ctx context.Context) ([]*model.User, error)
-	Votes(ctx context.Context, input *model.VoteQuery) ([]*model.VoteConnection, error)
+	Questions(ctx context.Context, input *model.QuestionQuery, withCandidates bool) ([]*model.QuestionConnection, error)
+	Votes(ctx context.Context, input *model.VoteQuery, withQuestions bool) ([]*model.VoteConnection, error)
 }
 
 // endregion ************************** generated!.gotpl **************************
 
 // region    ***************************** args.gotpl *****************************
+
+func (ec *executionContext) field_Mutation_createQuestion_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNQuestionCreate2voteᚋappᚋmodelᚐQuestionCreate)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
 
 func (ec *executionContext) field_Mutation_createUser_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
@@ -93,6 +106,22 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 	return args, nil
 }
 
+func (ec *executionContext) field_Query_questions_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalOQuestionQuery2ᚖvoteᚋappᚋmodelᚐQuestionQuery)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "withCandidates", ec.unmarshalNBoolean2bool)
+	if err != nil {
+		return nil, err
+	}
+	args["withCandidates"] = arg1
+	return args, nil
+}
+
 func (ec *executionContext) field_Query_votes_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
@@ -101,6 +130,11 @@ func (ec *executionContext) field_Query_votes_args(ctx context.Context, rawArgs 
 		return nil, err
 	}
 	args["input"] = arg0
+	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "withQuestions", ec.unmarshalNBoolean2bool)
+	if err != nil {
+		return nil, err
+	}
+	args["withQuestions"] = arg1
 	return args, nil
 }
 
@@ -161,6 +195,63 @@ func (ec *executionContext) fieldContext_Mutation_createUser(ctx context.Context
 	return fc, nil
 }
 
+func (ec *executionContext) _Mutation_createQuestion(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Mutation_createQuestion,
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.resolvers.Mutation().CreateQuestion(ctx, fc.Args["input"].(model.QuestionCreate))
+		},
+		nil,
+		ec.marshalNQuestion2ᚖvoteᚋappᚋmodelᚐQuestion,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Mutation_createQuestion(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Question_id(ctx, field)
+			case "voteId":
+				return ec.fieldContext_Question_voteId(ctx, field)
+			case "title":
+				return ec.fieldContext_Question_title(ctx, field)
+			case "description":
+				return ec.fieldContext_Question_description(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Question_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Question_updatedAt(ctx, field)
+			case "candidates":
+				return ec.fieldContext_Question_candidates(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Question", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_createQuestion_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Mutation_createVote(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -202,6 +293,8 @@ func (ec *executionContext) fieldContext_Mutation_createVote(ctx context.Context
 				return ec.fieldContext_Vote_creator(ctx, field)
 			case "status":
 				return ec.fieldContext_Vote_status(ctx, field)
+			case "questions":
+				return ec.fieldContext_Vote_questions(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Vote", field.Name)
 		},
@@ -261,6 +354,8 @@ func (ec *executionContext) fieldContext_Mutation_updateVote(ctx context.Context
 				return ec.fieldContext_Vote_creator(ctx, field)
 			case "status":
 				return ec.fieldContext_Vote_status(ctx, field)
+			case "questions":
+				return ec.fieldContext_Vote_questions(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Vote", field.Name)
 		},
@@ -320,6 +415,8 @@ func (ec *executionContext) fieldContext_Mutation_deleteVote(ctx context.Context
 				return ec.fieldContext_Vote_creator(ctx, field)
 			case "status":
 				return ec.fieldContext_Vote_status(ctx, field)
+			case "questions":
+				return ec.fieldContext_Vote_questions(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Vote", field.Name)
 		},
@@ -375,6 +472,55 @@ func (ec *executionContext) fieldContext_Query_users(_ context.Context, field gr
 	return fc, nil
 }
 
+func (ec *executionContext) _Query_questions(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Query_questions,
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.resolvers.Query().Questions(ctx, fc.Args["input"].(*model.QuestionQuery), fc.Args["withCandidates"].(bool))
+		},
+		nil,
+		ec.marshalNQuestionConnection2ᚕᚖvoteᚋappᚋmodelᚐQuestionConnectionᚄ,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Query_questions(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "edges":
+				return ec.fieldContext_QuestionConnection_edges(ctx, field)
+			case "pageInfo":
+				return ec.fieldContext_QuestionConnection_pageInfo(ctx, field)
+			case "totalCount":
+				return ec.fieldContext_QuestionConnection_totalCount(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type QuestionConnection", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_questions_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Query_votes(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -383,7 +529,7 @@ func (ec *executionContext) _Query_votes(ctx context.Context, field graphql.Coll
 		ec.fieldContext_Query_votes,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Query().Votes(ctx, fc.Args["input"].(*model.VoteQuery))
+			return ec.resolvers.Query().Votes(ctx, fc.Args["input"].(*model.VoteQuery), fc.Args["withQuestions"].(bool))
 		},
 		nil,
 		ec.marshalNVoteConnection2ᚕᚖvoteᚋappᚋmodelᚐVoteConnectionᚄ,
@@ -698,6 +844,13 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "createQuestion":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_createQuestion(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "createVote":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_createVote(ctx, field)
@@ -771,6 +924,28 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_users(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "questions":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_questions(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}

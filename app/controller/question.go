@@ -4,13 +4,14 @@ import (
 	"net/http"
 	"strconv"
 	"vote/app/database"
-	"vote/app/middleware"
+
+	// "vote/app/middleware"
 	"vote/app/model"
 	"vote/app/service"
 	"vote/app/utils"
 
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
+	// "github.com/google/uuid"
 )
 
 type QuestionController struct {
@@ -20,7 +21,7 @@ func NewQuestionController() QuestionController {
 	return QuestionController{}
 }
 
-// SelectOneQuestion 根據提供的 ID 檢查問題是否存在。
+// GetQuestion 根據提供的 ID 檢查問題是否存在。
 // @Summary
 // @tags 問題
 // @Summary 根據提供的 ID 檢查問題是否存在
@@ -31,7 +32,7 @@ func NewQuestionController() QuestionController {
 // @Param candidates query bool false "是否檢索候選人"
 // @Success 200 {string} string "ok"
 // @Router /question/{id} [get]
-func (q QuestionController) SelectOneQuestion(c *gin.Context) {
+func (q QuestionController) GetQuestion(c *gin.Context) {
 	id := c.Param("id")
 	questionID, err := strconv.ParseUint(id, 10, 64)
 	if err != nil {
@@ -61,7 +62,7 @@ func (q QuestionController) SelectOneQuestion(c *gin.Context) {
 	if candidates == "true" {
 		questionOne, err = questionService.SelectQuestionWithCandidates(questionID, isAdmin, userId)
 	} else {
-		questionOne, err = questionService.SelectOneQuestion(questionID, isAdmin, userId)
+		questionOne, err = questionService.GetQuestion(questionID, isAdmin, userId)
 	}
 
 	if err != nil {
@@ -72,14 +73,14 @@ func (q QuestionController) SelectOneQuestion(c *gin.Context) {
 		})
 	} else {
 		c.JSON(http.StatusOK, gin.H{
-			"status": 0,
-			"msg":    "Successfully retrieved question data",
-			"question":   &questionOne,
+			"status":   0,
+			"msg":      "Successfully retrieved question data",
+			"question": &questionOne,
 		})
 	}
 }
 
-// SelectAllQuestions 檢索所有問題。
+// GetQuestions 檢索所有問題。
 // @Summary
 // @tags 問題
 // @Summary 檢索所有問題
@@ -89,64 +90,64 @@ func (q QuestionController) SelectOneQuestion(c *gin.Context) {
 // @Param vote_id query int false "投票ID"
 // @Success 200 {string} string "ok"
 // @Router /question [get]
-func (q QuestionController) SelectAllQuestions(c *gin.Context) {
-	voteId := c.Param("vote_id")
-	voteUuid, err := uuid.Parse(voteId)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"status": -1,
-			"msg":    "Invalid vote ID",
-			"data":   nil,
-		})
-		return
-	}
+// func (q QuestionController) GetQuestions(c *gin.Context) {
+// 	voteId := c.Param("vote_id")
+// 	voteUuid, err := uuid.Parse(voteId)
+// 	if err != nil {
+// 		c.JSON(http.StatusBadRequest, gin.H{
+// 			"status": -1,
+// 			"msg":    "Invalid vote ID",
+// 			"data":   nil,
+// 		})
+// 		return
+// 	}
 
-	var QuestionQuery model.QuestionQuery
-	if err := c.ShouldBindQuery(&QuestionQuery); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"status": -1,
-			"msg":    "Invalid params: " + utils.ValidationErrorMessage(err),
-			"data":   nil,
-		})
-		return
-	}
+// 	var QuestionQuery model.QuestionQuery
+// 	if err := c.ShouldBindQuery(&QuestionQuery); err != nil {
+// 		c.JSON(http.StatusBadRequest, gin.H{
+// 			"status": -1,
+// 			"msg":    "Invalid params: " + utils.ValidationErrorMessage(err),
+// 			"data":   nil,
+// 		})
+// 		return
+// 	}
 
-	page := QuestionQuery.Page
-	size := QuestionQuery.Size
+// 	page := QuestionQuery.Page
+// 	size := QuestionQuery.Size
 
-	userId := c.MustGet("id").(uint64)
-	isAdmin, err := database.CheckIfAdmin(userId)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"status": -1,
-			"msg":    "Failed to check user role: " + err.Error(),
-			"data":   nil,
-		})
-		return
-	}
-	questions, total, err := service.NewQuestionService().SelectAllQuestions(voteUuid, isAdmin, userId, QuestionQuery)
+// 	userId := c.MustGet("id").(uint64)
+// 	isAdmin, err := database.CheckIfAdmin(userId)
+// 	if err != nil {
+// 		c.JSON(http.StatusInternalServerError, gin.H{
+// 			"status": -1,
+// 			"msg":    "Failed to check user role: " + err.Error(),
+// 			"data":   nil,
+// 		})
+// 		return
+// 	}
+// 	questions, total, err := service.NewQuestionService().GetQuestions(voteUuid, isAdmin, userId, QuestionQuery)
 
-	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{
-			"status": -1,
-			"msg":    "Questions not found: " + err.Error(),
-			"data":   nil,
-		})
-	} else {
-		totalPages := (total + int64(size) - 1) / int64(size)
-		c.JSON(http.StatusOK, gin.H{
-			"status": 0,
-			"msg":    "Successfully retrieved questions data",
-			"data":   &questions,
-			"pagination": gin.H{
-				"total":       total,
-				"page":        page,
-				"size":        size,
-				"total_pages": totalPages,
-			},
-		})
-	}
-}
+// 	if err != nil {
+// 		c.JSON(http.StatusNotFound, gin.H{
+// 			"status": -1,
+// 			"msg":    "Questions not found: " + err.Error(),
+// 			"data":   nil,
+// 		})
+// 	} else {
+// 		totalPages := (total + int64(size) - 1) / int64(size)
+// 		c.JSON(http.StatusOK, gin.H{
+// 			"status": 0,
+// 			"msg":    "Successfully retrieved questions data",
+// 			"data":   &questions,
+// 			"pagination": gin.H{
+// 				"total":       total,
+// 				"page":        page,
+// 				"size":        size,
+// 				"total_pages": totalPages,
+// 			},
+// 		})
+// 	}
+// }
 
 // SelectVoterCandidate 檢索投票者的候選人。
 // @Summary
@@ -157,59 +158,59 @@ func (q QuestionController) SelectAllQuestions(c *gin.Context) {
 // @Produce json
 // @Success 200 {string} string "ok"
 // @Router /v1/voter/question [get]
-func (q QuestionController) SelectVoterQuestions(c *gin.Context) {
-	// 從voter token中取得投票場次ID
-	token, err := c.Cookie("voter-token")
-	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{
-			"code": -1,
-			"msg":  "Authorization token not found in Cookie",
-		})
-		return
-	}
-	claims, err := middleware.ParseVoterToken(token)
-	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{
-			"code": -1,
-			"msg":  "Invalid Token.",
-		})
-		return
-	}
-	voteId := claims.VoteID
+// func (q QuestionController) SelectVoterQuestions(c *gin.Context) {
+// 	// 從voter token中取得投票場次ID
+// 	token, err := c.Cookie("voter-token")
+// 	if err != nil {
+// 		c.JSON(http.StatusUnauthorized, gin.H{
+// 			"code": -1,
+// 			"msg":  "Authorization token not found in Cookie",
+// 		})
+// 		return
+// 	}
+// 	claims, err := middleware.ParseVoterToken(token)
+// 	if err != nil {
+// 		c.JSON(http.StatusUnauthorized, gin.H{
+// 			"code": -1,
+// 			"msg":  "Invalid Token.",
+// 		})
+// 		return
+// 	}
+// 	voteId := claims.VoteID
 
-	// 檢查投票場次是否存在
-	voteService := service.NewVoteService()
-	_, err = voteService.SelectOneVote(voteId)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"status": -1,
-			"msg":    "Failed to select vote: " + err.Error(),
-			"data":   nil,
-		})
-		return
-	}	
-	
-	questionService := service.NewQuestionService()
-	questions, _, err := questionService.SelectAllQuestions(voteId, true, claims.ID, model.QuestionQuery{
-		Page: 1,
-		Size: 9999,
-		Candidates: true,
-	})
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"status": -1,
-			"msg":    "Failed to select questions: " + err.Error(),
-			"data":   nil,
-		})
-		return
-	}
+// 	// 檢查投票場次是否存在
+// 	voteService := service.NewVoteService()
+// 	_, err = voteService.GetVote(voteId)
+// 	if err != nil {
+// 		c.JSON(http.StatusInternalServerError, gin.H{
+// 			"status": -1,
+// 			"msg":    "Failed to select vote: " + err.Error(),
+// 			"data":   nil,
+// 		})
+// 		return
+// 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"status": 0,
-		"msg":    "ok",
-		"data":   questions,
-	})
-}
+// 	questionService := service.NewQuestionService()
+// 	questions, _, err := questionService.GetQuestions(voteId, true, claims.ID, model.QuestionQuery{
+// 		Page: 1,
+// 		Size: 9999,
+// 		Candidates: true,
+// 	})
+// 	if err != nil {
+// 		c.JSON(http.StatusInternalServerError, gin.H{
+// 			"status": -1,
+// 			"msg":    "Failed to select questions: " + err.Error(),
+// 			"data":   nil,
+// 		})
+// 		return
+// 	}
+
+// 	c.JSON(http.StatusOK, gin.H{
+// 		"status": 0,
+// 		"msg":    "ok",
+// 		"data":   questions,
+// 	})
+// }
 
 // CreateQuestion @Summary
 // @tags 問題
@@ -245,7 +246,7 @@ func (q QuestionController) CreateQuestion(c *gin.Context) {
 	}
 
 	if !isAdmin {
-		vote, err := service.NewVoteService().SelectOneVote(form.VoteID)
+		vote, err := service.NewVoteService().GetVote(form.VoteID)
 		if err != nil {
 			c.JSON(http.StatusNotFound, gin.H{
 				"status": -1,

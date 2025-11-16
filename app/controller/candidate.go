@@ -155,7 +155,7 @@ func (ca CandidateController) CreateCandidate(c *gin.Context) {
 	// check if question exists
 	questionId := form.QuestionID
 	questionService := service.NewQuestionService()
-	_, err = questionService.SelectOneQuestion(questionId, isAdmin, userId)
+	_, err = questionService.GetQuestion(questionId, isAdmin, userId)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"status": -1,

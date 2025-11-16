@@ -2,6 +2,14 @@
 
 package model
 
+type PageQuery interface {
+	IsPageQuery()
+	GetFirst() *int
+	GetAfter() *string
+	GetLast() *int
+	GetBefore() *string
+}
+
 type Mutation struct {
 }
 

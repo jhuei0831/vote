@@ -2,7 +2,7 @@ services:
   postgresql:
     container_name: postgresql
     image: postgres:17
-    platform: ${DOCKER_BUILD_PLATFORM}
+    platform: ${BUILD_PLATFORM}
     healthcheck:
       test: [ "CMD", "pg_isready", "-q", "-d", "vote", "-U", "vote" ]
       timeout: 45s
@@ -11,9 +11,9 @@ services:
     ports:
       - "5432:5432"
     environment:
-      - POSTGRES_DB=${DOCKER_POSTGRES_DB}
-      - POSTGRES_USER=${DOCKER_POSTGRES_USER}
-      - POSTGRES_PASSWORD=${DOCKER_POSTGRES_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
     volumes:
       - ./docker/db:/docker-entrypoint-initdb.d/
     networks:
@@ -24,13 +24,13 @@ services:
   pgadmin:
     container_name: pgadmin4
     image: dpage/pgadmin4
-    platform: ${DOCKER_BUILD_PLATFORM}
+    platform: ${BUILD_PLATFORM}
     restart: always
     ports:
       - "9444:80"
     environment:
-      PGADMIN_DEFAULT_EMAIL: ${DOCKER_PGADMIN_DEFAULT_EMAIL}
-      PGADMIN_DEFAULT_PASSWORD: ${DOCKER_PGADMIN_DEFAULT_PASSWORD}
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
     networks:
       vote_net:
         ipv4_address: 172.20.0.10
@@ -40,7 +40,7 @@ services:
   redis:
     container_name: redis
     image: redis:latest
-    platform: ${DOCKER_BUILD_PLATFORM}
+    platform: ${BUILD_PLATFORM}
     ports:
       - "6379:6379"
     restart: always
@@ -50,7 +50,7 @@ services:
 
   vote:
     container_name: vote
-    platform: ${DOCKER_BUILD_PLATFORM}
+    platform: ${BUILD_PLATFORM}
     ports:
       - "9443:9443"
     build:
@@ -68,7 +68,7 @@ services:
   drone:
     container_name: drone.server
     image: drone/drone:2.15
-    platform: ${DOCKER_BUILD_PLATFORM}
+    platform: ${BUILD_PLATFORM}
     restart: always
     ports:
       - 9445:80 # 對外的 port 可自由修改，這邊以 9445 為例
@@ -87,12 +87,12 @@ services:
         limits:
           memory: 2G
     environment:
-      DRONE_SERVER_HOST: ${DOCKER_DRONE_SERVER_HOST} # your domain，填與 github webhook callback url 一樣即可
+      DRONE_SERVER_HOST: ${DRONE_SERVER_HOST} # your domain，填與 github webhook callback url 一樣即可
       DRONE_SERVER_PROTO: https # 與外界溝通使用 https
-      DRONE_RPC_SECRET: ${DOCKER_DRONE_RPC_SECRET} # 可自行產生一串亂碼作為 drone rpc token
+      DRONE_RPC_SECRET: ${DRONE_RPC_SECRET} # 可自行產生一串亂碼作為 drone rpc token
       # github
-      DRONE_GITHUB_CLIENT_ID: ${DOCKER_DRONE_GITHUB_CLIENT_ID} # 填入 github OAuth 提供的 client id
-      DRONE_GITHUB_CLIENT_SECRET: ${DOCKER_DRONE_GITHUB_CLIENT_SECRET} # 填入 github OAuth 提供的 client secret
+      DRONE_GITHUB_CLIENT_ID: ${DRONE_GITHUB_CLIENT_ID} # 填入 github OAuth 提供的 client id
+      DRONE_GITHUB_CLIENT_SECRET: ${DRONE_GITHUB_CLIENT_SECRET} # 填入 github OAuth 提供的 client secret
       # log, for debug use
       DRONE_DEBUG: true
       DRONE_LOGS_PRETTY: true
@@ -102,7 +102,7 @@ services:
   drone-runner:
     container_name: drone.runner
     image: drone/drone-runner-docker:1
-    platform: ${DOCKER_BUILD_PLATFORM}
+    platform: ${BUILD_PLATFORM}
     restart: always
     networks:
       vote_net:
@@ -120,7 +120,7 @@ services:
           memory: 2G
     environment:
       DRONE_RPC_HOST: drone
-      DRONE_RPC_SECRET: ${DOCKER_DRONE_RPC_SECRET} # 填入和上面 drone server 一樣的值
+      DRONE_RPC_SECRET: ${DRONE_RPC_SECRET} # 填入和上面 drone server 一樣的值
       DRONE_RPC_PROTO: http # 與 drone server 是透過 docker 內網溝通，使用 http 即可
       DRONE_RUNNER_CAPACITY: 5
       DRONE_RUNNER_NAME: drone-docker-runner

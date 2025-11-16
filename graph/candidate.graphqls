@@ -1,0 +1,8 @@
+type Candidate {
+  id: ID!
+  questionId: UUID!
+  name: String!
+  result: String!
+  createdAt: Time!
+  updatedAt: Time!
+}

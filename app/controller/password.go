@@ -63,7 +63,7 @@ func (p PasswordController) CreatePassword(c *gin.Context) {
 	}
 
 	voteService := service.NewVoteService()
-	vote, err := voteService.SelectOneVote(voteUUID)
+	vote, err := voteService.GetVote(voteUUID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"status": -1,
@@ -206,8 +206,6 @@ func (p PasswordController) DecryptPassword(c *gin.Context) {
 		decrypts[password] = decrypt
 	}
 
-	
-
 	c.JSON(http.StatusOK, gin.H{
 		"status": 0,
 		"msg":    "successfully decrypt password",
@@ -259,7 +257,7 @@ func (p PasswordController) UpdatePasswordStatus(c *gin.Context) {
 	}
 
 	voteService := service.NewVoteService()
-	vote, err := voteService.SelectOneVote(voteUUID)
+	vote, err := voteService.GetVote(voteUUID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"status": -1,

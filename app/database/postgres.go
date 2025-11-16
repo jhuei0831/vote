@@ -1,6 +1,7 @@
 package database
 
 import (
+	"os"
 	"strconv"
 	"time"
 	"vote/app/enum"
@@ -39,6 +40,18 @@ func Initialize(dbConfig string) (*gorm.DB, error) {
 	return SqlSession, err
 }
 
+// DbConfig 取得資料庫連線字串
+func DbConfig() string {
+	dbDriver := os.Getenv("DB_DRIVER")
+	dbUser := os.Getenv("DB_USER")
+	dbPassword := os.Getenv("DB_PASSWORD")
+	dbHost := os.Getenv("DB_HOST")
+	dbPort := os.Getenv("DB_PORT")
+	dbName := os.Getenv("DB_NAME")
+
+	return dbDriver + "://" + dbUser + ":" + dbPassword + "@" + dbHost + ":" + dbPort + "/" + dbName
+}
+
 func Rbac() (*gormadapter.Adapter, *casbin.Enforcer, error) {
 	var err error
 
@@ -52,7 +65,7 @@ func Rbac() (*gormadapter.Adapter, *casbin.Enforcer, error) {
 		return nil, nil, err
 	}
 
-	// Enforcer.EnableLog(true)
+	Enforcer.EnableLog(false)
 	
 	return Adapter, Enforcer, err
 }

@@ -6,10 +6,8 @@ package graph
 
 import (
 	"context"
-	"vote/app/database"
 	"vote/app/model"
 	"vote/app/service"
-	"vote/app/utils"
 	graph "vote/graph/generated"
 
 	"github.com/google/uuid"
@@ -18,17 +16,12 @@ import (
 
 // CreateVote is the resolver for the createVote field.
 func (r *mutationResolver) CreateVote(ctx context.Context, input model.VoteCreate) (*model.Vote, error) {
-	gc, err := utils.GinContextFromContext(ctx)
+	userId, err := service.NewGraphqlService().GetUserIdFromContext(ctx)
 	if err != nil {
-		return nil, err
-	}
-
-	userId, exists := gc.Get("id")
-	if !exists {
 		return nil, gqlerror.Errorf("user not exists")
 	}
 
-	input.UserID = userId.(uint64)
+	input.UserID = userId
 
 	vote, err := service.NewVoteService().CreateVote(input)
 	if err != nil {
@@ -42,7 +35,7 @@ func (r *mutationResolver) CreateVote(ctx context.Context, input model.VoteCreat
 func (r *mutationResolver) UpdateVote(ctx context.Context, uuid uuid.UUID, input model.VoteUpdate) (*model.Vote, error) {
 	vote, err := service.NewVoteService().UpdateVote(uuid, input)
 	if err != nil {
-		return nil, gqlerror.Errorf("failed to create vote: %v", err)
+		return nil, err
 	}
 
 	return vote, nil
@@ -50,22 +43,12 @@ func (r *mutationResolver) UpdateVote(ctx context.Context, uuid uuid.UUID, input
 
 // DeleteVote is the resolver for the deleteVote field.
 func (r *mutationResolver) DeleteVote(ctx context.Context, uuids []uuid.UUID) ([]*model.Vote, error) {
-	gc, err := utils.GinContextFromContext(ctx)
+	userId, isAdmin, err := service.NewGraphqlService().GetUserInfoFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	userId, exists := gc.Get("id")
-	if !exists {
-		return nil, gqlerror.Errorf("user not exists")
-	}
-
-	isAdmin, err := database.CheckIfAdmin(userId.(uint64))
-	if err != nil {
-		return nil, gqlerror.Errorf("failed to check user role")
-	}
-
-	votes, err := service.NewVoteService().DeleteVote(uuids, isAdmin, userId.(uint64))
+	votes, err := service.NewVoteService().DeleteVote(uuids, isAdmin, userId)
 	if err != nil {
 		return nil, gqlerror.Errorf("failed to delete votes: %v", err)
 	}
@@ -74,23 +57,13 @@ func (r *mutationResolver) DeleteVote(ctx context.Context, uuids []uuid.UUID) ([
 }
 
 // Votes is the resolver for the votes field.
-func (r *queryResolver) Votes(ctx context.Context, input *model.VoteQuery) ([]*model.VoteConnection, error) {
-	gc, err := utils.GinContextFromContext(ctx)
+func (r *queryResolver) Votes(ctx context.Context, input *model.VoteQuery, withQuestions bool) ([]*model.VoteConnection, error) {
+	userId, isAdmin, err := service.NewGraphqlService().GetUserInfoFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	userId, exists := gc.Get("id")
-	if !exists {
-		return nil, gqlerror.Errorf("user not exists")
-	}
-
-	isAdmin, err := database.CheckIfAdmin(userId.(uint64))
-	if err != nil {
-		return nil, gqlerror.Errorf("failed to check user role")
-	}
-
-	votes, err := service.NewVoteService().SelectAllVotes(isAdmin, userId.(uint64), input)
+	votes, err := service.NewVoteService().GetVotes(isAdmin, userId, input)
 
 	return votes, err
 }

@@ -1,0 +1,45 @@
+directive @withCandidates(withCandidates: Boolean!) on FIELD_DEFINITION
+
+type Question {
+  id: ID!
+  voteId: UUID!
+  title: String!
+  description: String!
+  createdAt: Time!
+  updatedAt: Time!
+  candidates: [Candidate!]!
+}
+
+type QuestionConnection {
+  edges: [QuestionEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int64!
+}
+
+type QuestionEdge {
+  node: Question!
+  cursor: ID!
+}
+
+input QuestionCreate {
+  voteId: UUID!
+  title: String!
+  description: String!
+}
+
+input QuestionQuery {
+  voteId: UUID
+  title: String
+  first: Int64
+  after: String
+  last: Int64
+  before: String
+}
+
+extend type Query {
+  questions(input: QuestionQuery, withCandidates: Boolean!): [QuestionConnection!]!
+}
+
+extend type Mutation {
+  createQuestion(input: QuestionCreate!): Question!
+}

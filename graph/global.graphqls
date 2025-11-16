@@ -1,0 +1,20 @@
+scalar Time
+scalar UUID
+scalar Int64
+
+"""
+Pagination information for paginated results.
+"""
+type PageInfo {
+  startCursor: String
+  endCursor: String
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+}
+
+interface pageQuery {
+  first: Int64
+  after: String
+  last: Int64
+  before: String
+}

@@ -44,7 +44,7 @@ func SetRouter() *gin.Engine {
 	}
 
 	// Initialize database
-	dbConfig := os.Getenv("DB_CONFIG")
+	dbConfig := database.DbConfig()
 	_, err := database.Initialize(dbConfig)
 	if err != nil {
 		panic(err)

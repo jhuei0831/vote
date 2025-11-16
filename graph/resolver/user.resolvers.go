@@ -8,13 +8,12 @@ import (
 	"context"
 	"vote/app/model"
 	"vote/app/service"
-	"vote/app/utils"
 	graph "vote/graph/generated"
 )
 
 // CreateUser is the resolver for the createUser field.
 func (r *mutationResolver) CreateUser(ctx context.Context, input model.UserCreate) (*model.User, error) {
-	bindErr := utils.BindQuery(ctx, &input)
+	bindErr := service.NewGraphqlService().BindQuery(ctx, &input)
 	if bindErr == nil {
 		user, err := service.NewUserService().CreateUser(input)
 		return user, err

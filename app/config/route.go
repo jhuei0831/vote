@@ -26,7 +26,7 @@ func Routes(r *gin.Engine, m *persist.RedisStore) {
 	// Restful API
 	r.GET("/hc", func(c *gin.Context) {
 		c.JSON(200, gin.H{
-			"message": "health check: PORT " + os.Getenv("PORT"),
+			"message": "health check: PORT " + os.Getenv("APP_PORT"),
 		})
 		utils.Logger().WithFields(logrus.Fields{
 			"name": os.Getenv("APP_NAME"),
@@ -35,7 +35,7 @@ func Routes(r *gin.Engine, m *persist.RedisStore) {
 	// Swagger
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	// RBAC
-	r.GET("/rbac/init", 
+	r.GET("/rbac/init",
 		middleware.JWTAuthMiddleware(true),
 		controller.NewRbacController().Initial,
 	)
@@ -45,14 +45,14 @@ func Routes(r *gin.Engine, m *persist.RedisStore) {
 		middleware.JWTAuthMiddleware(false),
 		controller.NewVoterController().Logout,
 	)
-	r.POST("/v1/voter/check-auth", 
+	r.POST("/v1/voter/check-auth",
 		middleware.JWTAuthMiddleware(false),
 		controller.NewVoterController().CheckAuth,
 	)
-	r.GET("/v1/voter/questions", 
-		middleware.JWTAuthMiddleware(false),
-		controller.NewQuestionController().SelectVoterQuestions,
-	)
+	// r.GET("/v1/voter/questions",
+	// 	middleware.JWTAuthMiddleware(false),
+	// 	controller.NewQuestionController().SelectVoterQuestions,
+	// )
 	r.POST("/v1/voter/ballot/create",
 		middleware.JWTAuthMiddleware(false),
 		controller.NewBallotController().CreateBallots,
@@ -73,7 +73,7 @@ func Routes(r *gin.Engine, m *persist.RedisStore) {
 			middleware.JWTAuthMiddleware(true),
 			controller.NewUserController().RefreshToken,
 		)
-		posts.POST("/create", 
+		posts.POST("/create",
 			middleware.JWTAuthMiddleware(true),
 			middleware.RoleMiddleware("user", "create"),
 			controller.NewUserController().CreateUser,
@@ -87,7 +87,7 @@ func Routes(r *gin.Engine, m *persist.RedisStore) {
 	}
 
 	// Vote
-	r.GET("/v1/vote/:id", controller.NewVoteController().SelectOneVote)
+	r.GET("/v1/vote/:id", controller.NewVoteController().GetVote)
 	votes := r.Group("/v1/vote", middleware.JWTAuthMiddleware(true))
 	{
 		votes.POST("/create",
@@ -96,11 +96,11 @@ func Routes(r *gin.Engine, m *persist.RedisStore) {
 		)
 		// votes.GET("/:id",
 		// 	middleware.RoleMiddleware("vote", "read"),
-		// 	controller.NewVoteController().SelectOneVote,
+		// 	controller.NewVoteController().GetVote,
 		// )
 		// votes.GET("/list",
 		// 	middleware.RoleMiddleware("vote", "read"),
-		// 	controller.NewVoteController().SelectAllVotes,
+		// 	controller.NewVoteController().GetVotes,
 		// )
 		votes.PUT("/:id",
 			middleware.RoleMiddleware("vote", "update"),
@@ -121,12 +121,12 @@ func Routes(r *gin.Engine, m *persist.RedisStore) {
 		)
 		questions.GET("/:id",
 			middleware.RoleMiddleware("question", "read"),
-			controller.NewQuestionController().SelectOneQuestion,
+			controller.NewQuestionController().GetQuestion,
 		)
-		questions.GET("/list/:vote_id",
-			middleware.RoleMiddleware("question", "read"),
-			controller.NewQuestionController().SelectAllQuestions,
-		)
+		// questions.GET("/list/:vote_id",
+		// 	middleware.RoleMiddleware("question", "read"),
+		// 	controller.NewQuestionController().GetQuestions,
+		// )
 		// questions.PUT("/:id",
 		// 	middleware.RoleMiddleware("question", "update"),
 		// 	controller.NewQuestionController().UpdateQuestion,

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+
 	// "strconv"
 	"vote/app/database"
 	"vote/app/model"
@@ -21,7 +22,7 @@ func NewVoteController() VoteController {
 	return VoteController{}
 }
 
-// SelectOneVote 根據提供的 ID 檢查投票是否存在。
+// GetVote 根據提供的 ID 檢查投票是否存在。
 // @Summary
 // @tags 投票
 // @Summary 根據提供的 ID 檢查投票是否存在
@@ -31,7 +32,7 @@ func NewVoteController() VoteController {
 // @Param id path int true "投票ID"
 // @Success 200 {string} string "ok"
 // @Router /vote/{id} [get]
-func (v VoteController) SelectOneVote(c *gin.Context) {
+func (v VoteController) GetVote(c *gin.Context) {
 	id := c.Params.ByName("id")
 	voteId, err := uuid.Parse(id)
 	if err != nil {
@@ -43,7 +44,7 @@ func (v VoteController) SelectOneVote(c *gin.Context) {
 		return
 	}
 
-	voteOne, err := service.NewVoteService().SelectOneVote(voteId)
+	voteOne, err := service.NewVoteService().GetVote(voteId)
 
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{
@@ -60,7 +61,7 @@ func (v VoteController) SelectOneVote(c *gin.Context) {
 	}
 }
 
-// SelectAllVotes 檢索所有投票。
+// GetVotes 檢索所有投票。
 // @Summary
 // @tags 投票
 // @Summary 檢索所有投票
@@ -69,7 +70,7 @@ func (v VoteController) SelectOneVote(c *gin.Context) {
 // @Produce json
 // @Success 200 {string} string "ok"
 // @Router /vote/all [get]
-// func (v VoteController) SelectAllVotes(c *gin.Context) {
+// func (v VoteController) GetVotes(c *gin.Context) {
 // 	userId, exists := c.Get("id")
 // 	if !exists {
 // 		c.JSON(http.StatusUnauthorized, gin.H{
@@ -104,7 +105,7 @@ func (v VoteController) SelectOneVote(c *gin.Context) {
 // 	first := voteQuery.First
 // 	after := voteQuery.After
 
-// 	votes, err := service.NewVoteService().SelectAllVotes(isAdmin, userId.(uint64), voteQuery)
+// 	votes, err := service.NewVoteService().GetVotes(isAdmin, userId.(uint64), voteQuery)
 // 	if err != nil {
 // 		c.JSON(http.StatusNotFound, gin.H{
 // 			"status": -1,
@@ -146,7 +147,7 @@ func (v VoteController) CreateVote(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"code": -1,
 			"msg":  "Invalid params: " + utils.ValidationErrorMessage(bindErr),
-			"data":   &form,
+			"data": &form,
 		})
 		return
 	}
@@ -205,7 +206,7 @@ func (v VoteController) UpdateVote(c *gin.Context) {
 	}
 	userId := c.MustGet("id").(uint64)
 	// 檢查投票是否存在
-	voteOne, err := service.NewVoteService().SelectOneVote(voteId)
+	voteOne, err := service.NewVoteService().GetVote(voteId)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{
 			"status": -1,

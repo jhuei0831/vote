@@ -21,15 +21,49 @@ type Question struct {
 }
 
 type QuestionCreate struct {
-	VoteID      uuid.UUID   `json:"vote_id" binding:"required" example:"1"`
+	VoteID      uuid.UUID   `json:"vote_id" binding:"required" example:"00000000-0000-0000-0000-000000000000"`
 	Title       string 			`json:"title" binding:"required" example:"title"`
 	Description string 			`json:"description" example:"description"`
 }
 
 // Query parameters for filtering, sorting, and pagination
 type QuestionQuery struct {
+	VoteID  		uuid.UUID 	`json:"vote_id" example:"00000000-0000-0000-0000-000000000000"`
 	Title	  		string    	`json:"title" example:"title"`
-	Page	 			int    			`form:"page,default=1" json:"page" binding:"min=1" example:"1"`
-	Size	 			int    			`form:"size,default=1" json:"size" binding:"min=1" example:"10"`
 	Candidates  bool 				`form:"candidates,default=false" json:"candidates" example:"false"`
+	First     	int       	`json:"first" binding:"min=1" example:"1"`
+	After     	string    	`json:"after" binding:"min=1" example:"1"`
+	Last      	int       	`json:"last" binding:"min=1" example:"1"`
+	Before    	string    	`json:"before" binding:"min=1" example:"1"`
+}
+
+type QuestionConnection struct {
+	Edges      []QuestionEdge `json:"edges"`
+	PageInfo 	 PageInfo   `json:"pageInfo"`
+	TotalCount int64			  `json:"totalCount"`
+}
+
+type QuestionEdge struct {
+	Node   Question   `json:"node"`
+	Cursor string `json:"cursor"`
+}
+
+// GetFirst implements PaginationQuery
+func (q *QuestionQuery) GetFirst() int {
+	return q.First
+}
+
+// GetAfter implements PaginationQuery
+func (q *QuestionQuery) GetAfter() string {
+	return q.After
+}
+
+// GetLast implements PaginationQuery
+func (q *QuestionQuery) GetLast() int {
+	return q.Last
+}
+
+// GetBefore implements PaginationQuery
+func (q *QuestionQuery) GetBefore() string {
+	return q.Before
 }

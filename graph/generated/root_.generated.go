@@ -34,20 +34,32 @@ type Config struct {
 }
 
 type ResolverRoot interface {
+	Candidate() CandidateResolver
 	Mutation() MutationResolver
 	Query() QueryResolver
 	Vote() VoteResolver
 }
 
 type DirectiveRoot struct {
+	WithCandidates func(ctx context.Context, obj any, next graphql.Resolver, withCandidates bool) (res any, err error)
 }
 
 type ComplexityRoot struct {
+	Candidate struct {
+		CreatedAt  func(childComplexity int) int
+		ID         func(childComplexity int) int
+		Name       func(childComplexity int) int
+		QuestionID func(childComplexity int) int
+		Result     func(childComplexity int) int
+		UpdatedAt  func(childComplexity int) int
+	}
+
 	Mutation struct {
-		CreateUser func(childComplexity int, input model.UserCreate) int
-		CreateVote func(childComplexity int, input model.VoteCreate) int
-		DeleteVote func(childComplexity int, uuids []uuid.UUID) int
-		UpdateVote func(childComplexity int, uuid uuid.UUID, input model.VoteUpdate) int
+		CreateQuestion func(childComplexity int, input model.QuestionCreate) int
+		CreateUser     func(childComplexity int, input model.UserCreate) int
+		CreateVote     func(childComplexity int, input model.VoteCreate) int
+		DeleteVote     func(childComplexity int, uuids []uuid.UUID) int
+		UpdateVote     func(childComplexity int, uuid uuid.UUID, input model.VoteUpdate) int
 	}
 
 	PageInfo struct {
@@ -58,8 +70,30 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		Users func(childComplexity int) int
-		Votes func(childComplexity int, input *model.VoteQuery) int
+		Questions func(childComplexity int, input *model.QuestionQuery, withCandidates bool) int
+		Users     func(childComplexity int) int
+		Votes     func(childComplexity int, input *model.VoteQuery, withQuestions bool) int
+	}
+
+	Question struct {
+		Candidates  func(childComplexity int) int
+		CreatedAt   func(childComplexity int) int
+		Description func(childComplexity int) int
+		ID          func(childComplexity int) int
+		Title       func(childComplexity int) int
+		UpdatedAt   func(childComplexity int) int
+		VoteID      func(childComplexity int) int
+	}
+
+	QuestionConnection struct {
+		Edges      func(childComplexity int) int
+		PageInfo   func(childComplexity int) int
+		TotalCount func(childComplexity int) int
+	}
+
+	QuestionEdge struct {
+		Cursor func(childComplexity int) int
+		Node   func(childComplexity int) int
 	}
 
 	User struct {
@@ -73,6 +107,7 @@ type ComplexityRoot struct {
 		Description func(childComplexity int) int
 		EndTime     func(childComplexity int) int
 		ID          func(childComplexity int) int
+		Questions   func(childComplexity int) int
 		StartTime   func(childComplexity int) int
 		Status      func(childComplexity int) int
 		Title       func(childComplexity int) int
@@ -109,6 +144,60 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 	ec := executionContext{nil, e, 0, 0, nil}
 	_ = ec
 	switch typeName + "." + field {
+
+	case "Candidate.createdAt":
+		if e.complexity.Candidate.CreatedAt == nil {
+			break
+		}
+
+		return e.complexity.Candidate.CreatedAt(childComplexity), true
+
+	case "Candidate.id":
+		if e.complexity.Candidate.ID == nil {
+			break
+		}
+
+		return e.complexity.Candidate.ID(childComplexity), true
+
+	case "Candidate.Name":
+		if e.complexity.Candidate.Name == nil {
+			break
+		}
+
+		return e.complexity.Candidate.Name(childComplexity), true
+
+	case "Candidate.questionId":
+		if e.complexity.Candidate.QuestionID == nil {
+			break
+		}
+
+		return e.complexity.Candidate.QuestionID(childComplexity), true
+
+	case "Candidate.Result":
+		if e.complexity.Candidate.Result == nil {
+			break
+		}
+
+		return e.complexity.Candidate.Result(childComplexity), true
+
+	case "Candidate.updatedAt":
+		if e.complexity.Candidate.UpdatedAt == nil {
+			break
+		}
+
+		return e.complexity.Candidate.UpdatedAt(childComplexity), true
+
+	case "Mutation.createQuestion":
+		if e.complexity.Mutation.CreateQuestion == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_createQuestion_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.CreateQuestion(childComplexity, args["input"].(model.QuestionCreate)), true
 
 	case "Mutation.createUser":
 		if e.complexity.Mutation.CreateUser == nil {
@@ -186,6 +275,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.PageInfo.StartCursor(childComplexity), true
 
+	case "Query.questions":
+		if e.complexity.Query.Questions == nil {
+			break
+		}
+
+		args, err := ec.field_Query_questions_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.Questions(childComplexity, args["input"].(*model.QuestionQuery), args["withCandidates"].(bool)), true
+
 	case "Query.users":
 		if e.complexity.Query.Users == nil {
 			break
@@ -203,7 +304,91 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Query.Votes(childComplexity, args["input"].(*model.VoteQuery)), true
+		return e.complexity.Query.Votes(childComplexity, args["input"].(*model.VoteQuery), args["withQuestions"].(bool)), true
+
+	case "Question.candidates":
+		if e.complexity.Question.Candidates == nil {
+			break
+		}
+
+		return e.complexity.Question.Candidates(childComplexity), true
+
+	case "Question.createdAt":
+		if e.complexity.Question.CreatedAt == nil {
+			break
+		}
+
+		return e.complexity.Question.CreatedAt(childComplexity), true
+
+	case "Question.description":
+		if e.complexity.Question.Description == nil {
+			break
+		}
+
+		return e.complexity.Question.Description(childComplexity), true
+
+	case "Question.id":
+		if e.complexity.Question.ID == nil {
+			break
+		}
+
+		return e.complexity.Question.ID(childComplexity), true
+
+	case "Question.title":
+		if e.complexity.Question.Title == nil {
+			break
+		}
+
+		return e.complexity.Question.Title(childComplexity), true
+
+	case "Question.updatedAt":
+		if e.complexity.Question.UpdatedAt == nil {
+			break
+		}
+
+		return e.complexity.Question.UpdatedAt(childComplexity), true
+
+	case "Question.voteId":
+		if e.complexity.Question.VoteID == nil {
+			break
+		}
+
+		return e.complexity.Question.VoteID(childComplexity), true
+
+	case "QuestionConnection.edges":
+		if e.complexity.QuestionConnection.Edges == nil {
+			break
+		}
+
+		return e.complexity.QuestionConnection.Edges(childComplexity), true
+
+	case "QuestionConnection.pageInfo":
+		if e.complexity.QuestionConnection.PageInfo == nil {
+			break
+		}
+
+		return e.complexity.QuestionConnection.PageInfo(childComplexity), true
+
+	case "QuestionConnection.totalCount":
+		if e.complexity.QuestionConnection.TotalCount == nil {
+			break
+		}
+
+		return e.complexity.QuestionConnection.TotalCount(childComplexity), true
+
+	case "QuestionEdge.cursor":
+		if e.complexity.QuestionEdge.Cursor == nil {
+			break
+		}
+
+		return e.complexity.QuestionEdge.Cursor(childComplexity), true
+
+	case "QuestionEdge.node":
+		if e.complexity.QuestionEdge.Node == nil {
+			break
+		}
+
+		return e.complexity.QuestionEdge.Node(childComplexity), true
 
 	case "User.account":
 		if e.complexity.User.Account == nil {
@@ -253,6 +438,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Vote.ID(childComplexity), true
+
+	case "Vote.questions":
+		if e.complexity.Vote.Questions == nil {
+			break
+		}
+
+		return e.complexity.Vote.Questions(childComplexity), true
 
 	case "Vote.startTime":
 		if e.complexity.Vote.StartTime == nil {
@@ -325,6 +517,8 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	opCtx := graphql.GetOperationContext(ctx)
 	ec := executionContext{opCtx, e, 0, 0, make(chan graphql.DeferredResult)}
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
+		ec.unmarshalInputQuestionCreate,
+		ec.unmarshalInputQuestionQuery,
 		ec.unmarshalInputUserCreate,
 		ec.unmarshalInputVoteCreate,
 		ec.unmarshalInputVoteQuery,
@@ -426,6 +620,79 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 }
 
 var sources = []*ast.Source{
+	{Name: "../candidate.graphqls", Input: `type Candidate {
+  id: ID!
+  questionId: UUID!
+  Name: String!
+  Result: String!
+  createdAt: Time!
+  updatedAt: Time!
+}`, BuiltIn: false},
+	{Name: "../global.graphqls", Input: `scalar Time
+scalar UUID
+scalar Int64
+
+"""
+Pagination information for paginated results.
+"""
+type PageInfo {
+  startCursor: String
+  endCursor: String
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+}
+
+interface pageQuery {
+  first: Int64
+  after: String
+  last: Int64
+  before: String
+}`, BuiltIn: false},
+	{Name: "../question.graphqls", Input: `directive @withCandidates(withCandidates: Boolean!) on FIELD_DEFINITION
+
+type Question {
+  id: ID!
+  voteId: UUID!
+  title: String!
+  description: String!
+  createdAt: Time!
+  updatedAt: Time!
+  candidates: [Candidate!]!
+}
+
+type QuestionConnection {
+  edges: [QuestionEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int64!
+}
+
+type QuestionEdge {
+  node: Question!
+  cursor: ID!
+}
+
+input QuestionCreate {
+  voteId: UUID!
+  title: String!
+  description: String!
+}
+
+input QuestionQuery {
+  voteId: UUID
+  title: String
+  first: Int64
+  after: String
+  last: Int64
+  before: String
+}
+
+extend type Query {
+  questions(input: QuestionQuery, withCandidates: Boolean!): [QuestionConnection!]!
+}
+
+extend type Mutation {
+  createQuestion(input: QuestionCreate!): Question!
+}`, BuiltIn: false},
 	{Name: "../user.graphqls", Input: `type User {
   id: ID!
   account: String!
@@ -445,11 +712,7 @@ type Query {
 type Mutation {
   createUser(input: UserCreate!): User!
 }`, BuiltIn: false},
-	{Name: "../vote.graphqls", Input: `scalar Time
-scalar UUID
-scalar Int64
-
-type Vote {
+	{Name: "../vote.graphqls", Input: `type Vote {
   id: ID!
   uuid: UUID!
   title: String!
@@ -458,6 +721,7 @@ type Vote {
   endTime: Time!
   creator: User!
   status: Int64!
+  questions: [Question!]!
 }
 
 type VoteConnection {
@@ -469,13 +733,6 @@ type VoteConnection {
 type VoteEdge {
   node: Vote!
   cursor: ID!
-}
-
-type PageInfo {
-  startCursor: String
-  endCursor: String
-  hasNextPage: Boolean!
-  hasPreviousPage: Boolean!
 }
 
 """
@@ -510,7 +767,7 @@ input VoteQuery {
 }
 
 extend type Query {
-  votes(input: VoteQuery): [VoteConnection!]!
+  votes(input: VoteQuery, withQuestions: Boolean!): [VoteConnection!]!
 }
 
 extend type Mutation {

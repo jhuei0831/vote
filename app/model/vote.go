@@ -12,7 +12,7 @@ func (Vote) TableName() string {
 
 type Vote struct {
 	ID          uint64     `gorm:"primary_key;auto_increment" json:"id"`
-	Uuid        uuid.UUID  `gorm:"type:uuid;default:uuid_generate_v4();" json:"uuid"`
+	Uuid        uuid.UUID  `gorm:"type:uuid;default:uuid_generate_v4();uniqueIndex;" json:"uuid"`
 	Title       string     `gorm:"size:100;not null;" json:"title"`
 	Description string     `gorm:"size:255;" json:"description"`
 	StartTime   time.Time  `gorm:"not null;" json:"start_time"`
@@ -21,8 +21,8 @@ type Vote struct {
 	Status      int        `gorm:"default:0;not null;" json:"status"`
 	CreatedAt   time.Time  `gorm:"default:CURRENT_TIMESTAMP" json:"created_at"`
 	UpdatedAt   time.Time  `gorm:"default:CURRENT_TIMESTAMP" json:"updated_at"`
-	Questions   []Question `gorm:"foreignKey:VoteID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"questions,omitempty"`
-	Passwords   []Password `gorm:"foreignKey:VoteID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"passwords,omitempty"`
+	Questions   []Question `gorm:"foreignKey:VoteID;references:Uuid;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"questions,omitempty"`
+	Passwords   []Password `gorm:"foreignKey:VoteID;references:Uuid;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"passwords,omitempty"`
 }
 
 type VoteCreate struct {
