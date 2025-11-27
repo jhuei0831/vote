@@ -30,7 +30,7 @@ func (v VoteRepository) GetVoteByUUID(uuid uuid.UUID) (*model.Vote, error) {
 func (v VoteRepository) GetVotes(isAdmin bool, userId uint64, voteQuery *model.VoteQuery) ([]model.Vote, int64, error) {
 	var votes []model.Vote
 	var total int64
-	
+
 	query := database.SqlSession.Model(&model.Vote{}).Preload("Questions")
 
 	if !isAdmin {
@@ -84,18 +84,13 @@ func (v VoteRepository) UpdateVote(uuid uuid.UUID, form model.VoteUpdate) (*mode
 }
 
 // DeleteVotes 刪除投票。
-func (v VoteRepository) DeleteVotes(voteUuids []uuid.UUID, isAdmin bool, userId uint64) ([]*model.Vote, error) {
+func (v VoteRepository) DeleteVotes(voteUuids []uuid.UUID) ([]*model.Vote, error) {
 	var votes []*model.Vote
-	
-	query := database.SqlSession.
+
+	deleteErr := database.SqlSession.
 		Clauses(clause.Returning{}).
-		Where("uuid IN (?)", voteUuids)
-
-	if !isAdmin {
-		query = query.Where("user_id = ?", userId)
-	}
-
-	deleteErr := query.Delete(&votes).Error
+		Where("uuid IN ?", voteUuids).
+		Delete(&votes).Error
 
 	return votes, deleteErr
 }

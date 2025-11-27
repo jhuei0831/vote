@@ -1,3 +1,5 @@
+directive @withQuestions(withQuestions: Boolean!) on FIELD_DEFINITION
+
 type Vote {
   id: ID!
   uuid: UUID!
@@ -53,11 +55,17 @@ input VoteQuery {
 }
 
 extend type Query {
-  votes(input: VoteQuery, withQuestions: Boolean!): [VoteConnection!]!
+  votes(input: VoteQuery, withQuestions: Boolean!): [VoteConnection!]! 
+    @hasPermission(resource: "vote", action: "read")
 }
 
 extend type Mutation {
-  createVote(input: VoteCreate!): Vote!
-  updateVote(uuid: UUID!, input: VoteUpdate!): Vote!
-  deleteVote(uuids: [UUID!]!): [Vote!]!
+  createVote(input: VoteCreate!): Vote! 
+    @hasPermission(resource: "vote", action: "create")
+
+  updateVote(uuid: UUID!, input: VoteUpdate!): Vote! 
+    @hasPermission(resource: "vote", action: "update")
+    
+  deleteVote(uuids: [UUID!]!): [Vote!]! 
+    @hasPermission(resource: "vote", action: "delete")
 }

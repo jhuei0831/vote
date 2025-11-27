@@ -39,7 +39,7 @@ func (g GraphqlService) BindQuery(ctx context.Context, input interface{}) error 
 		return err
 	}
 
-	return gc.BindQuery(input)
+	return gc.ShouldBindQuery(input)
 }
 
 // Get UserId from Gin context

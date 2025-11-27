@@ -43,12 +43,11 @@ func (r *mutationResolver) UpdateVote(ctx context.Context, uuid uuid.UUID, input
 
 // DeleteVote is the resolver for the deleteVote field.
 func (r *mutationResolver) DeleteVote(ctx context.Context, uuids []uuid.UUID) ([]*model.Vote, error) {
-	userId, isAdmin, err := service.NewGraphqlService().GetUserInfoFromContext(ctx)
-	if err != nil {
+	if err := service.NewAuthorizationService().AuthorizeVoteAccess(ctx, uuids, "delete vote"); err != nil {
 		return nil, err
 	}
 
-	votes, err := service.NewVoteService().DeleteVote(uuids, isAdmin, userId)
+	votes, err := service.NewVoteService().DeleteVote(uuids)
 	if err != nil {
 		return nil, gqlerror.Errorf("failed to delete votes: %v", err)
 	}

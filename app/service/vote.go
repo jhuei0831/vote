@@ -1,10 +1,8 @@
 package service
 
 import (
-	"strconv"
 	"vote/app/model"
 	"vote/app/repository"
-	"vote/app/utils"
 
 	"github.com/google/uuid"
 )
@@ -29,59 +27,36 @@ func (v VoteService) GetVote(uuid uuid.UUID) (*model.Vote, error) {
 
 // GetVotes 檢索所有投票。
 func (v VoteService) GetVotes(isAdmin bool, userId uint64, voteQuery *model.VoteQuery) ([]*model.VoteConnection, error) {
-	// 查詢資料
 	votes, total, err := repository.NewVoteRepository().GetVotes(isAdmin, userId, voteQuery)
 	if err != nil {
 		return nil, err
 	}
-	
+
 	paginationRepository := repository.NewPaginationRepository[*model.VoteQuery, model.Vote]()
 	votes, hasPreviousPage, hasNextPage := paginationRepository.HasPreviousNextPage(votes, voteQuery)
 
-	var edges []model.VoteEdge
-	for _, vote := range votes {
-		cursor, _ := (&utils.Password{}).Encrypt(strconv.FormatUint(vote.ID, 10))
-		edges = append(edges, model.VoteEdge{
-			Node:   vote,
-			Cursor: cursor,
-		})
-	}
-
-	voteConnection := &model.VoteConnection{
-		Edges: edges,
-		PageInfo: model.PageInfo{
-			StartCursor:     edges[0].Cursor,
-			EndCursor:       edges[len(edges)-1].Cursor,
-			HasNextPage:     hasNextPage,
-			HasPreviousPage: hasPreviousPage,
+	paginationService := NewPaginationService[model.Vote, model.VoteEdge, *model.VoteConnection]()
+	connection := paginationService.BuildConnection(votes, total, hasPreviousPage, hasNextPage,
+		func(vote model.Vote) uint64 {
+			return vote.ID
 		},
-		TotalCount: total,
-	}
+	)
 
-	var result []*model.VoteConnection
-	result = append(result, voteConnection)
-
-	return result, err
+	return []*model.VoteConnection{connection}, nil
 }
 
 // CreateOneVote 創建新的投票。
 func (v VoteService) CreateVote(form model.VoteCreate) (*model.Vote, error) {
-	vote, insertErr := repository.NewVoteRepository().CreateVote(form)
-	
-	return vote, insertErr
+	return repository.NewVoteRepository().CreateVote(form)
 }
 
 // UpdateOneVote 更新投票。
 func (v VoteService) UpdateVote(uuid uuid.UUID, form model.VoteUpdate) (*model.Vote, error) {
 	// 更新投票並掃描返回的結果
-	vote, updateErr := repository.NewVoteRepository().UpdateVote(uuid, form)
-
-	return vote, updateErr
+	return repository.NewVoteRepository().UpdateVote(uuid, form)
 }
 
 // DeleteOneVote 刪除投票。
-func (v VoteService) DeleteVote(voteUuids []uuid.UUID, isAdmin bool, userId uint64) ([]*model.Vote, error) {
-	votes, err := repository.NewVoteRepository().DeleteVotes(voteUuids, isAdmin, userId)
-
-	return votes, err
+func (v VoteService) DeleteVote(voteUuids []uuid.UUID) ([]*model.Vote, error) {
+	return repository.NewVoteRepository().DeleteVotes(voteUuids)
 }

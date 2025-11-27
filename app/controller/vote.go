@@ -284,7 +284,6 @@ func (v VoteController) DeleteVote(c *gin.Context) {
 		return
 	}
 
-	userId := c.MustGet("id").(uint64)
 	var voteIds []uuid.UUID
 	for _, id := range ids {
 		voteId, err := uuid.Parse(id)
@@ -299,18 +298,8 @@ func (v VoteController) DeleteVote(c *gin.Context) {
 		voteIds = append(voteIds, voteId)
 	}
 
-	isAdmin, err := database.CheckIfAdmin(userId)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"status": -1,
-			"msg":    "Failed to check user role: " + err.Error(),
-			"data":   nil,
-		})
-		return
-	}
-
 	// 刪除投票
-	deletedVotes, deleteErr := service.NewVoteService().DeleteVote(voteIds, isAdmin, userId)
+	deletedVotes, deleteErr := service.NewVoteService().DeleteVote(voteIds)
 	if deleteErr != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"status": -1,

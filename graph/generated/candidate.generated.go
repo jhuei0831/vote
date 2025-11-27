@@ -91,12 +91,12 @@ func (ec *executionContext) fieldContext_Candidate_questionId(_ context.Context,
 	return fc, nil
 }
 
-func (ec *executionContext) _Candidate_Name(ctx context.Context, field graphql.CollectedField, obj *model.Candidate) (ret graphql.Marshaler) {
+func (ec *executionContext) _Candidate_name(ctx context.Context, field graphql.CollectedField, obj *model.Candidate) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_Candidate_Name,
+		ec.fieldContext_Candidate_name,
 		func(ctx context.Context) (any, error) {
 			return obj.Name, nil
 		},
@@ -107,7 +107,7 @@ func (ec *executionContext) _Candidate_Name(ctx context.Context, field graphql.C
 	)
 }
 
-func (ec *executionContext) fieldContext_Candidate_Name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Candidate_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Candidate",
 		Field:      field,
@@ -120,12 +120,12 @@ func (ec *executionContext) fieldContext_Candidate_Name(_ context.Context, field
 	return fc, nil
 }
 
-func (ec *executionContext) _Candidate_Result(ctx context.Context, field graphql.CollectedField, obj *model.Candidate) (ret graphql.Marshaler) {
+func (ec *executionContext) _Candidate_result(ctx context.Context, field graphql.CollectedField, obj *model.Candidate) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_Candidate_Result,
+		ec.fieldContext_Candidate_result,
 		func(ctx context.Context) (any, error) {
 			return obj.Result, nil
 		},
@@ -136,7 +136,7 @@ func (ec *executionContext) _Candidate_Result(ctx context.Context, field graphql
 	)
 }
 
-func (ec *executionContext) fieldContext_Candidate_Result(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Candidate_result(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Candidate",
 		Field:      field,
@@ -271,13 +271,13 @@ func (ec *executionContext) _Candidate(ctx context.Context, sel ast.SelectionSet
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-		case "Name":
-			out.Values[i] = ec._Candidate_Name(ctx, field, obj)
+		case "name":
+			out.Values[i] = ec._Candidate_name(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
-		case "Result":
-			out.Values[i] = ec._Candidate_Result(ctx, field, obj)
+		case "result":
+			out.Values[i] = ec._Candidate_result(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}

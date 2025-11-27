@@ -41,7 +41,9 @@ type ResolverRoot interface {
 }
 
 type DirectiveRoot struct {
+	HasPermission  func(ctx context.Context, obj any, next graphql.Resolver, resource string, action string) (res any, err error)
 	WithCandidates func(ctx context.Context, obj any, next graphql.Resolver, withCandidates bool) (res any, err error)
+	WithQuestions  func(ctx context.Context, obj any, next graphql.Resolver, withQuestions bool) (res any, err error)
 }
 
 type ComplexityRoot struct {
@@ -58,7 +60,9 @@ type ComplexityRoot struct {
 		CreateQuestion func(childComplexity int, input model.QuestionCreate) int
 		CreateUser     func(childComplexity int, input model.UserCreate) int
 		CreateVote     func(childComplexity int, input model.VoteCreate) int
+		DeleteQuestion func(childComplexity int, ids []uint64) int
 		DeleteVote     func(childComplexity int, uuids []uuid.UUID) int
+		UpdateQuestion func(childComplexity int, id uint64, input model.QuestionUpdate) int
 		UpdateVote     func(childComplexity int, uuid uuid.UUID, input model.VoteUpdate) int
 	}
 
@@ -159,7 +163,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.Candidate.ID(childComplexity), true
 
-	case "Candidate.Name":
+	case "Candidate.name":
 		if e.complexity.Candidate.Name == nil {
 			break
 		}
@@ -173,7 +177,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.Candidate.QuestionID(childComplexity), true
 
-	case "Candidate.Result":
+	case "Candidate.result":
 		if e.complexity.Candidate.Result == nil {
 			break
 		}
@@ -223,6 +227,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.Mutation.CreateVote(childComplexity, args["input"].(model.VoteCreate)), true
 
+	case "Mutation.deleteQuestion":
+		if e.complexity.Mutation.DeleteQuestion == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_deleteQuestion_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.DeleteQuestion(childComplexity, args["ids"].([]uint64)), true
+
 	case "Mutation.deleteVote":
 		if e.complexity.Mutation.DeleteVote == nil {
 			break
@@ -234,6 +250,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Mutation.DeleteVote(childComplexity, args["uuids"].([]uuid.UUID)), true
+
+	case "Mutation.updateQuestion":
+		if e.complexity.Mutation.UpdateQuestion == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_updateQuestion_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.UpdateQuestion(childComplexity, args["id"].(uint64), args["input"].(model.QuestionUpdate)), true
 
 	case "Mutation.updateVote":
 		if e.complexity.Mutation.UpdateVote == nil {
@@ -519,6 +547,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
 		ec.unmarshalInputQuestionCreate,
 		ec.unmarshalInputQuestionQuery,
+		ec.unmarshalInputQuestionUpdate,
 		ec.unmarshalInputUserCreate,
 		ec.unmarshalInputVoteCreate,
 		ec.unmarshalInputVoteQuery,
@@ -623,14 +652,20 @@ var sources = []*ast.Source{
 	{Name: "../candidate.graphqls", Input: `type Candidate {
   id: ID!
   questionId: UUID!
-  Name: String!
-  Result: String!
+  name: String!
+  result: String!
   createdAt: Time!
   updatedAt: Time!
 }`, BuiltIn: false},
 	{Name: "../global.graphqls", Input: `scalar Time
 scalar UUID
 scalar Int64
+scalar UInt64
+
+directive @hasPermission(
+  resource: String!
+  action: String!
+) on FIELD_DEFINITION
 
 """
 Pagination information for paginated results.
@@ -677,6 +712,12 @@ input QuestionCreate {
   description: String!
 }
 
+input QuestionUpdate {
+  voteId: UUID!
+  title: String
+  description: String
+}
+
 input QuestionQuery {
   voteId: UUID
   title: String
@@ -687,11 +728,17 @@ input QuestionQuery {
 }
 
 extend type Query {
-  questions(input: QuestionQuery, withCandidates: Boolean!): [QuestionConnection!]!
+  questions(input: QuestionQuery, withCandidates: Boolean!): [QuestionConnection!]! 
+    @hasPermission(resource: "question", action: "read")
 }
 
 extend type Mutation {
   createQuestion(input: QuestionCreate!): Question!
+    @hasPermission(resource: "question", action: "create")
+  updateQuestion(id: UInt64!, input: QuestionUpdate!): Question!
+    @hasPermission(resource: "question", action: "update")
+  deleteQuestion(ids: [UInt64!]!): [Question!]!
+    @hasPermission(resource: "question", action: "delete")
 }`, BuiltIn: false},
 	{Name: "../user.graphqls", Input: `type User {
   id: ID!
@@ -712,7 +759,9 @@ type Query {
 type Mutation {
   createUser(input: UserCreate!): User!
 }`, BuiltIn: false},
-	{Name: "../vote.graphqls", Input: `type Vote {
+	{Name: "../vote.graphqls", Input: `directive @withQuestions(withQuestions: Boolean!) on FIELD_DEFINITION
+
+type Vote {
   id: ID!
   uuid: UUID!
   title: String!
@@ -767,13 +816,19 @@ input VoteQuery {
 }
 
 extend type Query {
-  votes(input: VoteQuery, withQuestions: Boolean!): [VoteConnection!]!
+  votes(input: VoteQuery, withQuestions: Boolean!): [VoteConnection!]! 
+    @hasPermission(resource: "vote", action: "read")
 }
 
 extend type Mutation {
-  createVote(input: VoteCreate!): Vote!
-  updateVote(uuid: UUID!, input: VoteUpdate!): Vote!
-  deleteVote(uuids: [UUID!]!): [Vote!]!
+  createVote(input: VoteCreate!): Vote! 
+    @hasPermission(resource: "vote", action: "create")
+
+  updateVote(uuid: UUID!, input: VoteUpdate!): Vote! 
+    @hasPermission(resource: "vote", action: "update")
+    
+  deleteVote(uuids: [UUID!]!): [Vote!]! 
+    @hasPermission(resource: "vote", action: "delete")
 }`, BuiltIn: false},
 }
 var parsedSchema = gqlparser.MustLoadSchema(sources...)

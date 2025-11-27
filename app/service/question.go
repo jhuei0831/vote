@@ -2,11 +2,8 @@ package service
 
 import (
 	"fmt"
-	"strconv"
-	"vote/app/database"
 	"vote/app/model"
 	"vote/app/repository"
-	"vote/app/utils"
 )
 
 type QuestionService struct {
@@ -26,9 +23,9 @@ func (q QuestionService) SelectQuestionWithCandidates(id uint64, isAdmin bool, u
 	return repository.NewQuestionRepository().GetQuestion(id, isAdmin, userId, true)
 }
 
-// SelectQuestions 處理所有問題查詢的共用邏輯，根據 needCandidates 決定是否預載 Candidates。
-func (q QuestionService) GetQuestions(isAdmin bool, userId uint64, questionQuery *model.QuestionQuery) ([]*model.QuestionConnection, error) {
-	questions, total, err := repository.NewQuestionRepository().GetQuestions(isAdmin, userId, questionQuery)
+// GetQuestions 處理所有問題查詢的共用邏輯,根據 needCandidates 決定是否預載 Candidates。
+func (q QuestionService) GetQuestions(questionQuery *model.QuestionQuery) ([]*model.QuestionConnection, error) {
+	questions, total, err := repository.NewQuestionRepository().GetQuestions(questionQuery)
 	if err != nil {
 		return nil, err
 	}
@@ -36,30 +33,14 @@ func (q QuestionService) GetQuestions(isAdmin bool, userId uint64, questionQuery
 	paginationRepository := repository.NewPaginationRepository[*model.QuestionQuery, model.Question]()
 	questions, hasPreviousPage, hasNextPage := paginationRepository.HasPreviousNextPage(questions, questionQuery)
 
-	var edges []model.QuestionEdge
-	for _, question := range questions {
-		cursor, _ := (&utils.Password{}).Encrypt(strconv.FormatUint(question.ID, 10))
-		edges = append(edges, model.QuestionEdge{
-			Node:   question,
-			Cursor: cursor,
-		})
-	}
-
-	questionConnection := &model.QuestionConnection{
-		Edges: edges,
-		PageInfo: model.PageInfo{
-			StartCursor:     edges[0].Cursor,
-			EndCursor:       edges[len(edges)-1].Cursor,
-			HasNextPage:     hasNextPage,
-			HasPreviousPage: hasPreviousPage,
+	paginationService := NewPaginationService[model.Question, model.QuestionEdge, *model.QuestionConnection]()
+	connection := paginationService.BuildConnection(questions, total, hasPreviousPage, hasNextPage,
+		func(question model.Question) uint64 {
+			return question.ID
 		},
-		TotalCount: total,
-	}
+	)
 
-	var result []*model.QuestionConnection
-	result = append(result, questionConnection)
-
-	return result, err
+	return []*model.QuestionConnection{connection}, nil
 }
 
 // CreateOneQuestion 創建新的問題。
@@ -70,12 +51,15 @@ func (q QuestionService) CreateQuestion(form model.QuestionCreate) (*model.Quest
 		return nil, fmt.Errorf("vote not found")
 	}
 
-	question := model.Question{
-		VoteID:      form.VoteID,
-		Title:       form.Title,
-		Description: form.Description,
-	}
+	return repository.NewQuestionRepository().CreateQuestion(form)
+}
 
-	insertErr := database.SqlSession.Model(&model.Question{}).Create(&question).Error
-	return &question, insertErr
+// UpdateOneQuestion 更新問題。
+func (q QuestionService) UpdateQuestion(id uint64, form model.QuestionUpdate) (*model.Question, error) {
+	return repository.NewQuestionRepository().UpdateQuestion(id, form)
+}
+
+// DeleteOneQuestion 刪除問題。
+func (q QuestionService) DeleteQuestion(ids []uint64, isAdmin bool, userId uint64) ([]*model.Question, error) {
+	return repository.NewQuestionRepository().DeleteQuestions(ids, isAdmin, userId)
 }

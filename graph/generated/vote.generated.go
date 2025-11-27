@@ -25,6 +25,17 @@ type VoteResolver interface {
 
 // region    ***************************** args.gotpl *****************************
 
+func (ec *executionContext) dir_withQuestions_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "withQuestions", ec.unmarshalNBoolean2bool)
+	if err != nil {
+		return nil, err
+	}
+	args["withQuestions"] = arg0
+	return args, nil
+}
+
 // endregion ***************************** args.gotpl *****************************
 
 // region    ************************** directives.gotpl **************************

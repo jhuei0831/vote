@@ -18,7 +18,7 @@ func RoleMiddleware(obj string, act string) gin.HandlerFunc {
 			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "Account not found"})
 			return
 		}
-		
+
 		userID := id.(uint64)
 		userId := strconv.FormatUint(userID, 10)
 		ok, err := database.Enforcer.Enforce(userId, obj, act)

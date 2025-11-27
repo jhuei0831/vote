@@ -26,6 +26,12 @@ type QuestionCreate struct {
 	Description string 			`json:"description" example:"description"`
 }
 
+type QuestionUpdate struct {
+	VoteID      uuid.UUID   `json:"vote_id" binding:"required" example:"00000000-0000-0000-0000-000000000000"`
+	Title       string 			`json:"title" binding:"max=100" example:"title"`
+	Description string 			`json:"description" example:"description"`
+}
+
 // Query parameters for filtering, sorting, and pagination
 type QuestionQuery struct {
 	VoteID  		uuid.UUID 	`json:"vote_id" example:"00000000-0000-0000-0000-000000000000"`

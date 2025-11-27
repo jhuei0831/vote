@@ -242,10 +242,10 @@ func (ec *executionContext) fieldContext_Question_candidates(_ context.Context, 
 				return ec.fieldContext_Candidate_id(ctx, field)
 			case "questionId":
 				return ec.fieldContext_Candidate_questionId(ctx, field)
-			case "Name":
-				return ec.fieldContext_Candidate_Name(ctx, field)
-			case "Result":
-				return ec.fieldContext_Candidate_Result(ctx, field)
+			case "name":
+				return ec.fieldContext_Candidate_name(ctx, field)
+			case "result":
+				return ec.fieldContext_Candidate_result(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_Candidate_createdAt(ctx, field)
 			case "updatedAt":
@@ -541,6 +541,47 @@ func (ec *executionContext) unmarshalInputQuestionQuery(ctx context.Context, obj
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputQuestionUpdate(ctx context.Context, obj any) (model.QuestionUpdate, error) {
+	var it model.QuestionUpdate
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"voteId", "title", "description"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "voteId":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("voteId"))
+			data, err := ec.unmarshalNUUID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.VoteID = data
+		case "title":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("title"))
+			data, err := ec.unmarshalOString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Title = data
+		case "description":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("description"))
+			data, err := ec.unmarshalOString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Description = data
+		}
+	}
+
+	return it, nil
+}
+
 // endregion **************************** input.gotpl *****************************
 
 // region    ************************** interface.gotpl ***************************
@@ -763,6 +804,50 @@ func (ec *executionContext) marshalNQuestion2ᚕvoteᚋappᚋmodelᚐQuestionᚄ
 	return ret
 }
 
+func (ec *executionContext) marshalNQuestion2ᚕᚖvoteᚋappᚋmodelᚐQuestionᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Question) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNQuestion2ᚖvoteᚋappᚋmodelᚐQuestion(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
 func (ec *executionContext) marshalNQuestion2ᚖvoteᚋappᚋmodelᚐQuestion(ctx context.Context, sel ast.SelectionSet, v *model.Question) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -878,6 +963,11 @@ func (ec *executionContext) marshalNQuestionEdge2ᚕvoteᚋappᚋmodelᚐQuestio
 	}
 
 	return ret
+}
+
+func (ec *executionContext) unmarshalNQuestionUpdate2voteᚋappᚋmodelᚐQuestionUpdate(ctx context.Context, v any) (model.QuestionUpdate, error) {
+	res, err := ec.unmarshalInputQuestionUpdate(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalOQuestionQuery2ᚖvoteᚋappᚋmodelᚐQuestionQuery(ctx context.Context, v any) (*model.QuestionQuery, error) {

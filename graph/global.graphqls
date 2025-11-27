@@ -1,6 +1,12 @@
 scalar Time
 scalar UUID
 scalar Int64
+scalar UInt64
+
+directive @hasPermission(
+  resource: String!
+  action: String!
+) on FIELD_DEFINITION
 
 """
 Pagination information for paginated results.
