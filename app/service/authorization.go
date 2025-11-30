@@ -54,12 +54,12 @@ func (a AuthorizationService) EnsureVoteOwnership(userID uint64, voteIDs []uuid.
 
 // AuthorizeVoteAccess checks if the user has permission to perform an action on a vote.
 func (a AuthorizationService) AuthorizeVoteAccess(ctx context.Context, voteID interface{}, action string) error {
-	userId, isAdmin, err := NewGraphqlService().GetUserInfoFromContext(ctx)
+	userInfo, err := NewGraphqlService().GetUserInfoFromContext(ctx)
 	if err != nil {
 		return gqlerror.Errorf("failed to get user info from context: %v", err)
 	}
 
-	if !isAdmin {
+	if !userInfo.IsAdmin {
 		var voteIDs []uuid.UUID
 		switch v := voteID.(type) {
 			case uuid.UUID:
@@ -73,7 +73,7 @@ func (a AuthorizationService) AuthorizeVoteAccess(ctx context.Context, voteID in
 		}
 
 		if len(voteIDs) > 0 {
-			if err := a.EnsureVoteOwnership(userId, voteIDs); err != nil {
+			if err := a.EnsureVoteOwnership(userInfo.UserID, voteIDs); err != nil {
 				return gqlerror.Errorf("failed to authorize %s: %v", action, err)
 			}
 		}

@@ -8,17 +8,72 @@ import (
 	"context"
 	"fmt"
 	"vote/app/model"
-	graph "vote/graph/generated"
-
-	"github.com/google/uuid"
+	"vote/app/service"
 )
 
-// QuestionID is the resolver for the questionId field.
-func (r *candidateResolver) QuestionID(ctx context.Context, obj *model.Candidate) (uuid.UUID, error) {
-	panic(fmt.Errorf("not implemented: QuestionID - questionId"))
+// CreateCandidate is the resolver for the createCandidate field.
+func (r *mutationResolver) CreateCandidate(ctx context.Context, input model.CandidateCreate) (*model.Candidate, error) {
+	bindErr := service.NewGraphqlService().BindQuery(ctx, &input)
+	if bindErr != nil {
+		return nil, fmt.Errorf("validation error: %s", bindErr.Error())
+	}
+
+	userInfo, err := service.NewGraphqlService().GetUserInfoFromContext(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get user info from context: %v", err)
+	}
+
+	candidate, err := service.NewCandidateService().CreateCandidate(userInfo, input)
+	if err != nil {
+		return nil, err
+	}
+	return candidate, nil
 }
 
-// Candidate returns graph.CandidateResolver implementation.
-func (r *Resolver) Candidate() graph.CandidateResolver { return &candidateResolver{r} }
+// UpdateCandidate is the resolver for the updateCandidate field.
+func (r *mutationResolver) UpdateCandidate(ctx context.Context, id uint64, input model.CandidateUpdate) (*model.Candidate, error) {
+	bindErr := service.NewGraphqlService().BindQuery(ctx, &input)
+	if bindErr != nil {
+		return nil, fmt.Errorf("validation error: %s", bindErr.Error())
+	}
 
-type candidateResolver struct{ *Resolver }
+	userInfo, err := service.NewGraphqlService().GetUserInfoFromContext(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get user info from context: %v", err)
+	}
+
+	candidate, err := service.NewCandidateService().UpdateCandidate(userInfo, id, input)
+	if err != nil {
+		return nil, err
+	}
+	return candidate, nil
+}
+
+// DeleteCandidate is the resolver for the deleteCandidate field.
+func (r *mutationResolver) DeleteCandidate(ctx context.Context, ids []uint64) ([]*model.Candidate, error) {
+	userInfo, err := service.NewGraphqlService().GetUserInfoFromContext(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get user info from context: %v", err)
+	}
+
+	candidates, err := service.NewCandidateService().DeleteCandidate(ids, userInfo)
+	if err != nil {
+		return nil, err
+	}
+	return candidates, nil
+}
+
+// Candidates is the resolver for the candidates field.
+func (r *queryResolver) Candidates(ctx context.Context, input model.CandidateQuery) ([]*model.CandidateConnection, error) {
+	if err := service.NewAuthorizationService().AuthorizeVoteAccess(ctx, input.VoteID, "read candidate"); err != nil {
+		return nil, err
+	}
+
+	candidateConnections, err := service.NewCandidateService().GetCandidates(&input)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return candidateConnections, nil
+}

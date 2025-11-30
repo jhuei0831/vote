@@ -16,12 +16,12 @@ import (
 
 // CreateVote is the resolver for the createVote field.
 func (r *mutationResolver) CreateVote(ctx context.Context, input model.VoteCreate) (*model.Vote, error) {
-	userId, err := service.NewGraphqlService().GetUserIdFromContext(ctx)
+	userInfo, err := service.NewGraphqlService().GetUserIdFromContext(ctx)
 	if err != nil {
 		return nil, gqlerror.Errorf("user not exists")
 	}
 
-	input.UserID = userId
+	input.UserID = userInfo.UserID
 
 	vote, err := service.NewVoteService().CreateVote(input)
 	if err != nil {
@@ -33,6 +33,10 @@ func (r *mutationResolver) CreateVote(ctx context.Context, input model.VoteCreat
 
 // UpdateVote is the resolver for the updateVote field.
 func (r *mutationResolver) UpdateVote(ctx context.Context, uuid uuid.UUID, input model.VoteUpdate) (*model.Vote, error) {
+	if err := service.NewAuthorizationService().AuthorizeVoteAccess(ctx, uuid, "update vote"); err != nil {
+		return nil, err
+	}
+
 	vote, err := service.NewVoteService().UpdateVote(uuid, input)
 	if err != nil {
 		return nil, err
@@ -57,12 +61,12 @@ func (r *mutationResolver) DeleteVote(ctx context.Context, uuids []uuid.UUID) ([
 
 // Votes is the resolver for the votes field.
 func (r *queryResolver) Votes(ctx context.Context, input *model.VoteQuery, withQuestions bool) ([]*model.VoteConnection, error) {
-	userId, isAdmin, err := service.NewGraphqlService().GetUserInfoFromContext(ctx)
+	userInfo, err := service.NewGraphqlService().GetUserInfoFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	votes, err := service.NewVoteService().GetVotes(isAdmin, userId, input)
+	votes, err := service.NewVoteService().GetVotes(userInfo, input)
 
 	return votes, err
 }

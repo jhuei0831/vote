@@ -18,9 +18,7 @@ func NewQuestionRepository() QuestionRepository {
 func (q QuestionRepository) GetQuestion(id uint64, isAdmin bool, userId uint64, preloadCandidates bool) (*model.Question, error) {
 	var question *model.Question
 
-	query := database.SqlSession.
-		Where("questions.id = ?", id).
-		Joins("JOIN votes ON questions.vote_id = votes.id")
+	query := database.SqlSession.Where("questions.id = ?", id)
 
 	// 如果需要預加載候選人，則將其添加到查詢中。
 	if preloadCandidates {
@@ -29,7 +27,9 @@ func (q QuestionRepository) GetQuestion(id uint64, isAdmin bool, userId uint64, 
 
 	// 如果用戶不是管理員，則添加用戶 ID 條件。
 	if !isAdmin {
-		query = query.Where("votes.user_id = ?", userId)
+		query = query.
+			Joins("JOIN votes ON questions.vote_id = votes.uuid").
+			Where("votes.user_id = ?", userId)
 	}
 
 	err := query.First(&question).Error
@@ -102,25 +102,23 @@ func (q QuestionRepository) UpdateQuestion(id uint64, form model.QuestionUpdate)
 		Model(&question).
 		Clauses(clause.Returning{}).
 		Where("id = ?", id).
-		Updates(map[string]interface{}{
-			"title":       form.Title,
-			"description": form.Description,
-		}).Error
+		Omit("vote_id").
+		Updates(&form).Error
 
 	return &question, updateError
 }
 
 // DeleteQuestions 刪除問題。
-func (q QuestionRepository) DeleteQuestions(ids []uint64, isAdmin bool, userId uint64) ([]*model.Question, error) {
+func (q QuestionRepository) DeleteQuestions(ids []uint64, userInfo model.UserInfo) ([]*model.Question, error) {
 	var questions []*model.Question
 
 	query := database.SqlSession.
 		Model(&model.Question{}).Where("id IN ?", ids)
 
 	// 非管理員需檢查所屬 user
-	if !isAdmin {
+	if !userInfo.IsAdmin {
 		query = query.
-			Where("vote_id IN (SELECT uuid FROM votes WHERE user_id = ?)", userId)
+			Where("vote_id IN (SELECT uuid FROM votes WHERE user_id = ?)", userInfo.UserID)
 	}
 
 	// 使用 Returning 子句刪除並返回刪除的記錄

@@ -26,8 +26,8 @@ func (v VoteService) GetVote(uuid uuid.UUID) (*model.Vote, error) {
 }
 
 // GetVotes 檢索所有投票。
-func (v VoteService) GetVotes(isAdmin bool, userId uint64, voteQuery *model.VoteQuery) ([]*model.VoteConnection, error) {
-	votes, total, err := repository.NewVoteRepository().GetVotes(isAdmin, userId, voteQuery)
+func (v VoteService) GetVotes(userInfo model.UserInfo, voteQuery *model.VoteQuery) ([]*model.VoteConnection, error) {
+	votes, total, err := repository.NewVoteRepository().GetVotes(userInfo, voteQuery)
 	if err != nil {
 		return nil, err
 	}

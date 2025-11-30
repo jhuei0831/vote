@@ -51,12 +51,12 @@ func (r *mutationResolver) UpdateQuestion(ctx context.Context, id uint64, input 
 
 // DeleteQuestion is the resolver for the deleteQuestion field.
 func (r *mutationResolver) DeleteQuestion(ctx context.Context, ids []uint64) ([]*model.Question, error) {
-	userId, isAdmin, err := service.NewGraphqlService().GetUserInfoFromContext(ctx)
+	userInfo, err := service.NewGraphqlService().GetUserInfoFromContext(ctx)
 	if err != nil {
 		return nil, gqlerror.Errorf("failed to get user info from context: %v", err)
 	}
 
-	questions, err := service.NewQuestionService().DeleteQuestion(ids, isAdmin, userId)
+	questions, err := service.NewQuestionService().DeleteQuestion(ids, userInfo)
 	if err != nil {
 		return nil, gqlerror.Errorf("failed to delete questions: %v", err)
 	}
@@ -65,13 +65,13 @@ func (r *mutationResolver) DeleteQuestion(ctx context.Context, ids []uint64) ([]
 }
 
 // Questions is the resolver for the questions field.
-func (r *queryResolver) Questions(ctx context.Context, input *model.QuestionQuery, withCandidates bool) ([]*model.QuestionConnection, error) {
+func (r *queryResolver) Questions(ctx context.Context, input model.QuestionQuery, withCandidates bool) ([]*model.QuestionConnection, error) {
 	if err := service.NewAuthorizationService().AuthorizeVoteAccess(ctx, input.VoteID, "read question"); err != nil {
 		return nil, err
 	}
 
 	input.Candidates = withCandidates
-	questionConnections, err := service.NewQuestionService().GetQuestions(input)
+	questionConnections, err := service.NewQuestionService().GetQuestions(&input)
 
 	if err != nil {
 		return nil, err

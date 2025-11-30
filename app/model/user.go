@@ -21,6 +21,11 @@ type User struct {
 	Votes        []Vote    `gorm:"foreignKey:UserID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"votes,omitempty"`
 }
 
+type UserInfo struct {
+	UserID  uint64
+	IsAdmin bool
+}
+
 type UserCreate struct {
 	Account 	string  `json:"account" binding:"required" example:"account"`
 	Password 	string 	`json:"password" binding:"required" example:"password"`

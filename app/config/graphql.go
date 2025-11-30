@@ -26,11 +26,11 @@ func graphqlHandler() gin.HandlerFunc {
 	graphqlService := service.NewGraphqlService()
 
 	c.Directives.HasPermission = func(ctx context.Context, obj any, next graphql.Resolver, resource string, action string) (interface{}, error) {
-		userId, _, err := graphqlService.GetUserInfoFromContext(ctx)
+		userInfo, err := graphqlService.GetUserInfoFromContext(ctx)
 		if err != nil {
 			return nil, err
 		}
-		ok, err := database.Enforcer.Enforce(strconv.FormatUint(userId, 10), resource, action)
+		ok, err := database.Enforcer.Enforce(strconv.FormatUint(userInfo.UserID, 10), resource, action)
 		if err != nil {
 			return nil, err
 		}

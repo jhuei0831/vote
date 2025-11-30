@@ -140,18 +140,18 @@ func Routes(r *gin.Engine, m *persist.RedisStore) {
 	// Candidate
 	candidates := r.Group("/v1/candidate", middleware.JWTAuthMiddleware(true))
 	{
-		candidates.POST("/create",
-			middleware.RoleMiddleware("candidate", "create"),
-			controller.NewCandidateController().CreateCandidate,
-		)
+		// candidates.POST("/create",
+		// 	middleware.RoleMiddleware("candidate", "create"),
+		// 	controller.NewCandidateController().CreateCandidate,
+		// )
 		candidates.GET("/:id",
 			middleware.RoleMiddleware("candidate", "read"),
 			controller.NewCandidateController().SelectOneCandidate,
 		)
-		candidates.GET("/list/:vote_id",
-			middleware.RoleMiddleware("candidate", "read"),
-			controller.NewCandidateController().SelectAllCandidates,
-		)
+		// candidates.GET("/list/:vote_id",
+		// 	middleware.RoleMiddleware("candidate", "read"),
+		// 	controller.NewCandidateController().SelectAllCandidates,
+		// )
 		// candidates.PUT("/:id",
 		// 	middleware.RoleMiddleware("candidate", "update"),
 		// 	controller.NewCandidateController().UpdateCandidate,

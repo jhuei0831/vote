@@ -20,6 +20,9 @@ import (
 
 type MutationResolver interface {
 	CreateUser(ctx context.Context, input model.UserCreate) (*model.User, error)
+	CreateCandidate(ctx context.Context, input model.CandidateCreate) (*model.Candidate, error)
+	UpdateCandidate(ctx context.Context, id uint64, input model.CandidateUpdate) (*model.Candidate, error)
+	DeleteCandidate(ctx context.Context, ids []uint64) ([]*model.Candidate, error)
 	CreateQuestion(ctx context.Context, input model.QuestionCreate) (*model.Question, error)
 	UpdateQuestion(ctx context.Context, id uint64, input model.QuestionUpdate) (*model.Question, error)
 	DeleteQuestion(ctx context.Context, ids []uint64) ([]*model.Question, error)
@@ -29,13 +32,25 @@ type MutationResolver interface {
 }
 type QueryResolver interface {
 	Users(ctx context.Context) ([]*model.User, error)
-	Questions(ctx context.Context, input *model.QuestionQuery, withCandidates bool) ([]*model.QuestionConnection, error)
+	Candidates(ctx context.Context, input model.CandidateQuery) ([]*model.CandidateConnection, error)
+	Questions(ctx context.Context, input model.QuestionQuery, withCandidates bool) ([]*model.QuestionConnection, error)
 	Votes(ctx context.Context, input *model.VoteQuery, withQuestions bool) ([]*model.VoteConnection, error)
 }
 
 // endregion ************************** generated!.gotpl **************************
 
 // region    ***************************** args.gotpl *****************************
+
+func (ec *executionContext) field_Mutation_createCandidate_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNCandidateCreate2voteᚋappᚋmodelᚐCandidateCreate)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
 
 func (ec *executionContext) field_Mutation_createQuestion_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
@@ -70,6 +85,17 @@ func (ec *executionContext) field_Mutation_createVote_args(ctx context.Context, 
 	return args, nil
 }
 
+func (ec *executionContext) field_Mutation_deleteCandidate_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "ids", ec.unmarshalNUInt642ᚕuint64ᚄ)
+	if err != nil {
+		return nil, err
+	}
+	args["ids"] = arg0
+	return args, nil
+}
+
 func (ec *executionContext) field_Mutation_deleteQuestion_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
@@ -89,6 +115,22 @@ func (ec *executionContext) field_Mutation_deleteVote_args(ctx context.Context, 
 		return nil, err
 	}
 	args["uuids"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_updateCandidate_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "id", ec.unmarshalNUInt642uint64)
+	if err != nil {
+		return nil, err
+	}
+	args["id"] = arg0
+	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNCandidateUpdate2voteᚋappᚋmodelᚐCandidateUpdate)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg1
 	return args, nil
 }
 
@@ -135,10 +177,21 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 	return args, nil
 }
 
+func (ec *executionContext) field_Query_candidates_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNCandidateQuery2voteᚋappᚋmodelᚐCandidateQuery)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
 func (ec *executionContext) field_Query_questions_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
-	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalOQuestionQuery2ᚖvoteᚋappᚋmodelᚐQuestionQuery)
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNQuestionQuery2voteᚋappᚋmodelᚐQuestionQuery)
 	if err != nil {
 		return nil, err
 	}
@@ -218,6 +271,240 @@ func (ec *executionContext) fieldContext_Mutation_createUser(ctx context.Context
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_createUser_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_createCandidate(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Mutation_createCandidate,
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.resolvers.Mutation().CreateCandidate(ctx, fc.Args["input"].(model.CandidateCreate))
+		},
+		func(ctx context.Context, next graphql.Resolver) graphql.Resolver {
+			directive0 := next
+
+			directive1 := func(ctx context.Context) (any, error) {
+				resource, err := ec.unmarshalNString2string(ctx, "candidate")
+				if err != nil {
+					var zeroVal *model.Candidate
+					return zeroVal, err
+				}
+				action, err := ec.unmarshalNString2string(ctx, "create")
+				if err != nil {
+					var zeroVal *model.Candidate
+					return zeroVal, err
+				}
+				if ec.directives.HasPermission == nil {
+					var zeroVal *model.Candidate
+					return zeroVal, errors.New("directive hasPermission is not implemented")
+				}
+				return ec.directives.HasPermission(ctx, nil, directive0, resource, action)
+			}
+
+			next = directive1
+			return next
+		},
+		ec.marshalNCandidate2ᚖvoteᚋappᚋmodelᚐCandidate,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Mutation_createCandidate(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Candidate_id(ctx, field)
+			case "questionId":
+				return ec.fieldContext_Candidate_questionId(ctx, field)
+			case "name":
+				return ec.fieldContext_Candidate_name(ctx, field)
+			case "result":
+				return ec.fieldContext_Candidate_result(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Candidate_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Candidate_updatedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Candidate", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_createCandidate_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_updateCandidate(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Mutation_updateCandidate,
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.resolvers.Mutation().UpdateCandidate(ctx, fc.Args["id"].(uint64), fc.Args["input"].(model.CandidateUpdate))
+		},
+		func(ctx context.Context, next graphql.Resolver) graphql.Resolver {
+			directive0 := next
+
+			directive1 := func(ctx context.Context) (any, error) {
+				resource, err := ec.unmarshalNString2string(ctx, "candidate")
+				if err != nil {
+					var zeroVal *model.Candidate
+					return zeroVal, err
+				}
+				action, err := ec.unmarshalNString2string(ctx, "update")
+				if err != nil {
+					var zeroVal *model.Candidate
+					return zeroVal, err
+				}
+				if ec.directives.HasPermission == nil {
+					var zeroVal *model.Candidate
+					return zeroVal, errors.New("directive hasPermission is not implemented")
+				}
+				return ec.directives.HasPermission(ctx, nil, directive0, resource, action)
+			}
+
+			next = directive1
+			return next
+		},
+		ec.marshalNCandidate2ᚖvoteᚋappᚋmodelᚐCandidate,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Mutation_updateCandidate(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Candidate_id(ctx, field)
+			case "questionId":
+				return ec.fieldContext_Candidate_questionId(ctx, field)
+			case "name":
+				return ec.fieldContext_Candidate_name(ctx, field)
+			case "result":
+				return ec.fieldContext_Candidate_result(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Candidate_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Candidate_updatedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Candidate", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_updateCandidate_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_deleteCandidate(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Mutation_deleteCandidate,
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.resolvers.Mutation().DeleteCandidate(ctx, fc.Args["ids"].([]uint64))
+		},
+		func(ctx context.Context, next graphql.Resolver) graphql.Resolver {
+			directive0 := next
+
+			directive1 := func(ctx context.Context) (any, error) {
+				resource, err := ec.unmarshalNString2string(ctx, "candidate")
+				if err != nil {
+					var zeroVal []*model.Candidate
+					return zeroVal, err
+				}
+				action, err := ec.unmarshalNString2string(ctx, "delete")
+				if err != nil {
+					var zeroVal []*model.Candidate
+					return zeroVal, err
+				}
+				if ec.directives.HasPermission == nil {
+					var zeroVal []*model.Candidate
+					return zeroVal, errors.New("directive hasPermission is not implemented")
+				}
+				return ec.directives.HasPermission(ctx, nil, directive0, resource, action)
+			}
+
+			next = directive1
+			return next
+		},
+		ec.marshalNCandidate2ᚕᚖvoteᚋappᚋmodelᚐCandidateᚄ,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Mutation_deleteCandidate(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Candidate_id(ctx, field)
+			case "questionId":
+				return ec.fieldContext_Candidate_questionId(ctx, field)
+			case "name":
+				return ec.fieldContext_Candidate_name(ctx, field)
+			case "result":
+				return ec.fieldContext_Candidate_result(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Candidate_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Candidate_updatedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Candidate", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_deleteCandidate_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -753,6 +1040,78 @@ func (ec *executionContext) fieldContext_Query_users(_ context.Context, field gr
 	return fc, nil
 }
 
+func (ec *executionContext) _Query_candidates(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Query_candidates,
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.resolvers.Query().Candidates(ctx, fc.Args["input"].(model.CandidateQuery))
+		},
+		func(ctx context.Context, next graphql.Resolver) graphql.Resolver {
+			directive0 := next
+
+			directive1 := func(ctx context.Context) (any, error) {
+				resource, err := ec.unmarshalNString2string(ctx, "candidate")
+				if err != nil {
+					var zeroVal []*model.CandidateConnection
+					return zeroVal, err
+				}
+				action, err := ec.unmarshalNString2string(ctx, "read")
+				if err != nil {
+					var zeroVal []*model.CandidateConnection
+					return zeroVal, err
+				}
+				if ec.directives.HasPermission == nil {
+					var zeroVal []*model.CandidateConnection
+					return zeroVal, errors.New("directive hasPermission is not implemented")
+				}
+				return ec.directives.HasPermission(ctx, nil, directive0, resource, action)
+			}
+
+			next = directive1
+			return next
+		},
+		ec.marshalNCandidateConnection2ᚕᚖvoteᚋappᚋmodelᚐCandidateConnectionᚄ,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Query_candidates(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "edges":
+				return ec.fieldContext_CandidateConnection_edges(ctx, field)
+			case "pageInfo":
+				return ec.fieldContext_CandidateConnection_pageInfo(ctx, field)
+			case "totalCount":
+				return ec.fieldContext_CandidateConnection_totalCount(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type CandidateConnection", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_candidates_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Query_questions(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -761,7 +1120,7 @@ func (ec *executionContext) _Query_questions(ctx context.Context, field graphql.
 		ec.fieldContext_Query_questions,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Query().Questions(ctx, fc.Args["input"].(*model.QuestionQuery), fc.Args["withCandidates"].(bool))
+			return ec.resolvers.Query().Questions(ctx, fc.Args["input"].(model.QuestionQuery), fc.Args["withCandidates"].(bool))
 		},
 		func(ctx context.Context, next graphql.Resolver) graphql.Resolver {
 			directive0 := next
@@ -1171,6 +1530,27 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "createCandidate":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_createCandidate(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "updateCandidate":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_updateCandidate(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "deleteCandidate":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_deleteCandidate(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "createQuestion":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_createQuestion(ctx, field)
@@ -1265,6 +1645,28 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_users(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "candidates":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_candidates(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}

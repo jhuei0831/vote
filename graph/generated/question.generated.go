@@ -495,7 +495,7 @@ func (ec *executionContext) unmarshalInputQuestionQuery(ctx context.Context, obj
 		switch k {
 		case "voteId":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("voteId"))
-			data, err := ec.unmarshalOUUID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, v)
+			data, err := ec.unmarshalNUUID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -965,17 +965,14 @@ func (ec *executionContext) marshalNQuestionEdge2ᚕvoteᚋappᚋmodelᚐQuestio
 	return ret
 }
 
-func (ec *executionContext) unmarshalNQuestionUpdate2voteᚋappᚋmodelᚐQuestionUpdate(ctx context.Context, v any) (model.QuestionUpdate, error) {
-	res, err := ec.unmarshalInputQuestionUpdate(ctx, v)
+func (ec *executionContext) unmarshalNQuestionQuery2voteᚋappᚋmodelᚐQuestionQuery(ctx context.Context, v any) (model.QuestionQuery, error) {
+	res, err := ec.unmarshalInputQuestionQuery(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalOQuestionQuery2ᚖvoteᚋappᚋmodelᚐQuestionQuery(ctx context.Context, v any) (*model.QuestionQuery, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := ec.unmarshalInputQuestionQuery(ctx, v)
-	return &res, graphql.ErrorOnPath(ctx, err)
+func (ec *executionContext) unmarshalNQuestionUpdate2voteᚋappᚋmodelᚐQuestionUpdate(ctx context.Context, v any) (model.QuestionUpdate, error) {
+	res, err := ec.unmarshalInputQuestionUpdate(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 // endregion ***************************** type.gotpl *****************************

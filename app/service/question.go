@@ -60,6 +60,6 @@ func (q QuestionService) UpdateQuestion(id uint64, form model.QuestionUpdate) (*
 }
 
 // DeleteOneQuestion 刪除問題。
-func (q QuestionService) DeleteQuestion(ids []uint64, isAdmin bool, userId uint64) ([]*model.Question, error) {
-	return repository.NewQuestionRepository().DeleteQuestions(ids, isAdmin, userId)
+func (q QuestionService) DeleteQuestion(ids []uint64, userInfo model.UserInfo) ([]*model.Question, error) {
+	return repository.NewQuestionRepository().DeleteQuestions(ids, userInfo)
 }

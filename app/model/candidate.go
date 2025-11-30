@@ -2,6 +2,8 @@ package model
 
 import (
 	"time"
+
+	"github.com/google/uuid"
 )
 
 func (Candidate) TableName() string {
@@ -18,13 +20,52 @@ type Candidate struct {
 }
 
 type CandidateCreate struct {
-	QuestionID uint64 `json:"question_id" binding:"required" example:"1"`
-	Name       string `json:"name" binding:"required" example:"name"`
+	QuestionID 	uint64 			`json:"question_id" binding:"required" example:"1"`
+	Name       	string 			`json:"name" binding:"required,max=100" example:"name"`
+}
+
+type CandidateUpdate struct {
+	QuestionID 	uint64 			`json:"question_id" binding:"required" example:"1"`
+	Name 				string 			`json:"name" binding:"max=100" example:"name"`
 }
 
 type CandidateQuery struct {	
-	QuestionID uint64 `json:"question_id" example:"1"`
-	Name	   string `json:"name" example:"name"`
-	Page       int    `form:"page,default=1" json:"page" binding:"min=1" example:"1"`
-	Size       int    `form:"size,default=1" json:"size" binding:"min=1" example:"10"`
+	VoteID 			uuid.UUID 	`json:"vote_id" example:"00000000-0000-0000-0000-000000000000"`
+	QuestionID 	uint64 			`json:"question_id" example:"1"`
+	Name	   		string 			`json:"name" example:"name"`
+	First     	int       	`json:"first" binding:"min=1" example:"1"`
+	After     	string    	`json:"after" binding:"min=1" example:"1"`
+	Last      	int       	`json:"last" binding:"min=1" example:"1"`
+	Before    	string    	`json:"before" binding:"min=1" example:"1"`
+}
+
+type CandidateConnection struct {
+	Edges      []CandidateEdge `json:"edges"`
+	PageInfo 	 PageInfo   `json:"pageInfo"`
+	TotalCount int64			  `json:"totalCount"`
+}
+
+type CandidateEdge struct {
+	Node   Candidate   `json:"node"`
+	Cursor string `json:"cursor"`
+}
+
+// GetFirst implements PaginationQuery
+func (q *CandidateQuery) GetFirst() int {
+	return q.First
+}
+
+// GetAfter implements PaginationQuery
+func (q *CandidateQuery) GetAfter() string {
+	return q.After
+}
+
+// GetLast implements PaginationQuery
+func (q *CandidateQuery) GetLast() int {
+	return q.Last
+}
+
+// GetBefore implements PaginationQuery
+func (q *CandidateQuery) GetBefore() string {
+	return q.Before
 }

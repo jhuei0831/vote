@@ -27,14 +27,14 @@ func (v VoteRepository) GetVoteByUUID(uuid uuid.UUID) (*model.Vote, error) {
 }
 
 // GetVotes 根據條件取得所有投票。
-func (v VoteRepository) GetVotes(isAdmin bool, userId uint64, voteQuery *model.VoteQuery) ([]model.Vote, int64, error) {
+func (v VoteRepository) GetVotes(userInfo model.UserInfo, voteQuery *model.VoteQuery) ([]model.Vote, int64, error) {
 	var votes []model.Vote
 	var total int64
 
 	query := database.SqlSession.Model(&model.Vote{}).Preload("Questions")
 
-	if !isAdmin {
-		query = query.Where("user_id = ?", userId)
+	if !userInfo.IsAdmin {
+		query = query.Where("user_id = ?", userInfo.UserID)
 	}
 
 	// 計算總筆數

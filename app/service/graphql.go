@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"vote/app/database"
+	"vote/app/model"
 
 	"github.com/gin-gonic/gin"
 	"github.com/vektah/gqlparser/v2/gqlerror"
@@ -43,36 +44,41 @@ func (g GraphqlService) BindQuery(ctx context.Context, input interface{}) error 
 }
 
 // Get UserId from Gin context
-func (g GraphqlService) GetUserIdFromContext(ctx context.Context) (uint64, error) {
+func (g GraphqlService) GetUserIdFromContext(ctx context.Context) (model.UserInfo, error) {
+	userInfo := model.UserInfo{UserID: 0, IsAdmin: false}
 	gc, err := g.GinContextFromContext(ctx)
 	if err != nil {
-		return 0, err
+		return userInfo, err
 	}
 
 	userId, exists := gc.Get("id")
 	if !exists {
-		return 0, gqlerror.Errorf("user not exists")
+		return userInfo, gqlerror.Errorf("user not exists")
 	}
 
-	return userId.(uint64), nil
+	userInfo.UserID = userId.(uint64)
+	return userInfo, nil
 }
 
 // Get UserId and IsAdmin from Gin context
-func (g GraphqlService) GetUserInfoFromContext(ctx context.Context) (uint64, bool, error) {
+func (g GraphqlService) GetUserInfoFromContext(ctx context.Context) (model.UserInfo, error) {
+	userInfo := model.UserInfo{UserID: 0, IsAdmin: false}
 	gc, err := g.GinContextFromContext(ctx)
 	if err != nil {
-		return 0, false, err
+		return userInfo, err
 	}
 
 	userId, exists := gc.Get("id")
 	if !exists {
-		return 0, false, gqlerror.Errorf("user not exists")
+		return userInfo, gqlerror.Errorf("user not exists")
 	}
 
 	isAdmin, err := database.CheckIfAdmin(userId.(uint64))
 	if err != nil {
-		return 0, false, gqlerror.Errorf("failed to check user role")
+		return userInfo, gqlerror.Errorf("failed to check user role")
 	}
-
-	return userId.(uint64), isAdmin, nil
+	
+	userInfo.UserID = userId.(uint64)
+	userInfo.IsAdmin = isAdmin
+	return userInfo, nil
 }

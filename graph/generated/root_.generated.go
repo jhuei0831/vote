@@ -34,7 +34,6 @@ type Config struct {
 }
 
 type ResolverRoot interface {
-	Candidate() CandidateResolver
 	Mutation() MutationResolver
 	Query() QueryResolver
 	Vote() VoteResolver
@@ -56,14 +55,28 @@ type ComplexityRoot struct {
 		UpdatedAt  func(childComplexity int) int
 	}
 
+	CandidateConnection struct {
+		Edges      func(childComplexity int) int
+		PageInfo   func(childComplexity int) int
+		TotalCount func(childComplexity int) int
+	}
+
+	CandidateEdge struct {
+		Cursor func(childComplexity int) int
+		Node   func(childComplexity int) int
+	}
+
 	Mutation struct {
-		CreateQuestion func(childComplexity int, input model.QuestionCreate) int
-		CreateUser     func(childComplexity int, input model.UserCreate) int
-		CreateVote     func(childComplexity int, input model.VoteCreate) int
-		DeleteQuestion func(childComplexity int, ids []uint64) int
-		DeleteVote     func(childComplexity int, uuids []uuid.UUID) int
-		UpdateQuestion func(childComplexity int, id uint64, input model.QuestionUpdate) int
-		UpdateVote     func(childComplexity int, uuid uuid.UUID, input model.VoteUpdate) int
+		CreateCandidate func(childComplexity int, input model.CandidateCreate) int
+		CreateQuestion  func(childComplexity int, input model.QuestionCreate) int
+		CreateUser      func(childComplexity int, input model.UserCreate) int
+		CreateVote      func(childComplexity int, input model.VoteCreate) int
+		DeleteCandidate func(childComplexity int, ids []uint64) int
+		DeleteQuestion  func(childComplexity int, ids []uint64) int
+		DeleteVote      func(childComplexity int, uuids []uuid.UUID) int
+		UpdateCandidate func(childComplexity int, id uint64, input model.CandidateUpdate) int
+		UpdateQuestion  func(childComplexity int, id uint64, input model.QuestionUpdate) int
+		UpdateVote      func(childComplexity int, uuid uuid.UUID, input model.VoteUpdate) int
 	}
 
 	PageInfo struct {
@@ -74,9 +87,10 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		Questions func(childComplexity int, input *model.QuestionQuery, withCandidates bool) int
-		Users     func(childComplexity int) int
-		Votes     func(childComplexity int, input *model.VoteQuery, withQuestions bool) int
+		Candidates func(childComplexity int, input model.CandidateQuery) int
+		Questions  func(childComplexity int, input model.QuestionQuery, withCandidates bool) int
+		Users      func(childComplexity int) int
+		Votes      func(childComplexity int, input *model.VoteQuery, withQuestions bool) int
 	}
 
 	Question struct {
@@ -191,6 +205,53 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.Candidate.UpdatedAt(childComplexity), true
 
+	case "CandidateConnection.edges":
+		if e.complexity.CandidateConnection.Edges == nil {
+			break
+		}
+
+		return e.complexity.CandidateConnection.Edges(childComplexity), true
+
+	case "CandidateConnection.pageInfo":
+		if e.complexity.CandidateConnection.PageInfo == nil {
+			break
+		}
+
+		return e.complexity.CandidateConnection.PageInfo(childComplexity), true
+
+	case "CandidateConnection.totalCount":
+		if e.complexity.CandidateConnection.TotalCount == nil {
+			break
+		}
+
+		return e.complexity.CandidateConnection.TotalCount(childComplexity), true
+
+	case "CandidateEdge.cursor":
+		if e.complexity.CandidateEdge.Cursor == nil {
+			break
+		}
+
+		return e.complexity.CandidateEdge.Cursor(childComplexity), true
+
+	case "CandidateEdge.node":
+		if e.complexity.CandidateEdge.Node == nil {
+			break
+		}
+
+		return e.complexity.CandidateEdge.Node(childComplexity), true
+
+	case "Mutation.createCandidate":
+		if e.complexity.Mutation.CreateCandidate == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_createCandidate_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.CreateCandidate(childComplexity, args["input"].(model.CandidateCreate)), true
+
 	case "Mutation.createQuestion":
 		if e.complexity.Mutation.CreateQuestion == nil {
 			break
@@ -227,6 +288,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.Mutation.CreateVote(childComplexity, args["input"].(model.VoteCreate)), true
 
+	case "Mutation.deleteCandidate":
+		if e.complexity.Mutation.DeleteCandidate == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_deleteCandidate_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.DeleteCandidate(childComplexity, args["ids"].([]uint64)), true
+
 	case "Mutation.deleteQuestion":
 		if e.complexity.Mutation.DeleteQuestion == nil {
 			break
@@ -250,6 +323,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Mutation.DeleteVote(childComplexity, args["uuids"].([]uuid.UUID)), true
+
+	case "Mutation.updateCandidate":
+		if e.complexity.Mutation.UpdateCandidate == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_updateCandidate_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.UpdateCandidate(childComplexity, args["id"].(uint64), args["input"].(model.CandidateUpdate)), true
 
 	case "Mutation.updateQuestion":
 		if e.complexity.Mutation.UpdateQuestion == nil {
@@ -303,6 +388,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.PageInfo.StartCursor(childComplexity), true
 
+	case "Query.candidates":
+		if e.complexity.Query.Candidates == nil {
+			break
+		}
+
+		args, err := ec.field_Query_candidates_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.Candidates(childComplexity, args["input"].(model.CandidateQuery)), true
+
 	case "Query.questions":
 		if e.complexity.Query.Questions == nil {
 			break
@@ -313,7 +410,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Query.Questions(childComplexity, args["input"].(*model.QuestionQuery), args["withCandidates"].(bool)), true
+		return e.complexity.Query.Questions(childComplexity, args["input"].(model.QuestionQuery), args["withCandidates"].(bool)), true
 
 	case "Query.users":
 		if e.complexity.Query.Users == nil {
@@ -545,6 +642,9 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	opCtx := graphql.GetOperationContext(ctx)
 	ec := executionContext{opCtx, e, 0, 0, make(chan graphql.DeferredResult)}
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
+		ec.unmarshalInputCandidateCreate,
+		ec.unmarshalInputCandidateQuery,
+		ec.unmarshalInputCandidateUpdate,
 		ec.unmarshalInputQuestionCreate,
 		ec.unmarshalInputQuestionQuery,
 		ec.unmarshalInputQuestionUpdate,
@@ -651,11 +751,58 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 var sources = []*ast.Source{
 	{Name: "../candidate.graphqls", Input: `type Candidate {
   id: ID!
-  questionId: UUID!
+  questionId: UInt64!
   name: String!
   result: String!
   createdAt: Time!
   updatedAt: Time!
+}
+
+type CandidateConnection {
+  edges: [CandidateEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int64!
+}
+
+type CandidateEdge {
+  node: Candidate!
+  cursor: ID!
+}
+
+input CandidateCreate {
+  questionId: UInt64!
+  name: String!
+}
+
+input CandidateUpdate {
+  questionId: UInt64!
+  name: String
+}
+
+input CandidateQuery {
+  voteId: UUID!
+  questionId: UInt64
+  name: String
+  first: Int64
+  after: String
+  last: Int64
+  before: String
+}
+
+extend type Query {
+  candidates(input: CandidateQuery!): [CandidateConnection!]!
+    @hasPermission(resource: "candidate", action: "read")
+}
+
+extend type Mutation {
+  createCandidate(input: CandidateCreate!): Candidate!
+    @hasPermission(resource: "candidate", action: "create")
+
+  updateCandidate(id: UInt64!, input: CandidateUpdate!): Candidate!
+    @hasPermission(resource: "candidate", action: "update")
+
+  deleteCandidate(ids: [UInt64!]!): [Candidate!]!
+    @hasPermission(resource: "candidate", action: "delete")
 }`, BuiltIn: false},
 	{Name: "../global.graphqls", Input: `scalar Time
 scalar UUID
@@ -719,7 +866,7 @@ input QuestionUpdate {
 }
 
 input QuestionQuery {
-  voteId: UUID
+  voteId: UUID!
   title: String
   first: Int64
   after: String
@@ -728,15 +875,17 @@ input QuestionQuery {
 }
 
 extend type Query {
-  questions(input: QuestionQuery, withCandidates: Boolean!): [QuestionConnection!]! 
+  questions(input: QuestionQuery!, withCandidates: Boolean!): [QuestionConnection!]! 
     @hasPermission(resource: "question", action: "read")
 }
 
 extend type Mutation {
   createQuestion(input: QuestionCreate!): Question!
     @hasPermission(resource: "question", action: "create")
+
   updateQuestion(id: UInt64!, input: QuestionUpdate!): Question!
     @hasPermission(resource: "question", action: "update")
+    
   deleteQuestion(ids: [UInt64!]!): [Question!]!
     @hasPermission(resource: "question", action: "delete")
 }`, BuiltIn: false},

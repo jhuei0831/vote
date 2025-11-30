@@ -34,7 +34,7 @@ input QuestionUpdate {
 }
 
 input QuestionQuery {
-  voteId: UUID
+  voteId: UUID!
   title: String
   first: Int64
   after: String
@@ -43,15 +43,17 @@ input QuestionQuery {
 }
 
 extend type Query {
-  questions(input: QuestionQuery, withCandidates: Boolean!): [QuestionConnection!]! 
+  questions(input: QuestionQuery!, withCandidates: Boolean!): [QuestionConnection!]! 
     @hasPermission(resource: "question", action: "read")
 }
 
 extend type Mutation {
   createQuestion(input: QuestionCreate!): Question!
     @hasPermission(resource: "question", action: "create")
+
   updateQuestion(id: UInt64!, input: QuestionUpdate!): Question!
     @hasPermission(resource: "question", action: "update")
+    
   deleteQuestion(ids: [UInt64!]!): [Question!]!
     @hasPermission(resource: "question", action: "delete")
 }
