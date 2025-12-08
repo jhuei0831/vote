@@ -55,7 +55,7 @@ func Routes(r *gin.Engine, m *persist.RedisStore) {
 	// )
 	r.POST("/v1/voter/ballot/create",
 		middleware.JWTAuthMiddleware(false),
-		controller.NewBallotController().CreateBallots,
+		// controller.NewBallotController().CreateBallots,
 	)
 	// User
 	posts := r.Group("/v1/user")

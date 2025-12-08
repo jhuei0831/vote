@@ -1,0 +1,47 @@
+type Ballot {
+  id: ID!
+  passwordId: UInt64!
+  questionId: UInt64!
+  createdAt: Time!
+  updatedAt: Time!
+  ballotSelects: [BallotSelect!]!
+}
+
+type BallotConnection {
+  edges: [BallotEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int64!
+}
+
+type BallotEdge {
+  node: Ballot!
+  cursor: ID!
+}
+
+input BallotCandidate {
+  id: UInt64!
+  isSelected: Boolean!
+}
+
+input BallotQuestions {
+  id: UInt64!
+  candidates: [BallotCandidate!]
+}
+
+input BallotCreate {
+  selections: [BallotQuestions!]!
+}
+
+input BallotQuery {
+  voteId: UUID!
+  questionId: UInt64
+  name: String
+  first: Int64
+  after: String
+  last: Int64
+  before: String
+}
+
+extend type Mutation {
+  createBallot(input: BallotCreate!): [Ballot!]!
+}

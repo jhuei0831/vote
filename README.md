@@ -47,3 +47,11 @@ go build -o migrator ./cmd/dbmigrate
 ```bash
 gin -a 3000 -p 9443 run main.go
 ```
+
+
+## Development
+
+### graphql gqlgen
+```bash
+go get github.com/99designs/gqlgen@v0.17.81 && go run github.com/99designs/gqlgen generate
+```

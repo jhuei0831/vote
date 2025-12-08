@@ -96,11 +96,8 @@ func (p *Password) Encrypt(text string) (string, error) {
 		return "", err
 	}
 
-	// 生成隨機初始化向量 (IV)
-	iv := make([]byte, aes.BlockSize)
-	if _, err := rand.Read(iv); err != nil {
-		return "", err
-	}
+	// 使用固定的初始化向量 (IV)
+	iv := []byte(os.Getenv("APP_ENCRYPT_IV"))
 
 	// 創建一個字節切片來保存密文，並在開頭放置 IV
 	ciphertext := make([]byte, aes.BlockSize+len(text))

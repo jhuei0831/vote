@@ -214,6 +214,7 @@ func extractToken(c *gin.Context, tokenType string) string {
 }
 
 // validateAndSetClaims 驗證 token 並設置 claims
+// TODO: Combine User and Voter claims
 func validateAndSetClaims(c *gin.Context, tokenString string, isUser bool) error {
 	if isUser {
 		mc, err := ParseUserToken(tokenString)

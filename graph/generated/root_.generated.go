@@ -46,6 +46,32 @@ type DirectiveRoot struct {
 }
 
 type ComplexityRoot struct {
+	Ballot struct {
+		BallotSelects func(childComplexity int) int
+		CreatedAt     func(childComplexity int) int
+		ID            func(childComplexity int) int
+		PasswordID    func(childComplexity int) int
+		QuestionID    func(childComplexity int) int
+		UpdatedAt     func(childComplexity int) int
+	}
+
+	BallotConnection struct {
+		Edges      func(childComplexity int) int
+		PageInfo   func(childComplexity int) int
+		TotalCount func(childComplexity int) int
+	}
+
+	BallotEdge struct {
+		Cursor func(childComplexity int) int
+		Node   func(childComplexity int) int
+	}
+
+	BallotSelect struct {
+		BallotID    func(childComplexity int) int
+		CandidateID func(childComplexity int) int
+		ID          func(childComplexity int) int
+	}
+
 	Candidate struct {
 		CreatedAt  func(childComplexity int) int
 		ID         func(childComplexity int) int
@@ -67,6 +93,7 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
+		CreateBallot    func(childComplexity int, input model.BallotCreate) int
 		CreateCandidate func(childComplexity int, input model.CandidateCreate) int
 		CreateQuestion  func(childComplexity int, input model.QuestionCreate) int
 		CreateUser      func(childComplexity int, input model.UserCreate) int
@@ -163,6 +190,104 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 	_ = ec
 	switch typeName + "." + field {
 
+	case "Ballot.ballotSelects":
+		if e.complexity.Ballot.BallotSelects == nil {
+			break
+		}
+
+		return e.complexity.Ballot.BallotSelects(childComplexity), true
+
+	case "Ballot.createdAt":
+		if e.complexity.Ballot.CreatedAt == nil {
+			break
+		}
+
+		return e.complexity.Ballot.CreatedAt(childComplexity), true
+
+	case "Ballot.id":
+		if e.complexity.Ballot.ID == nil {
+			break
+		}
+
+		return e.complexity.Ballot.ID(childComplexity), true
+
+	case "Ballot.passwordId":
+		if e.complexity.Ballot.PasswordID == nil {
+			break
+		}
+
+		return e.complexity.Ballot.PasswordID(childComplexity), true
+
+	case "Ballot.questionId":
+		if e.complexity.Ballot.QuestionID == nil {
+			break
+		}
+
+		return e.complexity.Ballot.QuestionID(childComplexity), true
+
+	case "Ballot.updatedAt":
+		if e.complexity.Ballot.UpdatedAt == nil {
+			break
+		}
+
+		return e.complexity.Ballot.UpdatedAt(childComplexity), true
+
+	case "BallotConnection.edges":
+		if e.complexity.BallotConnection.Edges == nil {
+			break
+		}
+
+		return e.complexity.BallotConnection.Edges(childComplexity), true
+
+	case "BallotConnection.pageInfo":
+		if e.complexity.BallotConnection.PageInfo == nil {
+			break
+		}
+
+		return e.complexity.BallotConnection.PageInfo(childComplexity), true
+
+	case "BallotConnection.totalCount":
+		if e.complexity.BallotConnection.TotalCount == nil {
+			break
+		}
+
+		return e.complexity.BallotConnection.TotalCount(childComplexity), true
+
+	case "BallotEdge.cursor":
+		if e.complexity.BallotEdge.Cursor == nil {
+			break
+		}
+
+		return e.complexity.BallotEdge.Cursor(childComplexity), true
+
+	case "BallotEdge.node":
+		if e.complexity.BallotEdge.Node == nil {
+			break
+		}
+
+		return e.complexity.BallotEdge.Node(childComplexity), true
+
+	case "BallotSelect.ballotId":
+		if e.complexity.BallotSelect.BallotID == nil {
+			break
+		}
+
+		return e.complexity.BallotSelect.BallotID(childComplexity), true
+
+	case "BallotSelect.candidateId":
+		if e.complexity.BallotSelect.CandidateID == nil {
+			break
+		}
+
+		return e.complexity.BallotSelect.CandidateID(childComplexity), true
+
+	case "BallotSelect.id":
+		if e.complexity.BallotSelect.ID == nil {
+			break
+		}
+
+		return e.complexity.BallotSelect.ID(childComplexity), true
+
 	case "Candidate.createdAt":
 		if e.complexity.Candidate.CreatedAt == nil {
 			break
@@ -239,6 +364,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.CandidateEdge.Node(childComplexity), true
+
+	case "Mutation.createBallot":
+		if e.complexity.Mutation.CreateBallot == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_createBallot_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.CreateBallot(childComplexity, args["input"].(model.BallotCreate)), true
 
 	case "Mutation.createCandidate":
 		if e.complexity.Mutation.CreateCandidate == nil {
@@ -642,6 +779,10 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	opCtx := graphql.GetOperationContext(ctx)
 	ec := executionContext{opCtx, e, 0, 0, make(chan graphql.DeferredResult)}
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
+		ec.unmarshalInputBallotCandidate,
+		ec.unmarshalInputBallotCreate,
+		ec.unmarshalInputBallotQuery,
+		ec.unmarshalInputBallotQuestions,
 		ec.unmarshalInputCandidateCreate,
 		ec.unmarshalInputCandidateQuery,
 		ec.unmarshalInputCandidateUpdate,
@@ -749,6 +890,59 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 }
 
 var sources = []*ast.Source{
+	{Name: "../ballot.graphqls", Input: `type Ballot {
+  id: ID!
+  passwordId: UInt64!
+  questionId: UInt64!
+  createdAt: Time!
+  updatedAt: Time!
+  ballotSelects: [BallotSelect!]!
+}
+
+type BallotConnection {
+  edges: [BallotEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int64!
+}
+
+type BallotEdge {
+  node: Ballot!
+  cursor: ID!
+}
+
+input BallotCandidate {
+  id: UInt64!
+  isSelected: Boolean!
+}
+
+input BallotQuestions {
+  id: UInt64!
+  candidates: [BallotCandidate!]
+}
+
+input BallotCreate {
+  selections: [BallotQuestions!]!
+}
+
+input BallotQuery {
+  voteId: UUID!
+  questionId: UInt64
+  name: String
+  first: Int64
+  after: String
+  last: Int64
+  before: String
+}
+
+extend type Mutation {
+  createBallot(input: BallotCreate!): [Ballot!]!
+}
+`, BuiltIn: false},
+	{Name: "../ballotSelect.graphqls", Input: `type BallotSelect {
+  id: ID!
+  ballotId: UInt64!
+  candidateId: UInt64!
+}`, BuiltIn: false},
 	{Name: "../candidate.graphqls", Input: `type Candidate {
   id: ID!
   questionId: UInt64!

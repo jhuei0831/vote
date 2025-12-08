@@ -17,6 +17,16 @@ type Ballot struct {
 	BallotSelects []BallotSelect 	`gorm:"foreignKey:BallotID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"ballot_selects,omitempty"`
 }
 
+type BallotCandidate struct {
+	ID         uint64 `json:"id" binding:"required"`
+	IsSelected bool   `json:"isSelected" binding:"required"`
+}
+
+type BallotQuestions struct {
+	ID         uint64             `json:"id" binding:"required"`
+	Candidates []BallotCandidate  `json:"candidates"`
+}
+
 type BallotCreate struct {
-	Selections map[string][]string `json:"selections" binding:"required"`
+	Selections []BallotQuestions `json:"selections" binding:"required"`
 }
