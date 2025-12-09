@@ -13,12 +13,13 @@ import (
 
 // CreateBallot is the resolver for the createBallot field.
 func (r *mutationResolver) CreateBallot(ctx context.Context, input model1.BallotCreate) ([]*model1.Ballot, error) {
-	voterInfo, err := service.NewGraphqlService().GetUserInfoFromContext(ctx)
+	voterInfo, err := service.NewGraphqlService().GetVoterInfoFromContext(ctx)
+	fmt.Println(voterInfo)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get user info from context: %v", err)
 	}
 
-	ballots, err := service.NewBallotService().CreateBallots(voterInfo.UserID, input)
+	ballots, err := service.NewBallotService().CreateBallots(voterInfo.VoterID, input)
 	if err != nil {
 		return nil, err
 	}

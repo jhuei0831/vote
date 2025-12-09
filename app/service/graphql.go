@@ -7,6 +7,7 @@ import (
 	"vote/app/model"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/vektah/gqlparser/v2/gqlerror"
 )
 
@@ -51,7 +52,7 @@ func (g GraphqlService) GetUserIdFromContext(ctx context.Context) (model.UserInf
 		return userInfo, err
 	}
 
-	userId, exists := gc.Get("id")
+	userId, exists := gc.Get("userId")
 	if !exists {
 		return userInfo, gqlerror.Errorf("user not exists")
 	}
@@ -68,7 +69,7 @@ func (g GraphqlService) GetUserInfoFromContext(ctx context.Context) (model.UserI
 		return userInfo, err
 	}
 
-	userId, exists := gc.Get("id")
+	userId, exists := gc.Get("userId")
 	if !exists {
 		return userInfo, gqlerror.Errorf("user not exists")
 	}
@@ -81,4 +82,34 @@ func (g GraphqlService) GetUserInfoFromContext(ctx context.Context) (model.UserI
 	userInfo.UserID = userId.(uint64)
 	userInfo.IsAdmin = isAdmin
 	return userInfo, nil
+}
+
+// Get VoterInfo from Gin context
+func (g GraphqlService) GetVoterInfoFromContext(ctx context.Context) (model.VoterInfo, error) {
+	voterInfo := model.VoterInfo{VoterID: 0, VoteID: uuid.UUID{}, IsVoted: false}
+	gc, err := g.GinContextFromContext(ctx)
+	if err != nil {
+		return voterInfo, err
+	}
+
+	voterId, exists := gc.Get("voterId")
+	if !exists {
+		return voterInfo, gqlerror.Errorf("voter not exists")
+	}
+
+	voteId, exists := gc.Get("voterVoteId")
+	if !exists {
+		return voterInfo, gqlerror.Errorf("vote not exists")
+	}
+
+	isVoted, exists := gc.Get("voterIsVoted")
+	if !exists {
+		return voterInfo, gqlerror.Errorf("voting status not exists")
+	}
+
+	voterInfo.VoterID = voterId.(uint64)
+	voterInfo.VoteID = voteId.(uuid.UUID)
+	voterInfo.IsVoted = isVoted.(bool)
+	
+	return voterInfo, nil
 }

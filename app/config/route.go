@@ -20,7 +20,7 @@ import (
 
 func Routes(r *gin.Engine, m *persist.RedisStore) {
 	// Graphql
-	r.POST("/query", middleware.JWTAuthMiddleware(true), graphqlHandler())
+	r.POST("/query", middleware.JWTAuthMiddleware(), graphqlHandler())
 	r.GET("/", playgroundHandler())
 
 	// Restful API
@@ -36,25 +36,25 @@ func Routes(r *gin.Engine, m *persist.RedisStore) {
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	// RBAC
 	r.GET("/rbac/init",
-		middleware.JWTAuthMiddleware(true),
+		middleware.JWTAuthMiddleware(),
 		controller.NewRbacController().Initial,
 	)
 	// Voter
 	r.POST("/v1/voter/login", controller.NewVoterController().VoterLogin)
 	r.POST("/v1/voter/logout",
-		middleware.JWTAuthMiddleware(false),
+		middleware.JWTAuthMiddleware(),
 		controller.NewVoterController().Logout,
 	)
 	r.POST("/v1/voter/check-auth",
-		middleware.JWTAuthMiddleware(false),
+		middleware.JWTAuthMiddleware(),
 		controller.NewVoterController().CheckAuth,
 	)
 	// r.GET("/v1/voter/questions",
-	// 	middleware.JWTAuthMiddleware(false),
+	// 	middleware.JWTAuthMiddleware(),
 	// 	controller.NewQuestionController().SelectVoterQuestions,
 	// )
 	r.POST("/v1/voter/ballot/create",
-		middleware.JWTAuthMiddleware(false),
+		middleware.JWTAuthMiddleware(),
 		// controller.NewBallotController().CreateBallots,
 	)
 	// User
@@ -62,24 +62,24 @@ func Routes(r *gin.Engine, m *persist.RedisStore) {
 	{
 		posts.POST("/login", controller.NewUserController().Login)
 		posts.POST("/logout",
-			middleware.JWTAuthMiddleware(true),
+			middleware.JWTAuthMiddleware(),
 			controller.NewUserController().Logout,
 		)
 		posts.POST("/check-auth",
-			middleware.JWTAuthMiddleware(true),
+			middleware.JWTAuthMiddleware(),
 			controller.NewUserController().CheckAuth,
 		)
 		posts.POST("/refresh-token",
-			middleware.JWTAuthMiddleware(true),
+			middleware.JWTAuthMiddleware(),
 			controller.NewUserController().RefreshToken,
 		)
 		posts.POST("/create",
-			middleware.JWTAuthMiddleware(true),
+			middleware.JWTAuthMiddleware(),
 			middleware.RoleMiddleware("user", "create"),
 			controller.NewUserController().CreateUser,
 		)
 		posts.GET("/:id",
-			middleware.JWTAuthMiddleware(true),
+			middleware.JWTAuthMiddleware(),
 			middleware.RoleMiddleware("user", "read"),
 			// cache.CacheByRequestURI(m, 2*time.Hour),
 			controller.NewUserController().GetUser,
@@ -88,7 +88,7 @@ func Routes(r *gin.Engine, m *persist.RedisStore) {
 
 	// Vote
 	r.GET("/v1/vote/:id", controller.NewVoteController().GetVote)
-	votes := r.Group("/v1/vote", middleware.JWTAuthMiddleware(true))
+	votes := r.Group("/v1/vote", middleware.JWTAuthMiddleware())
 	{
 		votes.POST("/create",
 			middleware.RoleMiddleware("vote", "create"),
@@ -113,7 +113,7 @@ func Routes(r *gin.Engine, m *persist.RedisStore) {
 	}
 
 	// Question
-	questions := r.Group("/v1/question", middleware.JWTAuthMiddleware(true))
+	questions := r.Group("/v1/question", middleware.JWTAuthMiddleware())
 	{
 		questions.POST("/create",
 			middleware.RoleMiddleware("question", "create"),
@@ -138,7 +138,7 @@ func Routes(r *gin.Engine, m *persist.RedisStore) {
 	}
 
 	// Candidate
-	candidates := r.Group("/v1/candidate", middleware.JWTAuthMiddleware(true))
+	candidates := r.Group("/v1/candidate", middleware.JWTAuthMiddleware())
 	{
 		// candidates.POST("/create",
 		// 	middleware.RoleMiddleware("candidate", "create"),
@@ -163,7 +163,7 @@ func Routes(r *gin.Engine, m *persist.RedisStore) {
 	}
 
 	// Password
-	passwords := r.Group("/v1/password", middleware.JWTAuthMiddleware(true))
+	passwords := r.Group("/v1/password", middleware.JWTAuthMiddleware())
 	{
 		passwords.POST("/create",
 			middleware.RoleMiddleware("password", "create"),

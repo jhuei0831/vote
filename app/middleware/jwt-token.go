@@ -2,7 +2,6 @@ package middleware
 
 import (
 	"errors"
-	"net/http"
 	"os"
 	"strings"
 	"time"
@@ -28,18 +27,9 @@ type UserClaims struct {
 
 // VoterClaims 投票者 JWT 令牌
 type VoterClaims struct {
-	ID			uint64 			`json:"id"`
-	VoteID  uuid.UUID 	`json:"voteId"`
-	IsVoted bool			  `json:"isVoted"`
-	jwt.RegisteredClaims
-}
-
-// BallotClaims 投票者的選票 JWT 令牌
-type BallotClaims struct {
-	ID						uint64 			 `json:"id"`
-	VoteID  			uuid.UUID 	 `json:"voteId"`
-	WalletAddress string 			 `json:"walletAddress"`
-	Ballot 				[][]string   `json:"ballot"`
+	ID      uint64    `json:"id"`
+	VoteID  uuid.UUID `json:"voteId"`
+	IsVoted bool      `json:"isVoted"`
 	jwt.RegisteredClaims
 }
 
@@ -67,21 +57,6 @@ func GenVoterToken(Id uint64, voteId uuid.UUID, isVoted bool) (string, string, e
 		IsVoted: isVoted,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(TokenExpireDuration)),
-			Issuer:    os.Getenv("APP_NAME"),
-		},
-	}
-
-	return GenToken(accessClaims)
-}
-
-// GenBallotToken 生成投票者的選票 JWT 令牌
-func GenBallotToken(Id uint64, voteId uuid.UUID, walletAddress string, ballot [][]string) (string, string, error) {
-	accessClaims := BallotClaims{
-		ID:            Id,
-		VoteID:        voteId,
-		WalletAddress: walletAddress,
-		Ballot:        ballot,
-		RegisteredClaims: jwt.RegisteredClaims{
 			Issuer:    os.Getenv("APP_NAME"),
 		},
 	}
@@ -163,74 +138,116 @@ func ParseRefreshToken(tokenString string) error {
 	return errors.New("invalid refresh token")
 }
 
-// JWTAuthMiddleware Middleware of JWT
-func JWTAuthMiddleware(isUser bool) func(c *gin.Context) {
+// JWTAuthMiddleware 可選的 JWT middleware (適用於 GraphQL)
+// 不會阻止請求,但會嘗試解析並設置所有可用的 token claims
+func JWTAuthMiddleware() func(c *gin.Context) {
 	return func(c *gin.Context) {
-		tokenType := "voter"
-		if isUser {
-			tokenType = "user"
+		// 嘗試從 Header 取得 token
+		var headerToken string
+		if authHeader := c.Request.Header.Get("Authorization"); authHeader != "" {
+			if parts := strings.SplitN(authHeader, " ", 2); len(parts) == 2 && parts[0] == "Bearer" {
+				headerToken = parts[1]
+			}
 		}
 
-		// 從 Header 或 Cookie 取得 token
-		tokenString := extractToken(c, tokenType)
-		if tokenString == "" {
-			c.JSON(http.StatusUnauthorized, gin.H{
-				"code": -1,
-				"msg":  "Authorization token not found in Header or Cookie",
-			})
-			c.Abort()
-			return
+		// 嘗試解析 user-token (從 Header 或 Cookie)
+		userTokenString := headerToken
+		if userTokenString == "" {
+			if userToken, err := c.Cookie("user-token"); err == nil && userToken != "" {
+				userTokenString = userToken
+			}
+		}
+		if userTokenString != "" {
+			if userClaims, err := ParseUserToken(userTokenString); err == nil {
+				c.Set("userId", userClaims.ID)
+				c.Set("userAccount", userClaims.Account)
+				c.Set("userRoles", userClaims.Roles)
+				c.Set("hasUserToken", true)
+			}
 		}
 
-		// 驗證並解析 token
-		if err := validateAndSetClaims(c, tokenString, isUser); err != nil {
-			c.JSON(http.StatusUnauthorized, gin.H{
-				"code": -1,
-				"msg":  "Invalid Token.",
-			})
-			c.Abort()
-			return
+		// 嘗試解析 voter-token (從 Cookie,因為 Header 只能有一個)
+		if voterToken, err := c.Cookie("voter-token"); err == nil && voterToken != "" {
+			if voterClaims, err := ParseVoterToken(voterToken); err == nil {
+				c.Set("voterId", voterClaims.ID)
+				c.Set("voterVoteId", voterClaims.VoteID)
+				c.Set("voterIsVoted", voterClaims.IsVoted)
+				c.Set("hasVoterToken", true)
+			}
 		}
 
 		c.Next()
 	}
 }
 
-// extractToken 從 Header 或 Cookie 取得 token
-func extractToken(c *gin.Context, tokenType string) string {
-	// 先從 Header 取得
+// RequireUserToken 在 GraphQL resolver 中驗證 user token
+// 返回 UserClaims 或錯誤
+func RequireUserToken(c *gin.Context) (*UserClaims, error) {
+	// 先檢查是否已經由 middleware 設置
+	if hasToken, exists := c.Get("hasUserToken"); exists && hasToken.(bool) {
+		return &UserClaims{
+			ID:      c.GetUint64("userId"),
+			Account: c.GetString("userAccount"),
+			Roles:   c.GetStringSlice("userRoles"),
+		}, nil
+	}
+
+	// 否則嘗試手動解析
+	var tokenString string
 	if authHeader := c.Request.Header.Get("Authorization"); authHeader != "" {
 		if parts := strings.SplitN(authHeader, " ", 2); len(parts) == 2 && parts[0] == "Bearer" {
-			return parts[1]
+			tokenString = parts[1]
+		}
+	}
+	if tokenString == "" {
+		if userToken, err := c.Cookie("user-token"); err == nil && userToken != "" {
+			tokenString = userToken
 		}
 	}
 
-	// 若 Header 沒有則從 Cookie 取得
-	if tokenCookie, err := c.Cookie(tokenType + "-token"); err == nil && tokenCookie != "" {
-		return tokenCookie
+	if tokenString == "" {
+		return nil, errors.New("user token not found")
 	}
 
-	return ""
+	return ParseUserToken(tokenString)
 }
 
-// validateAndSetClaims 驗證 token 並設置 claims
-// TODO: Combine User and Voter claims
-func validateAndSetClaims(c *gin.Context, tokenString string, isUser bool) error {
-	if isUser {
-		mc, err := ParseUserToken(tokenString)
-		if err != nil {
-			return err
-		}
-		c.Set("id", mc.ID)
-		c.Set("account", mc.Account)
-		c.Set("roles", mc.Roles)
-	} else {
-		mc, err := ParseVoterToken(tokenString)
-		if err != nil {
-			return err
-		}
-		c.Set("id", mc.ID)
-		c.Set("voteId", mc.VoteID)
+// RequireVoterToken 在 GraphQL resolver 中驗證 voter token
+// 返回 VoterClaims 或錯誤
+func RequireVoterToken(c *gin.Context) (*VoterClaims, error) {
+	// 先檢查是否已經由 middleware 設置
+	if hasToken, exists := c.Get("hasVoterToken"); exists && hasToken.(bool) {
+		voteId, _ := c.Get("voterVoteId")
+		return &VoterClaims{
+			ID:      c.GetUint64("voterId"),
+			VoteID:  voteId.(uuid.UUID),
+			IsVoted: c.GetBool("voterIsVoted"),
+		}, nil
 	}
-	return nil
+
+	// 否則嘗試手動解析
+	var tokenString string
+	if voterToken, err := c.Cookie("voter-token"); err == nil && voterToken != "" {
+		tokenString = voterToken
+	}
+
+	if tokenString == "" {
+		return nil, errors.New("voter token not found")
+	}
+
+	return ParseVoterToken(tokenString)
+}
+
+// GetOptionalUserToken 在 GraphQL resolver 中嘗試取得 user token (不強制)
+// 返回 UserClaims 或 nil
+func GetOptionalUserToken(c *gin.Context) *UserClaims {
+	claims, _ := RequireUserToken(c)
+	return claims
+}
+
+// GetOptionalVoterToken 在 GraphQL resolver 中嘗試取得 voter token (不強制)
+// 返回 VoterClaims 或 nil
+func GetOptionalVoterToken(c *gin.Context) *VoterClaims {
+	claims, _ := RequireVoterToken(c)
+	return claims
 }
