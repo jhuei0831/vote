@@ -13,6 +13,34 @@ func NewBallotService() BallotService {
 	return BallotService{}
 }
 
+// GetBallotByVoterId 根據投票者ID獲取選票
+func (b BallotService) GetBallotByVoterId(voterId uint64) ([]model.Ballot) {
+	repository := repository.NewBallotRepository()
+	ballots := repository.GetBallotByVoterId(voterId)
+
+	return ballots
+}
+
+// GetBallotByVoteId 根據投票ID獲取選票
+func (b BallotService) GetBallotByVoteId(ballotQuery model.BallotQuery) ([]*model.BallotConnection, error) {
+	ballots, total, err := repository.NewBallotRepository().GetBallots(ballotQuery)
+	if err != nil {
+		return nil, err
+	}
+
+	paginationRepository := repository.NewPaginationRepository[*model.BallotQuery, model.Ballot]()
+	ballotsPage, hasPreviousPage, hasNextPage := paginationRepository.HasPreviousNextPage(ballots, &ballotQuery)
+
+	paginationService := NewPaginationService[model.Ballot, model.BallotEdge, *model.BallotConnection]()
+	connection := paginationService.BuildConnection(ballotsPage, total, hasPreviousPage, hasNextPage,
+		func(ballot model.Ballot) uint64 {
+			return ballot.ID
+		},
+	)
+
+	return []*model.BallotConnection{connection}, nil
+}
+
 // CreateBallots 建立投票
 func (b BallotService) CreateBallots(voter uint64, ballotSelections model.BallotCreate) ([]*model.Ballot, error) {
 	repository := repository.NewBallotRepository()
@@ -31,23 +59,13 @@ func (b BallotService) CreateBallots(voter uint64, ballotSelections model.Ballot
 	return ballots, nil
 }
 
-// CheckIfVoterHasVoted 檢查投票者是否已經投票
-func (b BallotService) CheckIfVoterHasVoted(voterId uint64) (bool, error) {
-	var count int64
-	err := database.SqlSession.Model(&model.Ballot{}).
-		Where("password_id = ?", voterId).
-		Count(&count).Error
-
+// DeleteBallot 刪除選票
+func (b BallotService) DeleteBallot(voterID uint64) error {
+	repository := repository.NewBallotRepository()
+	err := repository.DeleteBallot(voterID)
 	if err != nil {
-		return false, err
+		return err
 	}
 
-	return count > 0, nil
-}
-
-// GetBallotByVoterId 根據投票者ID獲取選票
-func (b BallotService) GetBallotByVoterId(voterId uint64) ([][]string) {
-	// database.SqlSession.Model(&model.Ballot{}).Where("vote")
-
-	return make([][]string, 1)
+	return nil
 }

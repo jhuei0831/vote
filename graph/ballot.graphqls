@@ -19,12 +19,12 @@ type BallotEdge {
 }
 
 input BallotCandidate {
-  id: UInt64!
+  candidateId: UInt64!
   isSelected: Boolean!
 }
 
 input BallotQuestions {
-  id: UInt64!
+  questionId: UInt64!
   candidates: [BallotCandidate!]
 }
 
@@ -35,13 +35,20 @@ input BallotCreate {
 input BallotQuery {
   voteId: UUID!
   questionId: UInt64
-  name: String
+  voterId: UInt64
   first: Int64
   after: String
   last: Int64
   before: String
 }
 
+extend type Query {
+  ballots(input: BallotQuery!): [BallotConnection!]!
+    @hasPermission(resource: "ballot", action: "read")
+}
+
 extend type Mutation {
   createBallot(input: BallotCreate!): [Ballot!]!
+  deleteBallot(VoterId: UInt64!): Boolean!
+    @hasPermission(resource: "ballot", action: "delete")
 }

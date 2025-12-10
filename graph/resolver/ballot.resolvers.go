@@ -8,15 +8,19 @@ import (
 	"context"
 	"fmt"
 	model1 "vote/app/model"
+	"vote/app/repository"
 	"vote/app/service"
 )
 
 // CreateBallot is the resolver for the createBallot field.
 func (r *mutationResolver) CreateBallot(ctx context.Context, input model1.BallotCreate) ([]*model1.Ballot, error) {
 	voterInfo, err := service.NewGraphqlService().GetVoterInfoFromContext(ctx)
-	fmt.Println(voterInfo)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get user info from context: %v", err)
+		return nil, fmt.Errorf("failed to get voter info from context: %v", err)
+	}
+
+	if voterInfo.VoterID == 0 {
+		return nil, fmt.Errorf("voter ID is missing in context")
 	}
 
 	ballots, err := service.NewBallotService().CreateBallots(voterInfo.VoterID, input)
@@ -24,4 +28,37 @@ func (r *mutationResolver) CreateBallot(ctx context.Context, input model1.Ballot
 		return nil, err
 	}
 	return ballots, nil
+}
+
+// DeleteBallot is the resolver for the deleteBallot field.
+func (r *mutationResolver) DeleteBallot(ctx context.Context, voterID uint64) (bool, error) {
+	voteId, err := repository.NewPasswordRepository().GetVoteIdByVoterId(voterID)
+	if err != nil {
+		return false, fmt.Errorf("failed to get vote ID by voter ID: %v", err)
+	}
+
+	if err := service.NewAuthorizationService().AuthorizeVoteAccess(ctx, voteId, "delete ballot"); err != nil {
+		return false, err
+	}
+
+	err = service.NewBallotService().DeleteBallot(voterID)
+	if err != nil {
+		return false, err
+	}
+
+	return true, nil
+}
+
+// Ballots is the resolver for the ballots field.
+func (r *queryResolver) Ballots(ctx context.Context, input model1.BallotQuery) ([]*model1.BallotConnection, error) {
+	if err := service.NewAuthorizationService().AuthorizeVoteAccess(ctx, input.VoteID, "read ballot"); err != nil {
+		return nil, err
+	}
+
+	ballotConnections, err := service.NewBallotService().GetBallotByVoteId(input)
+	if err != nil {
+		return nil, err
+	}
+
+	return ballotConnections, nil
 }

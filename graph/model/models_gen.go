@@ -2,39 +2,12 @@
 
 package model
 
-import (
-	"vote/app/model"
-
-	"github.com/google/uuid"
-)
-
 type PageQuery interface {
 	IsPageQuery()
 	GetFirst() *int
 	GetAfter() *string
 	GetLast() *int
 	GetBefore() *string
-}
-
-type BallotConnection struct {
-	Edges      []*BallotEdge   `json:"edges"`
-	PageInfo   *model.PageInfo `json:"pageInfo"`
-	TotalCount int             `json:"totalCount"`
-}
-
-type BallotEdge struct {
-	Node   *model.Ballot `json:"node"`
-	Cursor string        `json:"cursor"`
-}
-
-type BallotQuery struct {
-	VoteID     uuid.UUID `json:"voteId"`
-	QuestionID *uint64   `json:"questionId,omitempty"`
-	Name       *string   `json:"name,omitempty"`
-	First      *int      `json:"first,omitempty"`
-	After      *string   `json:"after,omitempty"`
-	Last       *int      `json:"last,omitempty"`
-	Before     *string   `json:"before,omitempty"`
 }
 
 type Mutation struct {

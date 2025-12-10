@@ -2,6 +2,8 @@ package model
 
 import (
 	"time"
+
+	"github.com/google/uuid"
 )
 
 func (Ballot) TableName() string {
@@ -18,15 +20,56 @@ type Ballot struct {
 }
 
 type BallotCandidate struct {
-	ID         uint64 `json:"id" binding:"required"`
-	IsSelected bool   `json:"isSelected" binding:"required"`
+	CandidateID   uint64 `json:"candidateId" binding:"required"`
+	IsSelected 		bool   `json:"isSelected" binding:"required"`
 }
 
 type BallotQuestions struct {
-	ID         uint64             `json:"id" binding:"required"`
-	Candidates []BallotCandidate  `json:"candidates"`
+	QuestionID  uint64             `json:"questionId" binding:"required"`
+	Candidates  []BallotCandidate  `json:"candidates"`
 }
 
 type BallotCreate struct {
 	Selections []BallotQuestions `json:"selections" binding:"required"`
+}
+
+type BallotQuery struct {
+	VoteID    	uuid.UUID   `json:"voteId" binding:"required"`
+	QuestionID  uint64   		`json:"questionId"`
+	VoterID    	uint64   		`json:"voterId"`
+	First     	int       	`json:"first" binding:"min=1" example:"1"`
+	After     	string    	`json:"after" binding:"min=1" example:"1"`
+	Last      	int       	`json:"last" binding:"min=1" example:"1"`
+	Before    	string    	`json:"before" binding:"min=1" example:"1"`
+}
+
+type BallotConnection struct {
+	Edges      []BallotEdge `json:"edges"`
+	PageInfo 	 PageInfo   	`json:"pageInfo"`
+	TotalCount int64			  `json:"totalCount"`
+}
+
+type BallotEdge struct {
+	Node   Ballot   `json:"node"`
+	Cursor string 	`json:"cursor"`
+}
+
+// GetFirst implements PaginationQuery
+func (q *BallotQuery) GetFirst() int {
+	return q.First
+}
+
+// GetAfter implements PaginationQuery
+func (q *BallotQuery) GetAfter() string {
+	return q.After
+}
+
+// GetLast implements PaginationQuery
+func (q *BallotQuery) GetLast() int {
+	return q.Last
+}
+
+// GetBefore implements PaginationQuery
+func (q *BallotQuery) GetBefore() string {
+	return q.Before
 }

@@ -7,6 +7,7 @@ import (
 	"time"
 	"vote/app/middleware"
 	"vote/app/model"
+	"vote/app/repository"
 	"vote/app/service"
 	"vote/app/utils"
 
@@ -106,7 +107,7 @@ func (a VoterController) VoterLogin(c *gin.Context) {
 
 	// 檢查用戶是否已經投票
 	go func() {
-		hasVoted, err := service.NewBallotService().CheckIfVoterHasVoted(voter)
+		hasVoted, err := repository.NewBallotRepository().CheckIfVoterHasVoted(voter)
 		votedCh <- votedResult{hasVoted, err}
 	}()
 
@@ -193,7 +194,7 @@ func (a VoterController) CheckAuth(c *gin.Context) {
 
 	go func() {
 		// 檢查投票狀態
-		hasVoted, err := service.NewBallotService().CheckIfVoterHasVoted(claims.ID)
+		hasVoted, err := repository.NewBallotRepository().CheckIfVoterHasVoted(claims.ID)
 		if err != nil {
 			resultCh <- authResult{false, "", fmt.Errorf("failed to check voting status: %w", err)}
 			return
@@ -285,7 +286,7 @@ func (a VoterController) CheckIsVoted(c *gin.Context) {
 	resultCh := make(chan checkResult, 1)
 
 	go func() {
-		hasVoted, err := service.NewBallotService().CheckIfVoterHasVoted(claims.ID)
+		hasVoted, err := repository.NewBallotRepository().CheckIfVoterHasVoted(claims.ID)
 		resultCh <- checkResult{hasVoted, err}
 	}()
 

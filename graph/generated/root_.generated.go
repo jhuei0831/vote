@@ -98,6 +98,7 @@ type ComplexityRoot struct {
 		CreateQuestion  func(childComplexity int, input model.QuestionCreate) int
 		CreateUser      func(childComplexity int, input model.UserCreate) int
 		CreateVote      func(childComplexity int, input model.VoteCreate) int
+		DeleteBallot    func(childComplexity int, voterID uint64) int
 		DeleteCandidate func(childComplexity int, ids []uint64) int
 		DeleteQuestion  func(childComplexity int, ids []uint64) int
 		DeleteVote      func(childComplexity int, uuids []uuid.UUID) int
@@ -114,6 +115,7 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
+		Ballots    func(childComplexity int, input model.BallotQuery) int
 		Candidates func(childComplexity int, input model.CandidateQuery) int
 		Questions  func(childComplexity int, input model.QuestionQuery, withCandidates bool) int
 		Users      func(childComplexity int) int
@@ -425,6 +427,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.Mutation.CreateVote(childComplexity, args["input"].(model.VoteCreate)), true
 
+	case "Mutation.deleteBallot":
+		if e.complexity.Mutation.DeleteBallot == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_deleteBallot_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.DeleteBallot(childComplexity, args["VoterId"].(uint64)), true
+
 	case "Mutation.deleteCandidate":
 		if e.complexity.Mutation.DeleteCandidate == nil {
 			break
@@ -524,6 +538,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.PageInfo.StartCursor(childComplexity), true
+
+	case "Query.ballots":
+		if e.complexity.Query.Ballots == nil {
+			break
+		}
+
+		args, err := ec.field_Query_ballots_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.Ballots(childComplexity, args["input"].(model.BallotQuery)), true
 
 	case "Query.candidates":
 		if e.complexity.Query.Candidates == nil {
@@ -911,12 +937,12 @@ type BallotEdge {
 }
 
 input BallotCandidate {
-  id: UInt64!
+  candidateId: UInt64!
   isSelected: Boolean!
 }
 
 input BallotQuestions {
-  id: UInt64!
+  questionId: UInt64!
   candidates: [BallotCandidate!]
 }
 
@@ -927,15 +953,22 @@ input BallotCreate {
 input BallotQuery {
   voteId: UUID!
   questionId: UInt64
-  name: String
+  voterId: UInt64
   first: Int64
   after: String
   last: Int64
   before: String
 }
 
+extend type Query {
+  ballots(input: BallotQuery!): [BallotConnection!]!
+    @hasPermission(resource: "ballot", action: "read")
+}
+
 extend type Mutation {
   createBallot(input: BallotCreate!): [Ballot!]!
+  deleteBallot(VoterId: UInt64!): Boolean!
+    @hasPermission(resource: "ballot", action: "delete")
 }
 `, BuiltIn: false},
 	{Name: "../ballotSelect.graphqls", Input: `type BallotSelect {

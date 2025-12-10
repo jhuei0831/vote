@@ -10,7 +10,6 @@ import (
 	"sync"
 	"sync/atomic"
 	"vote/app/model"
-	model1 "vote/graph/model"
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/vektah/gqlparser/v2/ast"
@@ -212,7 +211,7 @@ func (ec *executionContext) fieldContext_Ballot_ballotSelects(_ context.Context,
 	return fc, nil
 }
 
-func (ec *executionContext) _BallotConnection_edges(ctx context.Context, field graphql.CollectedField, obj *model1.BallotConnection) (ret graphql.Marshaler) {
+func (ec *executionContext) _BallotConnection_edges(ctx context.Context, field graphql.CollectedField, obj *model.BallotConnection) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
@@ -222,7 +221,7 @@ func (ec *executionContext) _BallotConnection_edges(ctx context.Context, field g
 			return obj.Edges, nil
 		},
 		nil,
-		ec.marshalNBallotEdge2ᚕᚖvoteᚋgraphᚋmodelᚐBallotEdgeᚄ,
+		ec.marshalNBallotEdge2ᚕvoteᚋappᚋmodelᚐBallotEdgeᚄ,
 		true,
 		true,
 	)
@@ -247,7 +246,7 @@ func (ec *executionContext) fieldContext_BallotConnection_edges(_ context.Contex
 	return fc, nil
 }
 
-func (ec *executionContext) _BallotConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *model1.BallotConnection) (ret graphql.Marshaler) {
+func (ec *executionContext) _BallotConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *model.BallotConnection) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
@@ -257,7 +256,7 @@ func (ec *executionContext) _BallotConnection_pageInfo(ctx context.Context, fiel
 			return obj.PageInfo, nil
 		},
 		nil,
-		ec.marshalNPageInfo2ᚖvoteᚋappᚋmodelᚐPageInfo,
+		ec.marshalNPageInfo2voteᚋappᚋmodelᚐPageInfo,
 		true,
 		true,
 	)
@@ -286,7 +285,7 @@ func (ec *executionContext) fieldContext_BallotConnection_pageInfo(_ context.Con
 	return fc, nil
 }
 
-func (ec *executionContext) _BallotConnection_totalCount(ctx context.Context, field graphql.CollectedField, obj *model1.BallotConnection) (ret graphql.Marshaler) {
+func (ec *executionContext) _BallotConnection_totalCount(ctx context.Context, field graphql.CollectedField, obj *model.BallotConnection) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
@@ -296,7 +295,7 @@ func (ec *executionContext) _BallotConnection_totalCount(ctx context.Context, fi
 			return obj.TotalCount, nil
 		},
 		nil,
-		ec.marshalNInt642int,
+		ec.marshalNInt642int64,
 		true,
 		true,
 	)
@@ -315,7 +314,7 @@ func (ec *executionContext) fieldContext_BallotConnection_totalCount(_ context.C
 	return fc, nil
 }
 
-func (ec *executionContext) _BallotEdge_node(ctx context.Context, field graphql.CollectedField, obj *model1.BallotEdge) (ret graphql.Marshaler) {
+func (ec *executionContext) _BallotEdge_node(ctx context.Context, field graphql.CollectedField, obj *model.BallotEdge) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
@@ -325,7 +324,7 @@ func (ec *executionContext) _BallotEdge_node(ctx context.Context, field graphql.
 			return obj.Node, nil
 		},
 		nil,
-		ec.marshalNBallot2ᚖvoteᚋappᚋmodelᚐBallot,
+		ec.marshalNBallot2voteᚋappᚋmodelᚐBallot,
 		true,
 		true,
 	)
@@ -358,7 +357,7 @@ func (ec *executionContext) fieldContext_BallotEdge_node(_ context.Context, fiel
 	return fc, nil
 }
 
-func (ec *executionContext) _BallotEdge_cursor(ctx context.Context, field graphql.CollectedField, obj *model1.BallotEdge) (ret graphql.Marshaler) {
+func (ec *executionContext) _BallotEdge_cursor(ctx context.Context, field graphql.CollectedField, obj *model.BallotEdge) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
@@ -398,20 +397,20 @@ func (ec *executionContext) unmarshalInputBallotCandidate(ctx context.Context, o
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"id", "isSelected"}
+	fieldsInOrder := [...]string{"candidateId", "isSelected"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
-		case "id":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		case "candidateId":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("candidateId"))
 			data, err := ec.unmarshalNUInt642uint64(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.ID = data
+			it.CandidateID = data
 		case "isSelected":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("isSelected"))
 			data, err := ec.unmarshalNBoolean2bool(ctx, v)
@@ -452,14 +451,14 @@ func (ec *executionContext) unmarshalInputBallotCreate(ctx context.Context, obj 
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputBallotQuery(ctx context.Context, obj any) (model1.BallotQuery, error) {
-	var it model1.BallotQuery
+func (ec *executionContext) unmarshalInputBallotQuery(ctx context.Context, obj any) (model.BallotQuery, error) {
+	var it model.BallotQuery
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"voteId", "questionId", "name", "first", "after", "last", "before"}
+	fieldsInOrder := [...]string{"voteId", "questionId", "voterId", "first", "after", "last", "before"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -475,42 +474,42 @@ func (ec *executionContext) unmarshalInputBallotQuery(ctx context.Context, obj a
 			it.VoteID = data
 		case "questionId":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("questionId"))
-			data, err := ec.unmarshalOUInt642ᚖuint64(ctx, v)
+			data, err := ec.unmarshalOUInt642uint64(ctx, v)
 			if err != nil {
 				return it, err
 			}
 			it.QuestionID = data
-		case "name":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+		case "voterId":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("voterId"))
+			data, err := ec.unmarshalOUInt642uint64(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.Name = data
+			it.VoterID = data
 		case "first":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("first"))
-			data, err := ec.unmarshalOInt642ᚖint(ctx, v)
+			data, err := ec.unmarshalOInt642int(ctx, v)
 			if err != nil {
 				return it, err
 			}
 			it.First = data
 		case "after":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("after"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
 			it.After = data
 		case "last":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("last"))
-			data, err := ec.unmarshalOInt642ᚖint(ctx, v)
+			data, err := ec.unmarshalOInt642int(ctx, v)
 			if err != nil {
 				return it, err
 			}
 			it.Last = data
 		case "before":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("before"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -528,20 +527,20 @@ func (ec *executionContext) unmarshalInputBallotQuestions(ctx context.Context, o
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"id", "candidates"}
+	fieldsInOrder := [...]string{"questionId", "candidates"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
-		case "id":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		case "questionId":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("questionId"))
 			data, err := ec.unmarshalNUInt642uint64(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.ID = data
+			it.QuestionID = data
 		case "candidates":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("candidates"))
 			data, err := ec.unmarshalOBallotCandidate2ᚕvoteᚋappᚋmodelᚐBallotCandidateᚄ(ctx, v)
@@ -629,7 +628,7 @@ func (ec *executionContext) _Ballot(ctx context.Context, sel ast.SelectionSet, o
 
 var ballotConnectionImplementors = []string{"BallotConnection"}
 
-func (ec *executionContext) _BallotConnection(ctx context.Context, sel ast.SelectionSet, obj *model1.BallotConnection) graphql.Marshaler {
+func (ec *executionContext) _BallotConnection(ctx context.Context, sel ast.SelectionSet, obj *model.BallotConnection) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, ballotConnectionImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -678,7 +677,7 @@ func (ec *executionContext) _BallotConnection(ctx context.Context, sel ast.Selec
 
 var ballotEdgeImplementors = []string{"BallotEdge"}
 
-func (ec *executionContext) _BallotEdge(ctx context.Context, sel ast.SelectionSet, obj *model1.BallotEdge) graphql.Marshaler {
+func (ec *executionContext) _BallotEdge(ctx context.Context, sel ast.SelectionSet, obj *model.BallotEdge) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, ballotEdgeImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -723,6 +722,10 @@ func (ec *executionContext) _BallotEdge(ctx context.Context, sel ast.SelectionSe
 // endregion **************************** object.gotpl ****************************
 
 // region    ***************************** type.gotpl *****************************
+
+func (ec *executionContext) marshalNBallot2voteᚋappᚋmodelᚐBallot(ctx context.Context, sel ast.SelectionSet, v model.Ballot) graphql.Marshaler {
+	return ec._Ballot(ctx, sel, &v)
+}
 
 func (ec *executionContext) marshalNBallot2ᚕᚖvoteᚋappᚋmodelᚐBallotᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Ballot) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
@@ -783,12 +786,7 @@ func (ec *executionContext) unmarshalNBallotCandidate2voteᚋappᚋmodelᚐBallo
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNBallotCreate2voteᚋappᚋmodelᚐBallotCreate(ctx context.Context, v any) (model.BallotCreate, error) {
-	res, err := ec.unmarshalInputBallotCreate(ctx, v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalNBallotEdge2ᚕᚖvoteᚋgraphᚋmodelᚐBallotEdgeᚄ(ctx context.Context, sel ast.SelectionSet, v []*model1.BallotEdge) graphql.Marshaler {
+func (ec *executionContext) marshalNBallotConnection2ᚕᚖvoteᚋappᚋmodelᚐBallotConnectionᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.BallotConnection) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -812,7 +810,7 @@ func (ec *executionContext) marshalNBallotEdge2ᚕᚖvoteᚋgraphᚋmodelᚐBall
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNBallotEdge2ᚖvoteᚋgraphᚋmodelᚐBallotEdge(ctx, sel, v[i])
+			ret[i] = ec.marshalNBallotConnection2ᚖvoteᚋappᚋmodelᚐBallotConnection(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -832,14 +830,72 @@ func (ec *executionContext) marshalNBallotEdge2ᚕᚖvoteᚋgraphᚋmodelᚐBall
 	return ret
 }
 
-func (ec *executionContext) marshalNBallotEdge2ᚖvoteᚋgraphᚋmodelᚐBallotEdge(ctx context.Context, sel ast.SelectionSet, v *model1.BallotEdge) graphql.Marshaler {
+func (ec *executionContext) marshalNBallotConnection2ᚖvoteᚋappᚋmodelᚐBallotConnection(ctx context.Context, sel ast.SelectionSet, v *model.BallotConnection) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._BallotEdge(ctx, sel, v)
+	return ec._BallotConnection(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNBallotCreate2voteᚋappᚋmodelᚐBallotCreate(ctx context.Context, v any) (model.BallotCreate, error) {
+	res, err := ec.unmarshalInputBallotCreate(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNBallotEdge2voteᚋappᚋmodelᚐBallotEdge(ctx context.Context, sel ast.SelectionSet, v model.BallotEdge) graphql.Marshaler {
+	return ec._BallotEdge(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNBallotEdge2ᚕvoteᚋappᚋmodelᚐBallotEdgeᚄ(ctx context.Context, sel ast.SelectionSet, v []model.BallotEdge) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNBallotEdge2voteᚋappᚋmodelᚐBallotEdge(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) unmarshalNBallotQuery2voteᚋappᚋmodelᚐBallotQuery(ctx context.Context, v any) (model.BallotQuery, error) {
+	res, err := ec.unmarshalInputBallotQuery(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalNBallotQuestions2voteᚋappᚋmodelᚐBallotQuestions(ctx context.Context, v any) (model.BallotQuestions, error) {
