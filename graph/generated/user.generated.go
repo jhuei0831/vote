@@ -36,7 +36,9 @@ type QueryResolver interface {
 	Users(ctx context.Context) ([]*model.User, error)
 	Ballots(ctx context.Context, input model.BallotQuery) ([]*model.BallotConnection, error)
 	Candidates(ctx context.Context, input model.CandidateQuery) ([]*model.CandidateConnection, error)
+	Question(ctx context.Context, id uint64, withCandidates bool) (*model.Question, error)
 	Questions(ctx context.Context, input model.QuestionQuery, withCandidates bool) ([]*model.QuestionConnection, error)
+	Vote(ctx context.Context, uuid *uuid.UUID, withQuestions bool) (*model.Vote, error)
 	Votes(ctx context.Context, input *model.VoteQuery, withQuestions bool) ([]*model.VoteConnection, error)
 }
 
@@ -224,6 +226,22 @@ func (ec *executionContext) field_Query_candidates_args(ctx context.Context, raw
 	return args, nil
 }
 
+func (ec *executionContext) field_Query_question_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "id", ec.unmarshalNUInt642uint64)
+	if err != nil {
+		return nil, err
+	}
+	args["id"] = arg0
+	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "withCandidates", ec.unmarshalNBoolean2bool)
+	if err != nil {
+		return nil, err
+	}
+	args["withCandidates"] = arg1
+	return args, nil
+}
+
 func (ec *executionContext) field_Query_questions_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
@@ -237,6 +255,22 @@ func (ec *executionContext) field_Query_questions_args(ctx context.Context, rawA
 		return nil, err
 	}
 	args["withCandidates"] = arg1
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_vote_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "uuid", ec.unmarshalOUUID2ᚖgithubᚗcomᚋgoogleᚋuuidᚐUUID)
+	if err != nil {
+		return nil, err
+	}
+	args["uuid"] = arg0
+	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "withQuestions", ec.unmarshalNBoolean2bool)
+	if err != nil {
+		return nil, err
+	}
+	args["withQuestions"] = arg1
 	return args, nil
 }
 
@@ -1339,6 +1373,86 @@ func (ec *executionContext) fieldContext_Query_candidates(ctx context.Context, f
 	return fc, nil
 }
 
+func (ec *executionContext) _Query_question(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Query_question,
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.resolvers.Query().Question(ctx, fc.Args["id"].(uint64), fc.Args["withCandidates"].(bool))
+		},
+		func(ctx context.Context, next graphql.Resolver) graphql.Resolver {
+			directive0 := next
+
+			directive1 := func(ctx context.Context) (any, error) {
+				resource, err := ec.unmarshalNString2string(ctx, "question")
+				if err != nil {
+					var zeroVal *model.Question
+					return zeroVal, err
+				}
+				action, err := ec.unmarshalNString2string(ctx, "read")
+				if err != nil {
+					var zeroVal *model.Question
+					return zeroVal, err
+				}
+				if ec.directives.HasPermission == nil {
+					var zeroVal *model.Question
+					return zeroVal, errors.New("directive hasPermission is not implemented")
+				}
+				return ec.directives.HasPermission(ctx, nil, directive0, resource, action)
+			}
+
+			next = directive1
+			return next
+		},
+		ec.marshalNQuestion2ᚖvoteᚋappᚋmodelᚐQuestion,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Query_question(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Question_id(ctx, field)
+			case "voteId":
+				return ec.fieldContext_Question_voteId(ctx, field)
+			case "title":
+				return ec.fieldContext_Question_title(ctx, field)
+			case "description":
+				return ec.fieldContext_Question_description(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Question_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Question_updatedAt(ctx, field)
+			case "candidates":
+				return ec.fieldContext_Question_candidates(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Question", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_question_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Query_questions(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -1405,6 +1519,90 @@ func (ec *executionContext) fieldContext_Query_questions(ctx context.Context, fi
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Query_questions_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_vote(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Query_vote,
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.resolvers.Query().Vote(ctx, fc.Args["uuid"].(*uuid.UUID), fc.Args["withQuestions"].(bool))
+		},
+		func(ctx context.Context, next graphql.Resolver) graphql.Resolver {
+			directive0 := next
+
+			directive1 := func(ctx context.Context) (any, error) {
+				resource, err := ec.unmarshalNString2string(ctx, "vote")
+				if err != nil {
+					var zeroVal *model.Vote
+					return zeroVal, err
+				}
+				action, err := ec.unmarshalNString2string(ctx, "read")
+				if err != nil {
+					var zeroVal *model.Vote
+					return zeroVal, err
+				}
+				if ec.directives.HasPermission == nil {
+					var zeroVal *model.Vote
+					return zeroVal, errors.New("directive hasPermission is not implemented")
+				}
+				return ec.directives.HasPermission(ctx, nil, directive0, resource, action)
+			}
+
+			next = directive1
+			return next
+		},
+		ec.marshalOVote2ᚖvoteᚋappᚋmodelᚐVote,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_Query_vote(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Vote_id(ctx, field)
+			case "uuid":
+				return ec.fieldContext_Vote_uuid(ctx, field)
+			case "title":
+				return ec.fieldContext_Vote_title(ctx, field)
+			case "description":
+				return ec.fieldContext_Vote_description(ctx, field)
+			case "startTime":
+				return ec.fieldContext_Vote_startTime(ctx, field)
+			case "endTime":
+				return ec.fieldContext_Vote_endTime(ctx, field)
+			case "creator":
+				return ec.fieldContext_Vote_creator(ctx, field)
+			case "status":
+				return ec.fieldContext_Vote_status(ctx, field)
+			case "questions":
+				return ec.fieldContext_Vote_questions(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Vote", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_vote_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -1942,6 +2140,28 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "question":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_question(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
 		case "questions":
 			field := field
 
@@ -1955,6 +2175,25 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "vote":
+			field := field
+
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_vote(ctx, field)
 				return res
 			}
 

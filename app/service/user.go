@@ -17,7 +17,7 @@ func NewUserService() UserService {
 	return UserService{}
 }
 
-func (u UserService) GetUserById(id int64) (*model.User, error) {
+func (u UserService) GetUserById(id uint64) (*model.User, error) {
 	user := &model.User{}
 	err := database.SqlSession.Select([]string{"id", "account", "email"}).Where("id=?", id).First(&user).Error
 	if err != nil {

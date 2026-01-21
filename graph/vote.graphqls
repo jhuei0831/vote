@@ -55,6 +55,8 @@ input VoteQuery {
 }
 
 extend type Query {
+  vote(uuid: UUID, withQuestions: Boolean!): Vote
+    @hasPermission(resource: "vote", action: "read")
   votes(input: VoteQuery, withQuestions: Boolean!): [VoteConnection!]! 
     @hasPermission(resource: "vote", action: "read")
 }

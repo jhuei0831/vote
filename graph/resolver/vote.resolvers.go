@@ -59,6 +59,17 @@ func (r *mutationResolver) DeleteVote(ctx context.Context, uuids []uuid.UUID) ([
 	return votes, nil
 }
 
+// Vote is the resolver for the vote field.
+func (r *queryResolver) Vote(ctx context.Context, uuid *uuid.UUID, withQuestions bool) (*model.Vote, error) {
+	if err := service.NewAuthorizationService().AuthorizeVoteAccess(ctx, uuid, "read vote"); err != nil {
+		return nil, err
+	}
+
+	vote, err := service.NewVoteService().GetVote(*uuid)
+
+	return vote, err
+}
+
 // Votes is the resolver for the votes field.
 func (r *queryResolver) Votes(ctx context.Context, input *model.VoteQuery, withQuestions bool) ([]*model.VoteConnection, error) {
 	userInfo, err := service.NewGraphqlService().GetUserInfoFromContext(ctx)
@@ -73,7 +84,7 @@ func (r *queryResolver) Votes(ctx context.Context, input *model.VoteQuery, withQ
 
 // Creator is the resolver for the creator field.
 func (r *voteResolver) Creator(ctx context.Context, obj *model.Vote) (*model.User, error) {
-	user, err := service.NewUserService().GetUserById(int64(obj.UserID))
+	user, err := service.NewUserService().GetUserById(obj.UserID)
 
 	return user, err
 }

@@ -68,25 +68,33 @@ func (u UsersController) CreateUser(c *gin.Context) {
 // @version 1.0
 // @produce application/json
 // @Security BearerAuth
-// @param id path int true "id" default(1)
 // @Success 200 string successful return data
-// @Router /v1/user/{id} [get]
+// @Router /v1/user/me [get]
 func (u UsersController) GetUser(c *gin.Context) {
-	id := c.Params.ByName("id")
-
-	userId, err := strconv.ParseInt(id, 10, 64)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
+	userId, exists := c.Get("userId")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{
 			"status": -1,
-			"msg":    "Failed to parse params" + err.Error(),
+			"msg":    "Unauthorized: userId not found in context",
 			"data":   nil,
 		})
+		return
 	}
-	userOne, err := service.NewUserService().GetUserById(userId)
+
+	userIdUint64, ok := userId.(uint64)
+	if !ok {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"status": -1,
+			"msg":    "Invalid userId type",
+			"data":   nil,
+		})
+		return
+	}
+	userOne, err := service.NewUserService().GetUserById(userIdUint64)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{
 			"status": -1,
-			"msg":    "User not found" + err.Error(),
+			"msg":    "User not found " + err.Error(),
 			"data":   nil,
 		})
 	} else {
@@ -152,15 +160,16 @@ func (u UsersController) Login(c *gin.Context) {
 		return
 	}
 	// Set the token in the cookie
+	c.SetSameSite(http.SameSiteNoneMode)
 	c.SetCookie("user-token", tokenString, 3600, "/", "", true, true)
 	c.SetCookie("user-refresh_token", refreshTokenString, 3600*24*7, "/", "", true, true)
 	c.JSON(http.StatusOK, gin.H{
 		"code": 0,
 		"msg":  "Success",
 		"data": gin.H{
-			"token_type": "Bearer",
-			"expires_in": 3600,
-			"token": tokenString, 
+			"token_type":    "Bearer",
+			"expires_in":    3600,
+			"token":         tokenString,
 			"refresh_token": refreshTokenString,
 		},
 	})
@@ -212,6 +221,7 @@ func (u UsersController) CheckAuth(c *gin.Context) {
 	}
 	// renew token
 	tokenString, _, _ := middleware.GenUserToken(claims.ID, claims.Account, claims.Roles)
+	c.SetSameSite(http.SameSiteNoneMode)
 	c.SetCookie("user-token", tokenString, 3600, "/", "", true, true)
 
 	c.JSON(http.StatusOK, gin.H{
@@ -273,9 +283,9 @@ func (u UsersController) RefreshToken(c *gin.Context) {
 		"code": 0,
 		"msg":  "Success",
 		"data": gin.H{
-			"token_type": "Bearer",
-			"expires_in": 3600,
-			"token": accessToken, 
+			"token_type":    "Bearer",
+			"expires_in":    3600,
+			"token":         accessToken,
 			"refresh_token": newRefreshToken,
 		},
 	})

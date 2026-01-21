@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
-	"vote/app/controller"
 	// "vote/app/model"
 	// "vote/app/service"
 
@@ -19,8 +18,6 @@ import (
 func TestUpdateVote(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	router := gin.Default()
-	voteController := controller.NewVoteController()
-	router.PUT("/vote/update/:id", voteController.UpdateVote)
 
 	t.Run("Invalid UUID format", func(t *testing.T) {
 		w := httptest.NewRecorder()

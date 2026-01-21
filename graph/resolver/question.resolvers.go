@@ -64,6 +64,20 @@ func (r *mutationResolver) DeleteQuestion(ctx context.Context, ids []uint64) ([]
 	return questions, nil
 }
 
+// Question is the resolver for the question field.
+func (r *queryResolver) Question(ctx context.Context, id uint64, withCandidates bool) (*model.Question, error) {
+	userInfo, err := service.NewGraphqlService().GetUserInfoFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	if withCandidates {
+		return service.NewQuestionService().SelectQuestionWithCandidates(id, userInfo.IsAdmin, userInfo.UserID)
+	}
+
+	return service.NewQuestionService().GetQuestion(id, userInfo.IsAdmin, userInfo.UserID)
+}
+
 // Questions is the resolver for the questions field.
 func (r *queryResolver) Questions(ctx context.Context, input model.QuestionQuery, withCandidates bool) ([]*model.QuestionConnection, error) {
 	if err := service.NewAuthorizationService().AuthorizeVoteAccess(ctx, input.VoteID, "read question"); err != nil {

@@ -13,9 +13,6 @@ import (
 
 	// cache "github.com/chenyahui/gin-cache"
 	"github.com/chenyahui/gin-cache/persist"
-
-	swaggerFiles "github.com/swaggo/files"
-	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 func Routes(r *gin.Engine, m *persist.RedisStore) {
@@ -32,134 +29,54 @@ func Routes(r *gin.Engine, m *persist.RedisStore) {
 			"name": os.Getenv("APP_NAME"),
 		}).Info("Health Check", "Info")
 	})
-	// Swagger
-	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+
 	// RBAC
 	r.GET("/rbac/init",
 		middleware.JWTAuthMiddleware(),
 		controller.NewRbacController().Initial,
 	)
+	
 	// Voter
-	r.POST("/v1/voter/login", controller.NewVoterController().VoterLogin)
-	r.POST("/v1/voter/logout",
-		middleware.JWTAuthMiddleware(),
-		controller.NewVoterController().Logout,
-	)
-	r.POST("/v1/voter/check-auth",
-		middleware.JWTAuthMiddleware(),
-		controller.NewVoterController().CheckAuth,
-	)
-	// r.GET("/v1/voter/questions",
-	// 	middleware.JWTAuthMiddleware(),
-	// 	controller.NewQuestionController().SelectVoterQuestions,
-	// )
-	r.POST("/v1/voter/ballot/create",
-		middleware.JWTAuthMiddleware(),
-		// controller.NewBallotController().CreateBallots,
-	)
-	// User
-	posts := r.Group("/v1/user")
+	voter := r.Group("/v1/voter")
 	{
-		posts.POST("/login", controller.NewUserController().Login)
-		posts.POST("/logout",
+		voter.POST("/login", controller.NewVoterController().VoterLogin)
+		voter.POST("/logout",
+			middleware.JWTAuthMiddleware(),
+			controller.NewVoterController().Logout,
+		)
+		voter.POST("/check-auth",
+			middleware.JWTAuthMiddleware(),
+			controller.NewVoterController().CheckAuth,
+		)
+	}
+
+	// User
+	users := r.Group("/v1/user")
+	{
+		users.POST("/login", controller.NewUserController().Login)
+		users.POST("/logout",
 			middleware.JWTAuthMiddleware(),
 			controller.NewUserController().Logout,
 		)
-		posts.POST("/check-auth",
+		users.POST("/check-auth",
 			middleware.JWTAuthMiddleware(),
 			controller.NewUserController().CheckAuth,
 		)
-		posts.POST("/refresh-token",
+		users.POST("/refresh-token",
 			middleware.JWTAuthMiddleware(),
 			controller.NewUserController().RefreshToken,
 		)
-		posts.POST("/create",
+		users.POST("/create",
 			middleware.JWTAuthMiddleware(),
 			middleware.RoleMiddleware("user", "create"),
 			controller.NewUserController().CreateUser,
 		)
-		posts.GET("/:id",
+		users.GET("/me",
 			middleware.JWTAuthMiddleware(),
-			middleware.RoleMiddleware("user", "read"),
+			// middleware.RoleMiddleware("user", "read"),
 			// cache.CacheByRequestURI(m, 2*time.Hour),
 			controller.NewUserController().GetUser,
 		)
-	}
-
-	// Vote
-	r.GET("/v1/vote/:id", controller.NewVoteController().GetVote)
-	votes := r.Group("/v1/vote", middleware.JWTAuthMiddleware())
-	{
-		votes.POST("/create",
-			middleware.RoleMiddleware("vote", "create"),
-			controller.NewVoteController().CreateVote,
-		)
-		// votes.GET("/:id",
-		// 	middleware.RoleMiddleware("vote", "read"),
-		// 	controller.NewVoteController().GetVote,
-		// )
-		// votes.GET("/list",
-		// 	middleware.RoleMiddleware("vote", "read"),
-		// 	controller.NewVoteController().GetVotes,
-		// )
-		votes.PUT("/:id",
-			middleware.RoleMiddleware("vote", "update"),
-			controller.NewVoteController().UpdateVote,
-		)
-		votes.DELETE("/",
-			middleware.RoleMiddleware("vote", "delete"),
-			controller.NewVoteController().DeleteVote,
-		)
-	}
-
-	// Question
-	questions := r.Group("/v1/question", middleware.JWTAuthMiddleware())
-	{
-		questions.POST("/create",
-			middleware.RoleMiddleware("question", "create"),
-			controller.NewQuestionController().CreateQuestion,
-		)
-		questions.GET("/:id",
-			middleware.RoleMiddleware("question", "read"),
-			controller.NewQuestionController().GetQuestion,
-		)
-		// questions.GET("/list/:vote_id",
-		// 	middleware.RoleMiddleware("question", "read"),
-		// 	controller.NewQuestionController().GetQuestions,
-		// )
-		// questions.PUT("/:id",
-		// 	middleware.RoleMiddleware("question", "update"),
-		// 	controller.NewQuestionController().UpdateQuestion,
-		// )
-		// questions.DELETE("/",
-		// 	middleware.RoleMiddleware("question", "delete"),
-		// 	controller.NewQuestionController().DeleteQuestion,
-		// )
-	}
-
-	// Candidate
-	candidates := r.Group("/v1/candidate", middleware.JWTAuthMiddleware())
-	{
-		// candidates.POST("/create",
-		// 	middleware.RoleMiddleware("candidate", "create"),
-		// 	controller.NewCandidateController().CreateCandidate,
-		// )
-		candidates.GET("/:id",
-			middleware.RoleMiddleware("candidate", "read"),
-			controller.NewCandidateController().SelectOneCandidate,
-		)
-		// candidates.GET("/list/:vote_id",
-		// 	middleware.RoleMiddleware("candidate", "read"),
-		// 	controller.NewCandidateController().SelectAllCandidates,
-		// )
-		// candidates.PUT("/:id",
-		// 	middleware.RoleMiddleware("candidate", "update"),
-		// 	controller.NewCandidateController().UpdateCandidate,
-		// )
-		// candidates.DELETE("/",
-		// 	middleware.RoleMiddleware("candidate", "delete"),
-		// 	controller.NewCandidateController().DeleteCandidate,
-		// )
 	}
 
 	// Password

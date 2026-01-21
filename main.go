@@ -61,7 +61,6 @@ func SetRouter() *gin.Engine {
 	server.Use(middleware.CORSMiddleware())
 	server.Use(middleware.LoggerToFile())
 	config.Routes(server, config.RedisStore())
-	config.Swagger()
 
 	return server
 }

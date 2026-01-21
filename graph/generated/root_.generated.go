@@ -35,6 +35,7 @@ type Config struct {
 
 type ResolverRoot interface {
 	Mutation() MutationResolver
+	Password() PasswordResolver
 	Query() QueryResolver
 	Vote() VoteResolver
 }
@@ -114,11 +115,22 @@ type ComplexityRoot struct {
 		StartCursor     func(childComplexity int) int
 	}
 
+	Password struct {
+		Ballot    func(childComplexity int) int
+		CreatedAt func(childComplexity int) int
+		ID        func(childComplexity int) int
+		Password  func(childComplexity int) int
+		Status    func(childComplexity int) int
+		VoteID    func(childComplexity int) int
+	}
+
 	Query struct {
 		Ballots    func(childComplexity int, input model.BallotQuery) int
 		Candidates func(childComplexity int, input model.CandidateQuery) int
+		Question   func(childComplexity int, id uint64, withCandidates bool) int
 		Questions  func(childComplexity int, input model.QuestionQuery, withCandidates bool) int
 		Users      func(childComplexity int) int
+		Vote       func(childComplexity int, uuid *uuid.UUID, withQuestions bool) int
 		Votes      func(childComplexity int, input *model.VoteQuery, withQuestions bool) int
 	}
 
@@ -539,6 +551,48 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.PageInfo.StartCursor(childComplexity), true
 
+	case "Password.ballot":
+		if e.complexity.Password.Ballot == nil {
+			break
+		}
+
+		return e.complexity.Password.Ballot(childComplexity), true
+
+	case "Password.createdAt":
+		if e.complexity.Password.CreatedAt == nil {
+			break
+		}
+
+		return e.complexity.Password.CreatedAt(childComplexity), true
+
+	case "Password.id":
+		if e.complexity.Password.ID == nil {
+			break
+		}
+
+		return e.complexity.Password.ID(childComplexity), true
+
+	case "Password.password":
+		if e.complexity.Password.Password == nil {
+			break
+		}
+
+		return e.complexity.Password.Password(childComplexity), true
+
+	case "Password.status":
+		if e.complexity.Password.Status == nil {
+			break
+		}
+
+		return e.complexity.Password.Status(childComplexity), true
+
+	case "Password.voteId":
+		if e.complexity.Password.VoteID == nil {
+			break
+		}
+
+		return e.complexity.Password.VoteID(childComplexity), true
+
 	case "Query.ballots":
 		if e.complexity.Query.Ballots == nil {
 			break
@@ -563,6 +617,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.Query.Candidates(childComplexity, args["input"].(model.CandidateQuery)), true
 
+	case "Query.question":
+		if e.complexity.Query.Question == nil {
+			break
+		}
+
+		args, err := ec.field_Query_question_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.Question(childComplexity, args["id"].(uint64), args["withCandidates"].(bool)), true
+
 	case "Query.questions":
 		if e.complexity.Query.Questions == nil {
 			break
@@ -581,6 +647,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Query.Users(childComplexity), true
+
+	case "Query.vote":
+		if e.complexity.Query.Vote == nil {
+			break
+		}
+
+		args, err := ec.field_Query_vote_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.Vote(childComplexity, args["uuid"].(*uuid.UUID), args["withQuestions"].(bool)), true
 
 	case "Query.votes":
 		if e.complexity.Query.Votes == nil {
@@ -1057,6 +1135,14 @@ interface pageQuery {
   last: Int64
   before: String
 }`, BuiltIn: false},
+	{Name: "../password.graphqls", Input: `type Password {
+  id: ID!
+  voteId: UUID!
+  password: String!
+  status: Boolean!
+  createdAt: Time!
+  ballot: [Ballot!]!
+}`, BuiltIn: false},
 	{Name: "../question.graphqls", Input: `directive @withCandidates(withCandidates: Boolean!) on FIELD_DEFINITION
 
 type Question {
@@ -1083,7 +1169,7 @@ type QuestionEdge {
 input QuestionCreate {
   voteId: UUID!
   title: String!
-  description: String!
+  description: String
 }
 
 input QuestionUpdate {
@@ -1102,6 +1188,8 @@ input QuestionQuery {
 }
 
 extend type Query {
+  question(id: UInt64!, withCandidates: Boolean!): Question!
+    @hasPermission(resource: "question", action: "read")
   questions(input: QuestionQuery!, withCandidates: Boolean!): [QuestionConnection!]! 
     @hasPermission(resource: "question", action: "read")
 }
@@ -1192,6 +1280,8 @@ input VoteQuery {
 }
 
 extend type Query {
+  vote(uuid: UUID, withQuestions: Boolean!): Vote
+    @hasPermission(resource: "vote", action: "read")
   votes(input: VoteQuery, withQuestions: Boolean!): [VoteConnection!]! 
     @hasPermission(resource: "vote", action: "read")
 }

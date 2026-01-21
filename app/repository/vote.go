@@ -17,13 +17,14 @@ func NewVoteRepository() VoteRepository {
 
 // GetVoteByUUID 根據提供的UUID取得投票。
 func (v VoteRepository) GetVoteByUUID(uuid uuid.UUID) (*model.Vote, error) {
-	voteOne := &model.Vote{}
-	err := database.SqlSession.
-		Select([]string{"id", "title", "description", "user_id", "start_time", "end_time"}).
-		Where("uuid=?", uuid).
-		First(&voteOne).Error
+	vote := &model.Vote{}
 
-	return voteOne, err
+	err := database.SqlSession.
+		Where("uuid=?", uuid).
+		Preload("Questions").
+		First(&vote).Error
+
+	return vote, err
 }
 
 // GetVotes 根據條件取得所有投票。

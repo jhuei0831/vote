@@ -24,7 +24,7 @@ type QuestionEdge {
 input QuestionCreate {
   voteId: UUID!
   title: String!
-  description: String!
+  description: String
 }
 
 input QuestionUpdate {
@@ -43,6 +43,8 @@ input QuestionQuery {
 }
 
 extend type Query {
+  question(id: UInt64!, withCandidates: Boolean!): Question!
+    @hasPermission(resource: "question", action: "read")
   questions(input: QuestionQuery!, withCandidates: Boolean!): [QuestionConnection!]! 
     @hasPermission(resource: "question", action: "read")
 }

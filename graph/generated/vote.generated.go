@@ -1085,6 +1085,13 @@ func (ec *executionContext) unmarshalNVoteUpdate2voteᚋappᚋmodelᚐVoteUpdate
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
+func (ec *executionContext) marshalOVote2ᚖvoteᚋappᚋmodelᚐVote(ctx context.Context, sel ast.SelectionSet, v *model.Vote) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._Vote(ctx, sel, v)
+}
+
 func (ec *executionContext) unmarshalOVoteQuery2ᚖvoteᚋappᚋmodelᚐVoteQuery(ctx context.Context, v any) (*model.VoteQuery, error) {
 	if v == nil {
 		return nil, nil
