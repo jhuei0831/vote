@@ -21,6 +21,10 @@ type QuestionEdge {
   cursor: ID!
 }
 
+type QuestionOptions {
+  options: [Question]!
+}
+
 input QuestionCreate {
   voteId: UUID!
   title: String!
@@ -29,7 +33,7 @@ input QuestionCreate {
 
 input QuestionUpdate {
   voteId: UUID!
-  title: String
+  title: String!
   description: String
 }
 
@@ -46,6 +50,8 @@ extend type Query {
   question(id: UInt64!, withCandidates: Boolean!): Question!
     @hasPermission(resource: "question", action: "read")
   questions(input: QuestionQuery!, withCandidates: Boolean!): [QuestionConnection!]! 
+    @hasPermission(resource: "question", action: "read")
+  questionOptions(voteId: UUID!): QuestionOptions!
     @hasPermission(resource: "question", action: "read")
 }
 

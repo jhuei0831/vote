@@ -81,7 +81,7 @@ func (a VoterController) VoterLogin(c *gin.Context) {
 		}
 
 		// 密碼檢查
-		password, err := service.NewPasswordService().SelectOnePassword(voteUUID, passwordEncrypt)
+		password, err := service.NewPasswordService().GetPassword(voteUUID, passwordEncrypt)
 		fmt.Println(passwordEncrypt)
 		if err != nil {
 			passwordCh <- passwordResult{nil, fmt.Errorf("failed to validate password: %w", err)}

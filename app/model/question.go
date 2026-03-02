@@ -22,13 +22,13 @@ type Question struct {
 
 type QuestionCreate struct {
 	VoteID      uuid.UUID   `json:"vote_id" binding:"required" example:"00000000-0000-0000-0000-000000000000"`
-	Title       string 			`json:"title" binding:"required" example:"title"`
+	Title       string 			`json:"title" binding:"required,max=100" example:"title"`
 	Description string 			`json:"description" example:"description"`
 }
 
 type QuestionUpdate struct {
 	VoteID      uuid.UUID   `json:"vote_id" binding:"required" example:"00000000-0000-0000-0000-000000000000"`
-	Title       string 			`json:"title" binding:"max=100" example:"title"`
+	Title       string 			`json:"title" binding:"required,max=100" example:"title"`
 	Description string 			`json:"description" example:"description"`
 }
 
@@ -52,6 +52,10 @@ type QuestionConnection struct {
 type QuestionEdge struct {
 	Node   Question   `json:"node"`
 	Cursor string `json:"cursor"`
+}
+
+type QuestionOptions struct {
+	Options []Question `json:"options"`
 }
 
 // GetFirst implements PaginationQuery

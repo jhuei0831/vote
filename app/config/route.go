@@ -78,25 +78,4 @@ func Routes(r *gin.Engine, m *persist.RedisStore) {
 			controller.NewUserController().GetUser,
 		)
 	}
-
-	// Password
-	passwords := r.Group("/v1/password", middleware.JWTAuthMiddleware())
-	{
-		passwords.POST("/create",
-			middleware.RoleMiddleware("password", "create"),
-			controller.NewPasswordController().CreatePassword,
-		)
-		passwords.POST("/decrypt",
-			middleware.RoleMiddleware("password", "read"),
-			controller.NewPasswordController().DecryptPassword,
-		)
-		passwords.GET("/list/:vote_id",
-			middleware.RoleMiddleware("password", "read"),
-			controller.NewPasswordController().SelectAllPasswords,
-		)
-		passwords.PUT("/update-status",
-			middleware.RoleMiddleware("password", "update"),
-			controller.NewPasswordController().UpdatePasswordStatus,
-		)
-	}
 }

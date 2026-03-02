@@ -508,7 +508,7 @@ func (ec *executionContext) unmarshalInputCandidateUpdate(ctx context.Context, o
 			it.QuestionID = data
 		case "name":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
-			data, err := ec.unmarshalOString2string(ctx, v)
+			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}

@@ -10,6 +10,7 @@ import (
 	"vote/app/service"
 	"vote/app/utils"
 
+	"github.com/google/uuid"
 	"github.com/vektah/gqlparser/v2/gqlerror"
 )
 
@@ -92,4 +93,18 @@ func (r *queryResolver) Questions(ctx context.Context, input model.QuestionQuery
 	}
 
 	return questionConnections, nil
+}
+
+// QuestionOptions is the resolver for the questionOptions field.
+func (r *queryResolver) QuestionOptions(ctx context.Context, voteID uuid.UUID) (*model.QuestionOptions, error) {
+	if err := service.NewAuthorizationService().AuthorizeVoteAccess(ctx, voteID, "read question"); err != nil {
+		return nil, err
+	}
+
+	questions, err := service.NewQuestionService().GetQuestionOptions(voteID)
+	if err != nil {
+		return nil, err
+	}
+
+	return questions, nil
 }

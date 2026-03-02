@@ -101,7 +101,7 @@ func (u UsersController) GetUser(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"status": 0,
 			"msg":    "Successfully get user data",
-			"user":   &userOne,
+			"data":   &userOne,
 		})
 	}
 }

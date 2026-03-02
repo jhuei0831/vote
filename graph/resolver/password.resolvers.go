@@ -8,15 +8,103 @@ import (
 	"context"
 	"fmt"
 	"vote/app/model"
+	"vote/app/service"
+	"vote/app/utils"
 	graph "vote/graph/generated"
+
+	"github.com/vektah/gqlparser/v2/gqlerror"
 )
+
+// CreatePassword is the resolver for the createPassword field.
+func (r *mutationResolver) CreatePassword(ctx context.Context, input model.PasswordCreate) ([]*model.Password, error) {
+	if err := service.NewAuthorizationService().AuthorizeVoteAccess(ctx, input.VoteID, "create password"); err != nil {
+		return nil, err
+	}
+
+	bindErr := service.NewGraphqlService().BindQuery(ctx, &input)
+	if bindErr == nil {
+		passwords, err := service.NewPasswordService().CreatePassword(input.VoteID, input.Number, input.Length, input.Format)
+		if err != nil {
+			return nil, err
+		}
+		return passwords, nil
+	}
+
+	return nil, gqlerror.Errorf("%s", utils.ValidationErrorMessage(bindErr))
+}
+
+// UpdatePassword is the resolver for the updatePassword field.
+func (r *mutationResolver) UpdatePassword(ctx context.Context, ids []uint64, input model.PasswordUpdate) ([]*model.Password, error) {
+	if err := service.NewAuthorizationService().AuthorizeVoteAccess(ctx, input.VoteID, "update password"); err != nil {
+		return nil, err
+	}
+
+	bindErr := service.NewGraphqlService().BindQuery(ctx, &input)
+	if bindErr == nil {
+		passwords, err := service.NewPasswordService().UpdatePasswordStatus(input.VoteID, ids, input.Status)
+		if err != nil {
+			return nil, err
+		}
+		return passwords, nil
+	}
+
+	return nil, gqlerror.Errorf("%s", utils.ValidationErrorMessage(bindErr))
+}
+
+// DeletePassword is the resolver for the deletePassword field.
+func (r *mutationResolver) DeletePassword(ctx context.Context, ids []uint64) ([]*model.Password, error) {
+	userInfo, err := service.NewGraphqlService().GetUserInfoFromContext(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get user info from context: %v", err)
+	}
+
+	passwords, err := service.NewPasswordService().DeletePassword(ids, userInfo)
+	if err != nil {
+		return nil, err
+	}
+	return passwords, nil
+}
 
 // Ballot is the resolver for the ballot field.
 func (r *passwordResolver) Ballot(ctx context.Context, obj *model.Password) ([]*model.Ballot, error) {
 	panic(fmt.Errorf("not implemented: Ballot - ballot"))
 }
 
+// Passwords is the resolver for the passwords field.
+func (r *queryResolver) Passwords(ctx context.Context, input model.PasswordQuery) ([]*model.PasswordConnection, error) {
+	if err := service.NewAuthorizationService().AuthorizeVoteAccess(ctx, input.VoteID, "read password"); err != nil {
+		return nil, err
+	}
+
+	bindErr := service.NewGraphqlService().BindQuery(ctx, &input)
+	if bindErr == nil {
+		passwords, err := service.NewPasswordService().GetPasswords(input.VoteID, &input)
+		if err != nil {
+			return nil, err
+		}
+		return passwords, nil
+	}
+
+	return nil, gqlerror.Errorf("%s", utils.ValidationErrorMessage(bindErr))
+}
+
+// Number is the resolver for the number field.
+func (r *passwordCreateResolver) Number(ctx context.Context, obj *model.PasswordCreate, data uint32) error {
+	obj.Number = uint(data)
+	return nil
+}
+
+// Length is the resolver for the length field.
+func (r *passwordCreateResolver) Length(ctx context.Context, obj *model.PasswordCreate, data uint32) error {
+	obj.Length = uint(data)
+	return nil
+}
+
 // Password returns graph.PasswordResolver implementation.
 func (r *Resolver) Password() graph.PasswordResolver { return &passwordResolver{r} }
 
+// PasswordCreate returns graph.PasswordCreateResolver implementation.
+func (r *Resolver) PasswordCreate() graph.PasswordCreateResolver { return &passwordCreateResolver{r} }
+
 type passwordResolver struct{ *Resolver }
+type passwordCreateResolver struct{ *Resolver }

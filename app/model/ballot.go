@@ -55,21 +55,21 @@ type BallotEdge struct {
 }
 
 // GetFirst implements PaginationQuery
-func (q *BallotQuery) GetFirst() int {
-	return q.First
+func (b *BallotQuery) GetFirst() int {
+	return b.First
 }
 
 // GetAfter implements PaginationQuery
-func (q *BallotQuery) GetAfter() string {
-	return q.After
+func (b *BallotQuery) GetAfter() string {
+	return b.After
 }
 
 // GetLast implements PaginationQuery
-func (q *BallotQuery) GetLast() int {
-	return q.Last
+func (b *BallotQuery) GetLast() int {
+	return b.Last
 }
 
 // GetBefore implements PaginationQuery
-func (q *BallotQuery) GetBefore() string {
-	return q.Before
+func (b *BallotQuery) GetBefore() string {
+	return b.Before
 }

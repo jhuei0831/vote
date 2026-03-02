@@ -67,21 +67,21 @@ type VoteEdge struct {
 }
 
 // GetFirst implements PaginationQuery
-func (q *VoteQuery) GetFirst() int {
-	return q.First
+func (v *VoteQuery) GetFirst() int {
+	return v.First
 }
 
 // GetAfter implements PaginationQuery
-func (q *VoteQuery) GetAfter() string {
-	return q.After
+func (v *VoteQuery) GetAfter() string {
+	return v.After
 }
 
 // GetLast implements PaginationQuery
-func (q *VoteQuery) GetLast() int {
-	return q.Last
+func (v *VoteQuery) GetLast() int {
+	return v.Last
 }
 
 // GetBefore implements PaginationQuery
-func (q *VoteQuery) GetBefore() string {
-	return q.Before
+func (v *VoteQuery) GetBefore() string {
+	return v.Before
 }

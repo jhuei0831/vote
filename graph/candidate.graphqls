@@ -25,7 +25,7 @@ input CandidateCreate {
 
 input CandidateUpdate {
   questionId: UInt64!
-  name: String
+  name: String!
 }
 
 input CandidateQuery {
@@ -39,6 +39,8 @@ input CandidateQuery {
 }
 
 extend type Query {
+  candidate(id: UInt64!): Candidate!
+    @hasPermission(resource: "candidate", action: "read")
   candidates(input: CandidateQuery!): [CandidateConnection!]!
     @hasPermission(resource: "candidate", action: "read")
 }

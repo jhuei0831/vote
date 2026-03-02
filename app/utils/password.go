@@ -35,7 +35,7 @@ var (
 // - format: 指定的密碼格式。
 // 返回值:
 // - 如果成功生成密碼則返回密碼字串切片，否則返回錯誤。
-func (p *Password) GeneratePassword(number int, length int, format string) ([]string, error) {
+func (p *Password) GeneratePassword(number uint, length uint, format string) ([]string, error) {
 	if length < 6 {
 		length = 6
 	}
@@ -59,8 +59,8 @@ func (p *Password) GeneratePassword(number int, length int, format string) ([]st
 	}
 
 	passwords := make([]string, number)
-	for i := 0; i < number; i++ {
-		password, err := generateRandomString(chars, length)
+	for i := uint(0); i < number; i++ {
+		password, err := generateRandomString(chars, int(length))
 		if err != nil {
 			return nil, err
 		}

@@ -5,6 +5,7 @@ import (
 	"vote/app/model"
 
 	"gorm.io/gorm/clause"
+	"github.com/google/uuid"
 )
 
 type QuestionRepository struct {
@@ -38,6 +39,20 @@ func (q QuestionRepository) GetQuestion(id uint64, isAdmin bool, userId uint64, 
 	}
 
 	return question, nil
+}
+
+// GetQuestionsByVoteID 根據提供的 VoteID 獲取相關問題。
+func (q QuestionRepository) GetQuestionsByVoteID(voteID uuid.UUID) ([]model.Question, error) {
+	var questions []model.Question
+
+	err := database.SqlSession.
+		Where("vote_id = ?", voteID).
+		Find(&questions).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return questions, nil
 }
 
 // GetQuestions 根據條件取得所有問題。

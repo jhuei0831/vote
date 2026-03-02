@@ -63,6 +63,21 @@ func (r *mutationResolver) DeleteCandidate(ctx context.Context, ids []uint64) ([
 	return candidates, nil
 }
 
+// Candidate is the resolver for the candidate field.
+func (r *queryResolver) Candidate(ctx context.Context, id uint64) (*model.Candidate, error) {
+	userInfo, err := service.NewGraphqlService().GetUserInfoFromContext(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get user info from context: %v", err)
+	}
+
+	candidate, err := service.NewCandidateService().GetCandidate(id, userInfo.IsAdmin, userInfo.UserID)
+	if err != nil {
+		return nil, err
+	}
+
+	return candidate, nil
+}
+
 // Candidates is the resolver for the candidates field.
 func (r *queryResolver) Candidates(ctx context.Context, input model.CandidateQuery) ([]*model.CandidateConnection, error) {
 	if err := service.NewAuthorizationService().AuthorizeVoteAccess(ctx, input.VoteID, "read candidate"); err != nil {

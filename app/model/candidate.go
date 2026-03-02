@@ -51,21 +51,21 @@ type CandidateEdge struct {
 }
 
 // GetFirst implements PaginationQuery
-func (q *CandidateQuery) GetFirst() int {
-	return q.First
+func (c *CandidateQuery) GetFirst() int {
+	return c.First
 }
 
 // GetAfter implements PaginationQuery
-func (q *CandidateQuery) GetAfter() string {
-	return q.After
+func (c *CandidateQuery) GetAfter() string {
+	return c.After
 }
 
 // GetLast implements PaginationQuery
-func (q *CandidateQuery) GetLast() int {
-	return q.Last
+func (c *CandidateQuery) GetLast() int {
+	return c.Last
 }
 
 // GetBefore implements PaginationQuery
-func (q *CandidateQuery) GetBefore() string {
-	return q.Before
+func (c *CandidateQuery) GetBefore() string {
+	return c.Before
 }

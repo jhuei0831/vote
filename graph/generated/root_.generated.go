@@ -38,6 +38,7 @@ type ResolverRoot interface {
 	Password() PasswordResolver
 	Query() QueryResolver
 	Vote() VoteResolver
+	PasswordCreate() PasswordCreateResolver
 }
 
 type DirectiveRoot struct {
@@ -96,14 +97,17 @@ type ComplexityRoot struct {
 	Mutation struct {
 		CreateBallot    func(childComplexity int, input model.BallotCreate) int
 		CreateCandidate func(childComplexity int, input model.CandidateCreate) int
+		CreatePassword  func(childComplexity int, input model.PasswordCreate) int
 		CreateQuestion  func(childComplexity int, input model.QuestionCreate) int
 		CreateUser      func(childComplexity int, input model.UserCreate) int
 		CreateVote      func(childComplexity int, input model.VoteCreate) int
 		DeleteBallot    func(childComplexity int, voterID uint64) int
 		DeleteCandidate func(childComplexity int, ids []uint64) int
+		DeletePassword  func(childComplexity int, ids []uint64) int
 		DeleteQuestion  func(childComplexity int, ids []uint64) int
 		DeleteVote      func(childComplexity int, uuids []uuid.UUID) int
 		UpdateCandidate func(childComplexity int, id uint64, input model.CandidateUpdate) int
+		UpdatePassword  func(childComplexity int, ids []uint64, input model.PasswordUpdate) int
 		UpdateQuestion  func(childComplexity int, id uint64, input model.QuestionUpdate) int
 		UpdateVote      func(childComplexity int, uuid uuid.UUID, input model.VoteUpdate) int
 	}
@@ -124,14 +128,28 @@ type ComplexityRoot struct {
 		VoteID    func(childComplexity int) int
 	}
 
+	PasswordConnection struct {
+		Edges      func(childComplexity int) int
+		PageInfo   func(childComplexity int) int
+		TotalCount func(childComplexity int) int
+	}
+
+	PasswordEdge struct {
+		Cursor func(childComplexity int) int
+		Node   func(childComplexity int) int
+	}
+
 	Query struct {
-		Ballots    func(childComplexity int, input model.BallotQuery) int
-		Candidates func(childComplexity int, input model.CandidateQuery) int
-		Question   func(childComplexity int, id uint64, withCandidates bool) int
-		Questions  func(childComplexity int, input model.QuestionQuery, withCandidates bool) int
-		Users      func(childComplexity int) int
-		Vote       func(childComplexity int, uuid *uuid.UUID, withQuestions bool) int
-		Votes      func(childComplexity int, input *model.VoteQuery, withQuestions bool) int
+		Ballots         func(childComplexity int, input model.BallotQuery) int
+		Candidate       func(childComplexity int, id uint64) int
+		Candidates      func(childComplexity int, input model.CandidateQuery) int
+		Passwords       func(childComplexity int, input model.PasswordQuery) int
+		Question        func(childComplexity int, id uint64, withCandidates bool) int
+		QuestionOptions func(childComplexity int, voteID uuid.UUID) int
+		Questions       func(childComplexity int, input model.QuestionQuery, withCandidates bool) int
+		Users           func(childComplexity int) int
+		Vote            func(childComplexity int, uuid *uuid.UUID, withQuestions bool) int
+		Votes           func(childComplexity int, input *model.VoteQuery, withQuestions bool) int
 	}
 
 	Question struct {
@@ -153,6 +171,10 @@ type ComplexityRoot struct {
 	QuestionEdge struct {
 		Cursor func(childComplexity int) int
 		Node   func(childComplexity int) int
+	}
+
+	QuestionOptions struct {
+		Options func(childComplexity int) int
 	}
 
 	User struct {
@@ -403,6 +425,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.Mutation.CreateCandidate(childComplexity, args["input"].(model.CandidateCreate)), true
 
+	case "Mutation.createPassword":
+		if e.complexity.Mutation.CreatePassword == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_createPassword_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.CreatePassword(childComplexity, args["input"].(model.PasswordCreate)), true
+
 	case "Mutation.createQuestion":
 		if e.complexity.Mutation.CreateQuestion == nil {
 			break
@@ -463,6 +497,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.Mutation.DeleteCandidate(childComplexity, args["ids"].([]uint64)), true
 
+	case "Mutation.deletePassword":
+		if e.complexity.Mutation.DeletePassword == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_deletePassword_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.DeletePassword(childComplexity, args["ids"].([]uint64)), true
+
 	case "Mutation.deleteQuestion":
 		if e.complexity.Mutation.DeleteQuestion == nil {
 			break
@@ -498,6 +544,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Mutation.UpdateCandidate(childComplexity, args["id"].(uint64), args["input"].(model.CandidateUpdate)), true
+
+	case "Mutation.updatePassword":
+		if e.complexity.Mutation.UpdatePassword == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_updatePassword_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.UpdatePassword(childComplexity, args["ids"].([]uint64), args["input"].(model.PasswordUpdate)), true
 
 	case "Mutation.updateQuestion":
 		if e.complexity.Mutation.UpdateQuestion == nil {
@@ -593,6 +651,41 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.Password.VoteID(childComplexity), true
 
+	case "PasswordConnection.edges":
+		if e.complexity.PasswordConnection.Edges == nil {
+			break
+		}
+
+		return e.complexity.PasswordConnection.Edges(childComplexity), true
+
+	case "PasswordConnection.pageInfo":
+		if e.complexity.PasswordConnection.PageInfo == nil {
+			break
+		}
+
+		return e.complexity.PasswordConnection.PageInfo(childComplexity), true
+
+	case "PasswordConnection.totalCount":
+		if e.complexity.PasswordConnection.TotalCount == nil {
+			break
+		}
+
+		return e.complexity.PasswordConnection.TotalCount(childComplexity), true
+
+	case "PasswordEdge.cursor":
+		if e.complexity.PasswordEdge.Cursor == nil {
+			break
+		}
+
+		return e.complexity.PasswordEdge.Cursor(childComplexity), true
+
+	case "PasswordEdge.node":
+		if e.complexity.PasswordEdge.Node == nil {
+			break
+		}
+
+		return e.complexity.PasswordEdge.Node(childComplexity), true
+
 	case "Query.ballots":
 		if e.complexity.Query.Ballots == nil {
 			break
@@ -604,6 +697,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Query.Ballots(childComplexity, args["input"].(model.BallotQuery)), true
+
+	case "Query.candidate":
+		if e.complexity.Query.Candidate == nil {
+			break
+		}
+
+		args, err := ec.field_Query_candidate_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.Candidate(childComplexity, args["id"].(uint64)), true
 
 	case "Query.candidates":
 		if e.complexity.Query.Candidates == nil {
@@ -617,6 +722,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.Query.Candidates(childComplexity, args["input"].(model.CandidateQuery)), true
 
+	case "Query.passwords":
+		if e.complexity.Query.Passwords == nil {
+			break
+		}
+
+		args, err := ec.field_Query_passwords_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.Passwords(childComplexity, args["input"].(model.PasswordQuery)), true
+
 	case "Query.question":
 		if e.complexity.Query.Question == nil {
 			break
@@ -628,6 +745,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Query.Question(childComplexity, args["id"].(uint64), args["withCandidates"].(bool)), true
+
+	case "Query.questionOptions":
+		if e.complexity.Query.QuestionOptions == nil {
+			break
+		}
+
+		args, err := ec.field_Query_questionOptions_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.QuestionOptions(childComplexity, args["voteId"].(uuid.UUID)), true
 
 	case "Query.questions":
 		if e.complexity.Query.Questions == nil {
@@ -755,6 +884,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.QuestionEdge.Node(childComplexity), true
+
+	case "QuestionOptions.options":
+		if e.complexity.QuestionOptions.Options == nil {
+			break
+		}
+
+		return e.complexity.QuestionOptions.Options(childComplexity), true
 
 	case "User.account":
 		if e.complexity.User.Account == nil {
@@ -890,6 +1026,9 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputCandidateCreate,
 		ec.unmarshalInputCandidateQuery,
 		ec.unmarshalInputCandidateUpdate,
+		ec.unmarshalInputPasswordCreate,
+		ec.unmarshalInputPasswordQuery,
+		ec.unmarshalInputPasswordUpdate,
 		ec.unmarshalInputQuestionCreate,
 		ec.unmarshalInputQuestionQuery,
 		ec.unmarshalInputQuestionUpdate,
@@ -1081,7 +1220,7 @@ input CandidateCreate {
 
 input CandidateUpdate {
   questionId: UInt64!
-  name: String
+  name: String!
 }
 
 input CandidateQuery {
@@ -1095,6 +1234,8 @@ input CandidateQuery {
 }
 
 extend type Query {
+  candidate(id: UInt64!): Candidate!
+    @hasPermission(resource: "candidate", action: "read")
   candidates(input: CandidateQuery!): [CandidateConnection!]!
     @hasPermission(resource: "candidate", action: "read")
 }
@@ -1111,6 +1252,7 @@ extend type Mutation {
 }`, BuiltIn: false},
 	{Name: "../global.graphqls", Input: `scalar Time
 scalar UUID
+scalar Uint
 scalar Int64
 scalar UInt64
 
@@ -1142,6 +1284,55 @@ interface pageQuery {
   status: Boolean!
   createdAt: Time!
   ballot: [Ballot!]!
+}
+
+type PasswordConnection {
+  edges: [PasswordEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int64!
+}
+
+type PasswordEdge {
+  node: Password!
+  cursor: ID!
+}
+
+input PasswordCreate {
+  voteId: UUID!
+  number: Uint!
+  length: Uint!
+  format: String!
+}
+
+input PasswordUpdate {
+  voteId: UUID!
+  status: Boolean!
+}
+
+input PasswordQuery {
+  voteId: UUID!
+  password: String
+  status: Boolean
+  first: Int64
+  after: String
+  last: Int64
+  before: String
+}
+
+extend type Query {
+  passwords(input: PasswordQuery!): [PasswordConnection!]!
+    @hasPermission(resource: "password", action: "read")
+}
+
+extend type Mutation {
+  createPassword(input: PasswordCreate!): [Password!]!
+    @hasPermission(resource: "password", action: "create")
+
+  updatePassword(ids: [UInt64!]!, input: PasswordUpdate!): [Password!]!
+    @hasPermission(resource: "password", action: "update")
+
+  deletePassword(ids: [UInt64!]!): [Password!]!
+    @hasPermission(resource: "password", action: "delete")
 }`, BuiltIn: false},
 	{Name: "../question.graphqls", Input: `directive @withCandidates(withCandidates: Boolean!) on FIELD_DEFINITION
 
@@ -1166,6 +1357,10 @@ type QuestionEdge {
   cursor: ID!
 }
 
+type QuestionOptions {
+  options: [Question]!
+}
+
 input QuestionCreate {
   voteId: UUID!
   title: String!
@@ -1174,7 +1369,7 @@ input QuestionCreate {
 
 input QuestionUpdate {
   voteId: UUID!
-  title: String
+  title: String!
   description: String
 }
 
@@ -1191,6 +1386,8 @@ extend type Query {
   question(id: UInt64!, withCandidates: Boolean!): Question!
     @hasPermission(resource: "question", action: "read")
   questions(input: QuestionQuery!, withCandidates: Boolean!): [QuestionConnection!]! 
+    @hasPermission(resource: "question", action: "read")
+  questionOptions(voteId: UUID!): QuestionOptions!
     @hasPermission(resource: "question", action: "read")
 }
 

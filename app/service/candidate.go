@@ -13,8 +13,8 @@ func NewCandidateService() CandidateService {
 	return CandidateService{}
 }
 
-// SelectOneCandidate 根據提供的 ID 檢查候選人是否存在。
-func (c CandidateService) SelectOneCandidate(id uint64, isAdmin bool, userId uint64) (*model.Candidate, error) {
+// GetCandidate 根據提供的 ID 取得候選人。
+func (c CandidateService) GetCandidate(id uint64, isAdmin bool, userId uint64) (*model.Candidate, error) {
 	candidateOne := &model.Candidate{}
 	query := database.SqlSession.
 		Where("candidates.id = ?", id)

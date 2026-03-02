@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"vote/app/model"
 	"vote/app/repository"
+
+	"github.com/google/uuid"
 )
 
 type QuestionService struct {
@@ -16,6 +18,18 @@ func NewQuestionService() QuestionService {
 // GetQuestion 根據提供的 ID 檢查問題是否存在。
 func (q QuestionService) GetQuestion(id uint64, isAdmin bool, userId uint64) (*model.Question, error) {
 	return repository.NewQuestionRepository().GetQuestion(id, isAdmin, userId, false)
+}
+
+// GetQuestionOptions 根據提供的 VoteID 獲取相關問題選項。
+func (q QuestionService) GetQuestionOptions(voteID  uuid.UUID) (*model.QuestionOptions, error) {
+	questions, err := repository.NewQuestionRepository().GetQuestionsByVoteID(voteID)
+	if err != nil {
+		return nil, err
+	}
+
+	return &model.QuestionOptions{
+		Options: questions,
+	}, nil
 }
 
 // SelectQuestionWithCandidates 檢索問題及其候選人。

@@ -434,6 +434,51 @@ func (ec *executionContext) fieldContext_QuestionEdge_cursor(_ context.Context, 
 	return fc, nil
 }
 
+func (ec *executionContext) _QuestionOptions_options(ctx context.Context, field graphql.CollectedField, obj *model.QuestionOptions) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_QuestionOptions_options,
+		func(ctx context.Context) (any, error) {
+			return obj.Options, nil
+		},
+		nil,
+		ec.marshalNQuestion2ᚕvoteᚋappᚋmodelᚐQuestion,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_QuestionOptions_options(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "QuestionOptions",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Question_id(ctx, field)
+			case "voteId":
+				return ec.fieldContext_Question_voteId(ctx, field)
+			case "title":
+				return ec.fieldContext_Question_title(ctx, field)
+			case "description":
+				return ec.fieldContext_Question_description(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Question_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Question_updatedAt(ctx, field)
+			case "candidates":
+				return ec.fieldContext_Question_candidates(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Question", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 // endregion **************************** field.gotpl *****************************
 
 // region    **************************** input.gotpl *****************************
@@ -564,7 +609,7 @@ func (ec *executionContext) unmarshalInputQuestionUpdate(ctx context.Context, ob
 			it.VoteID = data
 		case "title":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("title"))
-			data, err := ec.unmarshalOString2string(ctx, v)
+			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -752,12 +797,89 @@ func (ec *executionContext) _QuestionEdge(ctx context.Context, sel ast.Selection
 	return out
 }
 
+var questionOptionsImplementors = []string{"QuestionOptions"}
+
+func (ec *executionContext) _QuestionOptions(ctx context.Context, sel ast.SelectionSet, obj *model.QuestionOptions) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, questionOptionsImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("QuestionOptions")
+		case "options":
+			out.Values[i] = ec._QuestionOptions_options(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 // endregion **************************** object.gotpl ****************************
 
 // region    ***************************** type.gotpl *****************************
 
 func (ec *executionContext) marshalNQuestion2voteᚋappᚋmodelᚐQuestion(ctx context.Context, sel ast.SelectionSet, v model.Question) graphql.Marshaler {
 	return ec._Question(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNQuestion2ᚕvoteᚋappᚋmodelᚐQuestion(ctx context.Context, sel ast.SelectionSet, v []model.Question) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalOQuestion2voteᚋappᚋmodelᚐQuestion(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	return ret
 }
 
 func (ec *executionContext) marshalNQuestion2ᚕvoteᚋappᚋmodelᚐQuestionᚄ(ctx context.Context, sel ast.SelectionSet, v []model.Question) graphql.Marshaler {
@@ -965,6 +1087,20 @@ func (ec *executionContext) marshalNQuestionEdge2ᚕvoteᚋappᚋmodelᚐQuestio
 	return ret
 }
 
+func (ec *executionContext) marshalNQuestionOptions2voteᚋappᚋmodelᚐQuestionOptions(ctx context.Context, sel ast.SelectionSet, v model.QuestionOptions) graphql.Marshaler {
+	return ec._QuestionOptions(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNQuestionOptions2ᚖvoteᚋappᚋmodelᚐQuestionOptions(ctx context.Context, sel ast.SelectionSet, v *model.QuestionOptions) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._QuestionOptions(ctx, sel, v)
+}
+
 func (ec *executionContext) unmarshalNQuestionQuery2voteᚋappᚋmodelᚐQuestionQuery(ctx context.Context, v any) (model.QuestionQuery, error) {
 	res, err := ec.unmarshalInputQuestionQuery(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -973,6 +1109,10 @@ func (ec *executionContext) unmarshalNQuestionQuery2voteᚋappᚋmodelᚐQuestio
 func (ec *executionContext) unmarshalNQuestionUpdate2voteᚋappᚋmodelᚐQuestionUpdate(ctx context.Context, v any) (model.QuestionUpdate, error) {
 	res, err := ec.unmarshalInputQuestionUpdate(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOQuestion2voteᚋappᚋmodelᚐQuestion(ctx context.Context, sel ast.SelectionSet, v model.Question) graphql.Marshaler {
+	return ec._Question(ctx, sel, &v)
 }
 
 // endregion ***************************** type.gotpl *****************************

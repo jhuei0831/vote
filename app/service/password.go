@@ -3,6 +3,7 @@ package service
 import (
 	"vote/app/database"
 	"vote/app/model"
+	"vote/app/repository"
 	"vote/app/utils"
 
 	"github.com/google/uuid"
@@ -15,101 +16,100 @@ func NewPasswordService() PasswordService {
 	return PasswordService{}
 }
 
-// SelectOnePassword 根據提供的投票ID和密碼，檢查密碼是否存在。
-func (p PasswordService) SelectOnePassword(voteId uuid.UUID, password string) (*model.Password, error) {
+// GetPassword 根據提供的投票ID和密碼，檢查密碼是否存在。
+func (p PasswordService) GetPassword(voteId uuid.UUID, password string) (*model.Password, error) {
 	passwordModel := model.Password{}
 	err := database.SqlSession.
 		Where("vote_id = ? AND password = ? AND status = true", voteId, password).
 		First(&passwordModel).
 		Error
-		
+
 	if err != nil {
 		return nil, err
 	}
-	
+
 	return &passwordModel, nil
 }
 
-// SelectPassword 根據提供的投票ID，檢索所有密碼。
-func (p PasswordService) SelectPassword(voteId uuid.UUID, passwordQuery model.PasswordQuery) ([]model.Password, int64, error) {
-	var passwords []model.Password
-	var total int64
-	query := database.SqlSession.Model(&passwords).Where("vote_id = ?", voteId)
-
-	if passwordQuery.Status {
-		query = query.Where("status = ?", passwordQuery.Status)
-	}
-
-	// 設定查詢條件
-	page := passwordQuery.Page
-	size := passwordQuery.Size
-
-	// 計算總筆數
-	err := query.Count(&total).Error
+// GetPassword 根據提供的投票ID，檢索所有密碼。
+func (p PasswordService) GetPasswords(voteId uuid.UUID, passwordQuery *model.PasswordQuery) ([]*model.PasswordConnection, error) {
+	passwords, total, err := repository.NewPasswordRepository().GetPasswords(passwordQuery)
 	if err != nil {
-		return nil, 0, err
+		return nil, err
 	}
 
-	// 如果有 page 和 size，加入分頁條件
-	if page > 0 && size > 0 {
-		offset := (page - 1) * size
-		query = query.Offset(offset).Limit(size)
-	}
+	paginationRepository := repository.NewPaginationRepository[*model.PasswordQuery, model.Password]()
+	passwords, hasPreviousPage, hasNextPage := paginationRepository.HasPreviousNextPage(passwords, passwordQuery)
 
-	// 排序
-	query = query.Order("id ASC")
+	paginationService := NewPaginationService[model.Password, model.PasswordEdge, *model.PasswordConnection]()
+	connection := paginationService.BuildConnection(passwords, total, hasPreviousPage, hasNextPage,
+		func(password model.Password) uint64 {
+			return password.ID
+		},
+	)
 
-	err = query.Find(&passwords).Error
-	if err != nil {
-		return nil, 0, err
-	}
-
-	return passwords, total, nil
+	return []*model.PasswordConnection{connection}, nil
 }
 
-// CreatePassword 建立可以加解密的密碼
-func (p PasswordService) CreatePassword(voteId uuid.UUID, number int, length int, format string) error {
+// CreatePassword Create passwords can encrypt and decrypt
+func (p PasswordService) CreatePassword(voteId uuid.UUID, number uint, length uint, format string) ([]*model.Password, error) {
 	passwordUtil := &utils.Password{}
-	// 生成密碼
+	// Generate Passwords
 	passwords, err := passwordUtil.GeneratePassword(number, length, format)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	// 將密碼加密
-	passwordModels := make([]model.Password, len(passwords))
+	// Encrypt Passwords
+	passwordModels := make([]*model.Password, len(passwords))
 	for i, password := range passwords {
 		passwordEncrypt, err := passwordUtil.Encrypt(password)
 		if err != nil {
-			return err
+			return nil, err
 		}
-		passwordModels[i] = model.Password{
+		passwordModels[i] = &model.Password{
 			VoteID:   voteId,
 			Password: passwordEncrypt,
 		}
 	}
 
-	// 使用transaction，將密碼存入資料庫
+	// Use transaction to ensure all passwords are created successfully
 	transaction := database.SqlSession.Begin()
 	err = transaction.CreateInBatches(&passwordModels, 100).Error
 
 	if err != nil {
 		transaction.Rollback()
-		return err
+		return nil, err
 	}
 
-	return transaction.Commit().Error
+	return passwordModels, transaction.Commit().Error
 }
 
 // UpdatePasswordStatus 更新密碼狀態
-func (p PasswordService) UpdatePasswordStatus(voteId uuid.UUID, passwordIDs []any, status bool) error {
-	err := database.SqlSession.Model(&model.Password{}).
+func (p PasswordService) UpdatePasswordStatus(voteId uuid.UUID, passwordIDs []uint64, status bool) ([]*model.Password, error) {
+	var passwordModels []*model.Password
+	err := database.SqlSession.
 		Where("vote_id = ? AND id IN ?", voteId, passwordIDs).
-		Update("status", status).Error
+		Update("status", status).
+		Scan(&passwordModels).Error
 
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	return passwordModels, nil
+}
+
+// DeletePassword 根據提供的密碼ID列表刪除密碼。
+func (p PasswordService) DeletePassword(ids []uint64, userInfo model.UserInfo) ([]*model.Password, error) {
+	var passwordModels []*model.Password
+	err := database.SqlSession.
+		Where("id IN ?", ids).
+		Delete(&passwordModels).Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	return passwordModels, nil
 }
