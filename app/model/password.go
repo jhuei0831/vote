@@ -28,7 +28,6 @@ type PasswordCreate struct {
 
 type PasswordUpdate struct {
 	VoteID    	uuid.UUID `json:"voteId" example:"00000000-0000-0000-0000-000000000000"`
-	PasswordIds []uint64  `json:"passwordIds" example:"[1,2,3]"`
 	Status    	bool      `json:"status" example:"false"`
 }
 

@@ -4,7 +4,6 @@ import (
 	"vote/app/database"
 	"vote/app/model"
 	"vote/app/repository"
-	"vote/app/utils"
 
 	"github.com/google/uuid"
 )
@@ -53,63 +52,30 @@ func (p PasswordService) GetPasswords(voteId uuid.UUID, passwordQuery *model.Pas
 
 // CreatePassword Create passwords can encrypt and decrypt
 func (p PasswordService) CreatePassword(voteId uuid.UUID, number uint, length uint, format string) ([]*model.Password, error) {
-	passwordUtil := &utils.Password{}
-	// Generate Passwords
-	passwords, err := passwordUtil.GeneratePassword(number, length, format)
+	passwords, err := repository.NewPasswordRepository().CreatePasswords(voteId, number, length, format)
 	if err != nil {
 		return nil, err
 	}
 
-	// Encrypt Passwords
-	passwordModels := make([]*model.Password, len(passwords))
-	for i, password := range passwords {
-		passwordEncrypt, err := passwordUtil.Encrypt(password)
-		if err != nil {
-			return nil, err
-		}
-		passwordModels[i] = &model.Password{
-			VoteID:   voteId,
-			Password: passwordEncrypt,
-		}
-	}
-
-	// Use transaction to ensure all passwords are created successfully
-	transaction := database.SqlSession.Begin()
-	err = transaction.CreateInBatches(&passwordModels, 100).Error
-
-	if err != nil {
-		transaction.Rollback()
-		return nil, err
-	}
-
-	return passwordModels, transaction.Commit().Error
+	return passwords, nil
 }
 
 // UpdatePasswordStatus 更新密碼狀態
 func (p PasswordService) UpdatePasswordStatus(voteId uuid.UUID, passwordIDs []uint64, status bool) ([]*model.Password, error) {
-	var passwordModels []*model.Password
-	err := database.SqlSession.
-		Where("vote_id = ? AND id IN ?", voteId, passwordIDs).
-		Update("status", status).
-		Scan(&passwordModels).Error
-
+	passwords, err := repository.NewPasswordRepository().UpdatePasswordStatus(voteId, passwordIDs, status)
 	if err != nil {
 		return nil, err
 	}
 
-	return passwordModels, nil
+	return passwords, nil
 }
 
 // DeletePassword 根據提供的密碼ID列表刪除密碼。
 func (p PasswordService) DeletePassword(ids []uint64, userInfo model.UserInfo) ([]*model.Password, error) {
-	var passwordModels []*model.Password
-	err := database.SqlSession.
-		Where("id IN ?", ids).
-		Delete(&passwordModels).Error
-
+	passwords, err := repository.NewPasswordRepository().DeletePassword(ids, userInfo)
 	if err != nil {
 		return nil, err
 	}
 
-	return passwordModels, nil
+	return passwords, nil
 }
