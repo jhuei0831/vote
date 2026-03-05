@@ -143,6 +143,7 @@ type ComplexityRoot struct {
 		Ballots         func(childComplexity int, input model.BallotQuery) int
 		Candidate       func(childComplexity int, id uint64) int
 		Candidates      func(childComplexity int, input model.CandidateQuery) int
+		DecryptPassword func(childComplexity int, password string) int
 		Passwords       func(childComplexity int, input model.PasswordQuery) int
 		Question        func(childComplexity int, id uint64, withCandidates bool) int
 		QuestionOptions func(childComplexity int, voteID uuid.UUID) int
@@ -721,6 +722,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Query.Candidates(childComplexity, args["input"].(model.CandidateQuery)), true
+
+	case "Query.decryptPassword":
+		if e.complexity.Query.DecryptPassword == nil {
+			break
+		}
+
+		args, err := ec.field_Query_decryptPassword_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.DecryptPassword(childComplexity, args["password"].(string)), true
 
 	case "Query.passwords":
 		if e.complexity.Query.Passwords == nil {
@@ -1321,6 +1334,8 @@ input PasswordQuery {
 
 extend type Query {
   passwords(input: PasswordQuery!): [PasswordConnection!]!
+    @hasPermission(resource: "password", action: "read")
+  decryptPassword(password: String!): String!
     @hasPermission(resource: "password", action: "read")
 }
 

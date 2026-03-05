@@ -4,6 +4,7 @@ import (
 	"vote/app/database"
 	"vote/app/model"
 	"vote/app/repository"
+	"vote/app/utils"
 
 	"github.com/google/uuid"
 )
@@ -48,6 +49,16 @@ func (p PasswordService) GetPasswords(voteId uuid.UUID, passwordQuery *model.Pas
 	)
 
 	return []*model.PasswordConnection{connection}, nil
+}
+
+// DecryptPassword decrypts the provided password string and returns the original password.
+func (p PasswordService) DecryptPassword(password string) (string, error) {
+	decryptedPassword, err := (&utils.Password{}).Decrypt(password)
+	if err != nil {
+		return "", err
+	}
+
+	return decryptedPassword, nil
 }
 
 // CreatePassword Create passwords can encrypt and decrypt

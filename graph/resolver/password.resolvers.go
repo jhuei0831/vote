@@ -88,6 +88,16 @@ func (r *queryResolver) Passwords(ctx context.Context, input model.PasswordQuery
 	return nil, gqlerror.Errorf("%s", utils.ValidationErrorMessage(bindErr))
 }
 
+// DecryptPassword is the resolver for the decryptPassword field.
+func (r *queryResolver) DecryptPassword(ctx context.Context, password string) (string, error) {
+	decryptedPassword, err := service.NewPasswordService().DecryptPassword(password)
+	if err != nil {
+		return "", fmt.Errorf("failed to decrypt password: %w", err)
+	}
+	
+	return decryptedPassword, nil
+}
+
 // Number is the resolver for the number field.
 func (r *passwordCreateResolver) Number(ctx context.Context, obj *model.PasswordCreate, data uint32) error {
 	obj.Number = uint(data)
