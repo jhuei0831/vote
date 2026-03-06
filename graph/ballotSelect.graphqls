@@ -1,5 +1,5 @@
 type BallotSelect {
   id: ID!
   ballotId: UInt64!
-  candidateId: UInt64!
+  pollOptionId: UInt64!
 }

@@ -1,0 +1,67 @@
+directive @withPollOptions(withPollOptions: Boolean!) on FIELD_DEFINITION
+
+type Poll {
+  id: ID!
+  sessionId: UUID!
+  title: String!
+  description: String!
+  createdAt: Time!
+  updatedAt: Time!
+  pollOptions: [PollOption!]!
+}
+
+type PollConnection {
+  edges: [PollEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int64!
+}
+
+type PollEdge {
+  node: Poll!
+  cursor: ID!
+}
+
+type PollList {
+  list: [Poll]!
+}
+
+input PollCreate {
+  sessionId: UUID!
+  title: String!
+  description: String
+}
+
+input PollUpdate {
+  sessionId: UUID!
+  title: String!
+  description: String
+}
+
+input PollQuery {
+  sessionId: UUID!
+  title: String
+  first: Int64
+  after: String
+  last: Int64
+  before: String
+}
+
+extend type Query {
+  poll(id: UInt64!, withPollOptions: Boolean!): Poll!
+    @hasPermission(resource: "poll", action: "read")
+  polls(input: PollQuery!, withPollOptions: Boolean!): [PollConnection!]! 
+    @hasPermission(resource: "poll", action: "read")
+  pollList(sessionId: UUID!): PollList!
+    @hasPermission(resource: "poll", action: "read")
+}
+
+extend type Mutation {
+  createPoll(input: PollCreate!): Poll!
+    @hasPermission(resource: "poll", action: "create")
+
+  updatePoll(id: UInt64!, input: PollUpdate!): Poll!
+    @hasPermission(resource: "poll", action: "update")
+    
+  deletePoll(ids: [UInt64!]!): [Poll!]!
+    @hasPermission(resource: "poll", action: "delete")
+}

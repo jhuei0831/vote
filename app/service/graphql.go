@@ -86,7 +86,7 @@ func (g GraphqlService) GetUserInfoFromContext(ctx context.Context) (model.UserI
 
 // Get VoterInfo from Gin context
 func (g GraphqlService) GetVoterInfoFromContext(ctx context.Context) (model.VoterInfo, error) {
-	voterInfo := model.VoterInfo{VoterID: 0, VoteID: uuid.UUID{}, IsVoted: false}
+	voterInfo := model.VoterInfo{VoterID: 0, SessionID: uuid.UUID{}, IsVoted: false}
 	gc, err := g.GinContextFromContext(ctx)
 	if err != nil {
 		return voterInfo, err
@@ -108,7 +108,7 @@ func (g GraphqlService) GetVoterInfoFromContext(ctx context.Context) (model.Vote
 	}
 
 	voterInfo.VoterID = voterId.(uint64)
-	voterInfo.VoteID = voteId.(uuid.UUID)
+	voterInfo.SessionID = voteId.(uuid.UUID)
 	voterInfo.IsVoted = isVoted.(bool)
 	
 	return voterInfo, nil

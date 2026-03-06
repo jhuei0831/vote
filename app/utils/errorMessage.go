@@ -9,15 +9,15 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-// 這裡是通用的 FieldError 處理, 如果需要針對某些字段或 struct 做定制, 需要自行定義一個
+// Generic FieldError handling. For custom handling of specific fields or structs, define your own implementation.
 type ValidationFieldError struct {
 	Err validator.FieldError
 }
 
-// String 會根據驗證錯誤的標籤 (Tag) 生成對應的錯誤訊息。
-// 支援的標籤包括 "required", "max", "min", "email", "len", "gt", "gte", "lt", "lte", "oneof"。
-// 對於未知的標籤，會返回預設的錯誤訊息格式。
-// 返回的錯誤訊息會包含欄位名稱及其對應的條件。
+// String generates an error message based on the validation error's tag.
+// Supported tags include "required", "max", "min", "email", "len", "gt", "gte", "lt", "lte", "oneof".
+// For unknown tags, a default error message format is returned.
+// The returned error message includes the field name and its corresponding condition.
 func (v ValidationFieldError) String() string {
 	e := v.Err
 
@@ -47,11 +47,11 @@ func (v ValidationFieldError) String() string {
 	return fmt.Sprintf("%s is not valid, condition: %s", e.Field(), e.ActualTag())
 }
 
-// ValidationErrorMessage 根據提供的錯誤訊息返回對應的驗證錯誤訊息。
-// 如果錯誤是 io.EOF，返回 "EOF, json decode fail"。
-// 如果錯誤是 validator.ValidationErrors，返回第一個驗證錯誤的訊息。
-// 如果錯誤不是 validator.ValidationErrors，返回 "json decode or validate fail, err=" 加上錯誤訊息。
-// 如果沒有錯誤訊息，返回 "validationErrs with no error message"。
+// ValidationErrorMessage returns the corresponding validation error message based on the provided error.
+// If the error is io.EOF, returns "EOF, json decode fail".
+// If the error is validator.ValidationErrors, returns the message of the first validation error.
+// If the error is not validator.ValidationErrors, returns "json decode or validate fail, err=" plus the error message.
+// If there is no error message, returns "validationErrs with no error message".
 func ValidationErrorMessage(err error) string {
 	if err == io.EOF {
 		return "EOF, json decode fail"
@@ -72,7 +72,7 @@ func ValidationErrorMessage(err error) string {
 	return "validationErrs with no error message"
 }
 
-// HandleError 通用的錯誤處理函數
+// HandleError is a generic error handling function
 func HandleError(c *gin.Context, status int, code int, msg string, err error) {
 	if err != nil {
 		msg = msg + ": " + err.Error()

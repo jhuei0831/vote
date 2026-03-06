@@ -17,13 +17,13 @@ import (
 
 // region    ************************** generated!.gotpl **************************
 
-type PasswordResolver interface {
-	Ballot(ctx context.Context, obj *model.Password) ([]*model.Ballot, error)
+type InvitationResolver interface {
+	Ballot(ctx context.Context, obj *model.Invitation) ([]*model.Ballot, error)
 }
 
-type PasswordCreateResolver interface {
-	Number(ctx context.Context, obj *model.PasswordCreate, data uint32) error
-	Length(ctx context.Context, obj *model.PasswordCreate, data uint32) error
+type InvitationCreateResolver interface {
+	Number(ctx context.Context, obj *model.InvitationCreate, data uint32) error
+	Length(ctx context.Context, obj *model.InvitationCreate, data uint32) error
 }
 
 // endregion ************************** generated!.gotpl **************************
@@ -38,12 +38,12 @@ type PasswordCreateResolver interface {
 
 // region    **************************** field.gotpl *****************************
 
-func (ec *executionContext) _Password_id(ctx context.Context, field graphql.CollectedField, obj *model.Password) (ret graphql.Marshaler) {
+func (ec *executionContext) _Invitation_id(ctx context.Context, field graphql.CollectedField, obj *model.Invitation) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_Password_id,
+		ec.fieldContext_Invitation_id,
 		func(ctx context.Context) (any, error) {
 			return obj.ID, nil
 		},
@@ -54,9 +54,9 @@ func (ec *executionContext) _Password_id(ctx context.Context, field graphql.Coll
 	)
 }
 
-func (ec *executionContext) fieldContext_Password_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Invitation_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "Password",
+		Object:     "Invitation",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -67,14 +67,14 @@ func (ec *executionContext) fieldContext_Password_id(_ context.Context, field gr
 	return fc, nil
 }
 
-func (ec *executionContext) _Password_voteId(ctx context.Context, field graphql.CollectedField, obj *model.Password) (ret graphql.Marshaler) {
+func (ec *executionContext) _Invitation_sessionId(ctx context.Context, field graphql.CollectedField, obj *model.Invitation) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_Password_voteId,
+		ec.fieldContext_Invitation_sessionId,
 		func(ctx context.Context) (any, error) {
-			return obj.VoteID, nil
+			return obj.SessionID, nil
 		},
 		nil,
 		ec.marshalNUUID2githubᚗcomᚋgoogleᚋuuidᚐUUID,
@@ -83,9 +83,9 @@ func (ec *executionContext) _Password_voteId(ctx context.Context, field graphql.
 	)
 }
 
-func (ec *executionContext) fieldContext_Password_voteId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Invitation_sessionId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "Password",
+		Object:     "Invitation",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -96,14 +96,14 @@ func (ec *executionContext) fieldContext_Password_voteId(_ context.Context, fiel
 	return fc, nil
 }
 
-func (ec *executionContext) _Password_password(ctx context.Context, field graphql.CollectedField, obj *model.Password) (ret graphql.Marshaler) {
+func (ec *executionContext) _Invitation_codeHash(ctx context.Context, field graphql.CollectedField, obj *model.Invitation) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_Password_password,
+		ec.fieldContext_Invitation_codeHash,
 		func(ctx context.Context) (any, error) {
-			return obj.Password, nil
+			return obj.CodeHash, nil
 		},
 		nil,
 		ec.marshalNString2string,
@@ -112,9 +112,9 @@ func (ec *executionContext) _Password_password(ctx context.Context, field graphq
 	)
 }
 
-func (ec *executionContext) fieldContext_Password_password(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Invitation_codeHash(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "Password",
+		Object:     "Invitation",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -125,12 +125,12 @@ func (ec *executionContext) fieldContext_Password_password(_ context.Context, fi
 	return fc, nil
 }
 
-func (ec *executionContext) _Password_status(ctx context.Context, field graphql.CollectedField, obj *model.Password) (ret graphql.Marshaler) {
+func (ec *executionContext) _Invitation_status(ctx context.Context, field graphql.CollectedField, obj *model.Invitation) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_Password_status,
+		ec.fieldContext_Invitation_status,
 		func(ctx context.Context) (any, error) {
 			return obj.Status, nil
 		},
@@ -141,9 +141,9 @@ func (ec *executionContext) _Password_status(ctx context.Context, field graphql.
 	)
 }
 
-func (ec *executionContext) fieldContext_Password_status(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Invitation_status(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "Password",
+		Object:     "Invitation",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -154,12 +154,12 @@ func (ec *executionContext) fieldContext_Password_status(_ context.Context, fiel
 	return fc, nil
 }
 
-func (ec *executionContext) _Password_createdAt(ctx context.Context, field graphql.CollectedField, obj *model.Password) (ret graphql.Marshaler) {
+func (ec *executionContext) _Invitation_createdAt(ctx context.Context, field graphql.CollectedField, obj *model.Invitation) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_Password_createdAt,
+		ec.fieldContext_Invitation_createdAt,
 		func(ctx context.Context) (any, error) {
 			return obj.CreatedAt, nil
 		},
@@ -170,9 +170,9 @@ func (ec *executionContext) _Password_createdAt(ctx context.Context, field graph
 	)
 }
 
-func (ec *executionContext) fieldContext_Password_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Invitation_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "Password",
+		Object:     "Invitation",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -183,14 +183,14 @@ func (ec *executionContext) fieldContext_Password_createdAt(_ context.Context, f
 	return fc, nil
 }
 
-func (ec *executionContext) _Password_ballot(ctx context.Context, field graphql.CollectedField, obj *model.Password) (ret graphql.Marshaler) {
+func (ec *executionContext) _Invitation_ballot(ctx context.Context, field graphql.CollectedField, obj *model.Invitation) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_Password_ballot,
+		ec.fieldContext_Invitation_ballot,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.Password().Ballot(ctx, obj)
+			return ec.resolvers.Invitation().Ballot(ctx, obj)
 		},
 		nil,
 		ec.marshalNBallot2ᚕᚖvoteᚋappᚋmodelᚐBallotᚄ,
@@ -199,9 +199,9 @@ func (ec *executionContext) _Password_ballot(ctx context.Context, field graphql.
 	)
 }
 
-func (ec *executionContext) fieldContext_Password_ballot(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Invitation_ballot(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "Password",
+		Object:     "Invitation",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
@@ -209,10 +209,10 @@ func (ec *executionContext) fieldContext_Password_ballot(_ context.Context, fiel
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_Ballot_id(ctx, field)
-			case "passwordId":
-				return ec.fieldContext_Ballot_passwordId(ctx, field)
-			case "questionId":
-				return ec.fieldContext_Ballot_questionId(ctx, field)
+			case "invitationId":
+				return ec.fieldContext_Ballot_invitationId(ctx, field)
+			case "pollId":
+				return ec.fieldContext_Ballot_pollId(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_Ballot_createdAt(ctx, field)
 			case "updatedAt":
@@ -226,47 +226,47 @@ func (ec *executionContext) fieldContext_Password_ballot(_ context.Context, fiel
 	return fc, nil
 }
 
-func (ec *executionContext) _PasswordConnection_edges(ctx context.Context, field graphql.CollectedField, obj *model.PasswordConnection) (ret graphql.Marshaler) {
+func (ec *executionContext) _InvitationConnection_edges(ctx context.Context, field graphql.CollectedField, obj *model.InvitationConnection) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_PasswordConnection_edges,
+		ec.fieldContext_InvitationConnection_edges,
 		func(ctx context.Context) (any, error) {
 			return obj.Edges, nil
 		},
 		nil,
-		ec.marshalNPasswordEdge2ᚕvoteᚋappᚋmodelᚐPasswordEdgeᚄ,
+		ec.marshalNInvitationEdge2ᚕvoteᚋappᚋmodelᚐInvitationEdgeᚄ,
 		true,
 		true,
 	)
 }
 
-func (ec *executionContext) fieldContext_PasswordConnection_edges(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_InvitationConnection_edges(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "PasswordConnection",
+		Object:     "InvitationConnection",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "node":
-				return ec.fieldContext_PasswordEdge_node(ctx, field)
+				return ec.fieldContext_InvitationEdge_node(ctx, field)
 			case "cursor":
-				return ec.fieldContext_PasswordEdge_cursor(ctx, field)
+				return ec.fieldContext_InvitationEdge_cursor(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type PasswordEdge", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type InvitationEdge", field.Name)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _PasswordConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *model.PasswordConnection) (ret graphql.Marshaler) {
+func (ec *executionContext) _InvitationConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *model.InvitationConnection) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_PasswordConnection_pageInfo,
+		ec.fieldContext_InvitationConnection_pageInfo,
 		func(ctx context.Context) (any, error) {
 			return obj.PageInfo, nil
 		},
@@ -277,9 +277,9 @@ func (ec *executionContext) _PasswordConnection_pageInfo(ctx context.Context, fi
 	)
 }
 
-func (ec *executionContext) fieldContext_PasswordConnection_pageInfo(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_InvitationConnection_pageInfo(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "PasswordConnection",
+		Object:     "InvitationConnection",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -300,12 +300,12 @@ func (ec *executionContext) fieldContext_PasswordConnection_pageInfo(_ context.C
 	return fc, nil
 }
 
-func (ec *executionContext) _PasswordConnection_totalCount(ctx context.Context, field graphql.CollectedField, obj *model.PasswordConnection) (ret graphql.Marshaler) {
+func (ec *executionContext) _InvitationConnection_totalCount(ctx context.Context, field graphql.CollectedField, obj *model.InvitationConnection) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_PasswordConnection_totalCount,
+		ec.fieldContext_InvitationConnection_totalCount,
 		func(ctx context.Context) (any, error) {
 			return obj.TotalCount, nil
 		},
@@ -316,9 +316,9 @@ func (ec *executionContext) _PasswordConnection_totalCount(ctx context.Context, 
 	)
 }
 
-func (ec *executionContext) fieldContext_PasswordConnection_totalCount(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_InvitationConnection_totalCount(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "PasswordConnection",
+		Object:     "InvitationConnection",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -329,55 +329,55 @@ func (ec *executionContext) fieldContext_PasswordConnection_totalCount(_ context
 	return fc, nil
 }
 
-func (ec *executionContext) _PasswordEdge_node(ctx context.Context, field graphql.CollectedField, obj *model.PasswordEdge) (ret graphql.Marshaler) {
+func (ec *executionContext) _InvitationEdge_node(ctx context.Context, field graphql.CollectedField, obj *model.InvitationEdge) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_PasswordEdge_node,
+		ec.fieldContext_InvitationEdge_node,
 		func(ctx context.Context) (any, error) {
 			return obj.Node, nil
 		},
 		nil,
-		ec.marshalNPassword2voteᚋappᚋmodelᚐPassword,
+		ec.marshalNInvitation2voteᚋappᚋmodelᚐInvitation,
 		true,
 		true,
 	)
 }
 
-func (ec *executionContext) fieldContext_PasswordEdge_node(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_InvitationEdge_node(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "PasswordEdge",
+		Object:     "InvitationEdge",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "id":
-				return ec.fieldContext_Password_id(ctx, field)
-			case "voteId":
-				return ec.fieldContext_Password_voteId(ctx, field)
-			case "password":
-				return ec.fieldContext_Password_password(ctx, field)
+				return ec.fieldContext_Invitation_id(ctx, field)
+			case "sessionId":
+				return ec.fieldContext_Invitation_sessionId(ctx, field)
+			case "codeHash":
+				return ec.fieldContext_Invitation_codeHash(ctx, field)
 			case "status":
-				return ec.fieldContext_Password_status(ctx, field)
+				return ec.fieldContext_Invitation_status(ctx, field)
 			case "createdAt":
-				return ec.fieldContext_Password_createdAt(ctx, field)
+				return ec.fieldContext_Invitation_createdAt(ctx, field)
 			case "ballot":
-				return ec.fieldContext_Password_ballot(ctx, field)
+				return ec.fieldContext_Invitation_ballot(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type Password", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type Invitation", field.Name)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _PasswordEdge_cursor(ctx context.Context, field graphql.CollectedField, obj *model.PasswordEdge) (ret graphql.Marshaler) {
+func (ec *executionContext) _InvitationEdge_cursor(ctx context.Context, field graphql.CollectedField, obj *model.InvitationEdge) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_PasswordEdge_cursor,
+		ec.fieldContext_InvitationEdge_cursor,
 		func(ctx context.Context) (any, error) {
 			return obj.Cursor, nil
 		},
@@ -388,9 +388,9 @@ func (ec *executionContext) _PasswordEdge_cursor(ctx context.Context, field grap
 	)
 }
 
-func (ec *executionContext) fieldContext_PasswordEdge_cursor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_InvitationEdge_cursor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "PasswordEdge",
+		Object:     "InvitationEdge",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -405,34 +405,34 @@ func (ec *executionContext) fieldContext_PasswordEdge_cursor(_ context.Context, 
 
 // region    **************************** input.gotpl *****************************
 
-func (ec *executionContext) unmarshalInputPasswordCreate(ctx context.Context, obj any) (model.PasswordCreate, error) {
-	var it model.PasswordCreate
+func (ec *executionContext) unmarshalInputInvitationCreate(ctx context.Context, obj any) (model.InvitationCreate, error) {
+	var it model.InvitationCreate
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"voteId", "number", "length", "format"}
+	fieldsInOrder := [...]string{"sessionId", "number", "length", "format"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
-		case "voteId":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("voteId"))
+		case "sessionId":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("sessionId"))
 			data, err := ec.unmarshalNUUID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.VoteID = data
+			it.SessionID = data
 		case "number":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("number"))
 			data, err := ec.unmarshalNUint2uint32(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			if err = ec.resolvers.PasswordCreate().Number(ctx, &it, data); err != nil {
+			if err = ec.resolvers.InvitationCreate().Number(ctx, &it, data); err != nil {
 				return it, err
 			}
 		case "length":
@@ -441,7 +441,7 @@ func (ec *executionContext) unmarshalInputPasswordCreate(ctx context.Context, ob
 			if err != nil {
 				return it, err
 			}
-			if err = ec.resolvers.PasswordCreate().Length(ctx, &it, data); err != nil {
+			if err = ec.resolvers.InvitationCreate().Length(ctx, &it, data); err != nil {
 				return it, err
 			}
 		case "format":
@@ -457,34 +457,34 @@ func (ec *executionContext) unmarshalInputPasswordCreate(ctx context.Context, ob
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputPasswordQuery(ctx context.Context, obj any) (model.PasswordQuery, error) {
-	var it model.PasswordQuery
+func (ec *executionContext) unmarshalInputInvitationQuery(ctx context.Context, obj any) (model.InvitationQuery, error) {
+	var it model.InvitationQuery
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"voteId", "password", "status", "first", "after", "last", "before"}
+	fieldsInOrder := [...]string{"sessionId", "codeHash", "status", "first", "after", "last", "before"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
-		case "voteId":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("voteId"))
+		case "sessionId":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("sessionId"))
 			data, err := ec.unmarshalNUUID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.VoteID = data
-		case "password":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("password"))
+			it.SessionID = data
+		case "codeHash":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("codeHash"))
 			data, err := ec.unmarshalOString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.Password = data
+			it.CodeHash = data
 		case "status":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("status"))
 			data, err := ec.unmarshalOBoolean2bool(ctx, v)
@@ -526,27 +526,27 @@ func (ec *executionContext) unmarshalInputPasswordQuery(ctx context.Context, obj
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputPasswordUpdate(ctx context.Context, obj any) (model.PasswordUpdate, error) {
-	var it model.PasswordUpdate
+func (ec *executionContext) unmarshalInputInvitationUpdate(ctx context.Context, obj any) (model.InvitationUpdate, error) {
+	var it model.InvitationUpdate
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"voteId", "status"}
+	fieldsInOrder := [...]string{"sessionId", "status"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
-		case "voteId":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("voteId"))
+		case "sessionId":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("sessionId"))
 			data, err := ec.unmarshalNUUID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.VoteID = data
+			it.SessionID = data
 		case "status":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("status"))
 			data, err := ec.unmarshalNBoolean2bool(ctx, v)
@@ -568,39 +568,39 @@ func (ec *executionContext) unmarshalInputPasswordUpdate(ctx context.Context, ob
 
 // region    **************************** object.gotpl ****************************
 
-var passwordImplementors = []string{"Password"}
+var invitationImplementors = []string{"Invitation"}
 
-func (ec *executionContext) _Password(ctx context.Context, sel ast.SelectionSet, obj *model.Password) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, passwordImplementors)
+func (ec *executionContext) _Invitation(ctx context.Context, sel ast.SelectionSet, obj *model.Invitation) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, invitationImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("Password")
+			out.Values[i] = graphql.MarshalString("Invitation")
 		case "id":
-			out.Values[i] = ec._Password_id(ctx, field, obj)
+			out.Values[i] = ec._Invitation_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
-		case "voteId":
-			out.Values[i] = ec._Password_voteId(ctx, field, obj)
+		case "sessionId":
+			out.Values[i] = ec._Invitation_sessionId(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
-		case "password":
-			out.Values[i] = ec._Password_password(ctx, field, obj)
+		case "codeHash":
+			out.Values[i] = ec._Invitation_codeHash(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "status":
-			out.Values[i] = ec._Password_status(ctx, field, obj)
+			out.Values[i] = ec._Invitation_status(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "createdAt":
-			out.Values[i] = ec._Password_createdAt(ctx, field, obj)
+			out.Values[i] = ec._Invitation_createdAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
@@ -613,7 +613,7 @@ func (ec *executionContext) _Password(ctx context.Context, sel ast.SelectionSet,
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Password_ballot(ctx, field, obj)
+				res = ec._Invitation_ballot(ctx, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -663,29 +663,29 @@ func (ec *executionContext) _Password(ctx context.Context, sel ast.SelectionSet,
 	return out
 }
 
-var passwordConnectionImplementors = []string{"PasswordConnection"}
+var invitationConnectionImplementors = []string{"InvitationConnection"}
 
-func (ec *executionContext) _PasswordConnection(ctx context.Context, sel ast.SelectionSet, obj *model.PasswordConnection) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, passwordConnectionImplementors)
+func (ec *executionContext) _InvitationConnection(ctx context.Context, sel ast.SelectionSet, obj *model.InvitationConnection) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, invitationConnectionImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("PasswordConnection")
+			out.Values[i] = graphql.MarshalString("InvitationConnection")
 		case "edges":
-			out.Values[i] = ec._PasswordConnection_edges(ctx, field, obj)
+			out.Values[i] = ec._InvitationConnection_edges(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "pageInfo":
-			out.Values[i] = ec._PasswordConnection_pageInfo(ctx, field, obj)
+			out.Values[i] = ec._InvitationConnection_pageInfo(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "totalCount":
-			out.Values[i] = ec._PasswordConnection_totalCount(ctx, field, obj)
+			out.Values[i] = ec._InvitationConnection_totalCount(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -712,24 +712,24 @@ func (ec *executionContext) _PasswordConnection(ctx context.Context, sel ast.Sel
 	return out
 }
 
-var passwordEdgeImplementors = []string{"PasswordEdge"}
+var invitationEdgeImplementors = []string{"InvitationEdge"}
 
-func (ec *executionContext) _PasswordEdge(ctx context.Context, sel ast.SelectionSet, obj *model.PasswordEdge) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, passwordEdgeImplementors)
+func (ec *executionContext) _InvitationEdge(ctx context.Context, sel ast.SelectionSet, obj *model.InvitationEdge) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, invitationEdgeImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("PasswordEdge")
+			out.Values[i] = graphql.MarshalString("InvitationEdge")
 		case "node":
-			out.Values[i] = ec._PasswordEdge_node(ctx, field, obj)
+			out.Values[i] = ec._InvitationEdge_node(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "cursor":
-			out.Values[i] = ec._PasswordEdge_cursor(ctx, field, obj)
+			out.Values[i] = ec._InvitationEdge_cursor(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -760,11 +760,11 @@ func (ec *executionContext) _PasswordEdge(ctx context.Context, sel ast.Selection
 
 // region    ***************************** type.gotpl *****************************
 
-func (ec *executionContext) marshalNPassword2voteᚋappᚋmodelᚐPassword(ctx context.Context, sel ast.SelectionSet, v model.Password) graphql.Marshaler {
-	return ec._Password(ctx, sel, &v)
+func (ec *executionContext) marshalNInvitation2voteᚋappᚋmodelᚐInvitation(ctx context.Context, sel ast.SelectionSet, v model.Invitation) graphql.Marshaler {
+	return ec._Invitation(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNPassword2ᚕᚖvoteᚋappᚋmodelᚐPasswordᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Password) graphql.Marshaler {
+func (ec *executionContext) marshalNInvitation2ᚕᚖvoteᚋappᚋmodelᚐInvitationᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Invitation) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -788,7 +788,7 @@ func (ec *executionContext) marshalNPassword2ᚕᚖvoteᚋappᚋmodelᚐPassword
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNPassword2ᚖvoteᚋappᚋmodelᚐPassword(ctx, sel, v[i])
+			ret[i] = ec.marshalNInvitation2ᚖvoteᚋappᚋmodelᚐInvitation(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -808,17 +808,17 @@ func (ec *executionContext) marshalNPassword2ᚕᚖvoteᚋappᚋmodelᚐPassword
 	return ret
 }
 
-func (ec *executionContext) marshalNPassword2ᚖvoteᚋappᚋmodelᚐPassword(ctx context.Context, sel ast.SelectionSet, v *model.Password) graphql.Marshaler {
+func (ec *executionContext) marshalNInvitation2ᚖvoteᚋappᚋmodelᚐInvitation(ctx context.Context, sel ast.SelectionSet, v *model.Invitation) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._Password(ctx, sel, v)
+	return ec._Invitation(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNPasswordConnection2ᚕᚖvoteᚋappᚋmodelᚐPasswordConnectionᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.PasswordConnection) graphql.Marshaler {
+func (ec *executionContext) marshalNInvitationConnection2ᚕᚖvoteᚋappᚋmodelᚐInvitationConnectionᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.InvitationConnection) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -842,7 +842,7 @@ func (ec *executionContext) marshalNPasswordConnection2ᚕᚖvoteᚋappᚋmodel�
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNPasswordConnection2ᚖvoteᚋappᚋmodelᚐPasswordConnection(ctx, sel, v[i])
+			ret[i] = ec.marshalNInvitationConnection2ᚖvoteᚋappᚋmodelᚐInvitationConnection(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -862,26 +862,26 @@ func (ec *executionContext) marshalNPasswordConnection2ᚕᚖvoteᚋappᚋmodel�
 	return ret
 }
 
-func (ec *executionContext) marshalNPasswordConnection2ᚖvoteᚋappᚋmodelᚐPasswordConnection(ctx context.Context, sel ast.SelectionSet, v *model.PasswordConnection) graphql.Marshaler {
+func (ec *executionContext) marshalNInvitationConnection2ᚖvoteᚋappᚋmodelᚐInvitationConnection(ctx context.Context, sel ast.SelectionSet, v *model.InvitationConnection) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._PasswordConnection(ctx, sel, v)
+	return ec._InvitationConnection(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNPasswordCreate2voteᚋappᚋmodelᚐPasswordCreate(ctx context.Context, v any) (model.PasswordCreate, error) {
-	res, err := ec.unmarshalInputPasswordCreate(ctx, v)
+func (ec *executionContext) unmarshalNInvitationCreate2voteᚋappᚋmodelᚐInvitationCreate(ctx context.Context, v any) (model.InvitationCreate, error) {
+	res, err := ec.unmarshalInputInvitationCreate(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNPasswordEdge2voteᚋappᚋmodelᚐPasswordEdge(ctx context.Context, sel ast.SelectionSet, v model.PasswordEdge) graphql.Marshaler {
-	return ec._PasswordEdge(ctx, sel, &v)
+func (ec *executionContext) marshalNInvitationEdge2voteᚋappᚋmodelᚐInvitationEdge(ctx context.Context, sel ast.SelectionSet, v model.InvitationEdge) graphql.Marshaler {
+	return ec._InvitationEdge(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNPasswordEdge2ᚕvoteᚋappᚋmodelᚐPasswordEdgeᚄ(ctx context.Context, sel ast.SelectionSet, v []model.PasswordEdge) graphql.Marshaler {
+func (ec *executionContext) marshalNInvitationEdge2ᚕvoteᚋappᚋmodelᚐInvitationEdgeᚄ(ctx context.Context, sel ast.SelectionSet, v []model.InvitationEdge) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -905,7 +905,7 @@ func (ec *executionContext) marshalNPasswordEdge2ᚕvoteᚋappᚋmodelᚐPasswor
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNPasswordEdge2voteᚋappᚋmodelᚐPasswordEdge(ctx, sel, v[i])
+			ret[i] = ec.marshalNInvitationEdge2voteᚋappᚋmodelᚐInvitationEdge(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -925,13 +925,13 @@ func (ec *executionContext) marshalNPasswordEdge2ᚕvoteᚋappᚋmodelᚐPasswor
 	return ret
 }
 
-func (ec *executionContext) unmarshalNPasswordQuery2voteᚋappᚋmodelᚐPasswordQuery(ctx context.Context, v any) (model.PasswordQuery, error) {
-	res, err := ec.unmarshalInputPasswordQuery(ctx, v)
+func (ec *executionContext) unmarshalNInvitationQuery2voteᚋappᚋmodelᚐInvitationQuery(ctx context.Context, v any) (model.InvitationQuery, error) {
+	res, err := ec.unmarshalInputInvitationQuery(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNPasswordUpdate2voteᚋappᚋmodelᚐPasswordUpdate(ctx context.Context, v any) (model.PasswordUpdate, error) {
-	res, err := ec.unmarshalInputPasswordUpdate(ctx, v)
+func (ec *executionContext) unmarshalNInvitationUpdate2voteᚋappᚋmodelᚐInvitationUpdate(ctx context.Context, v any) (model.InvitationUpdate, error) {
+	res, err := ec.unmarshalInputInvitationUpdate(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 

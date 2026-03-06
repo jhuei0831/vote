@@ -36,7 +36,7 @@ func (p *PaginationRepository[T, S]) Handler(db *gorm.DB, query T) (*gorm.DB, er
 	}
 
 	if query.GetFirst() > 0 && query.GetAfter() != "" {
-		after, _ := (&utils.Password{}).Decrypt(query.GetAfter())
+		after, _ := (&utils.Invitation{}).Decrypt(query.GetAfter())
 		db = db.Where("id > ?", after)
 		db = db.Limit(query.GetFirst() + 1)
 	}
@@ -44,7 +44,7 @@ func (p *PaginationRepository[T, S]) Handler(db *gorm.DB, query T) (*gorm.DB, er
 	// 處理 Backward Pagination
 	if query.GetLast() > 0 {
 		if query.GetBefore() != "" {
-			before, _ := (&utils.Password{}).Decrypt(query.GetBefore())
+			before, _ := (&utils.Invitation{}).Decrypt(query.GetBefore())
 			db = db.Where("id < ?", before)
 		}
 		db = db.Order("created_at asc").Limit(query.GetLast() + 1)

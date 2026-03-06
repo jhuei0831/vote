@@ -1,7 +1,7 @@
 type Ballot {
   id: ID!
-  passwordId: UInt64!
-  questionId: UInt64!
+  invitationId: UInt64!
+  pollId: UInt64!
   createdAt: Time!
   updatedAt: Time!
   ballotSelects: [BallotSelect!]!
@@ -18,23 +18,23 @@ type BallotEdge {
   cursor: ID!
 }
 
-input BallotCandidate {
-  candidateId: UInt64!
+input BallotPollOptions {
+  pollOptionId: UInt64!
   isSelected: Boolean!
 }
 
-input BallotQuestions {
-  questionId: UInt64!
-  candidates: [BallotCandidate!]
+input BallotPolls {
+  pollId: UInt64!
+  pollOptions: [BallotPollOptions!]
 }
 
 input BallotCreate {
-  selections: [BallotQuestions!]!
+  selections: [BallotPolls!]!
 }
 
 input BallotQuery {
   voteId: UUID!
-  questionId: UInt64
+  pollId: UInt64
   voterId: UInt64
   first: Int64
   after: String

@@ -1,0 +1,73 @@
+directive @withPolls(withPolls: Boolean!) on FIELD_DEFINITION
+
+type Session {
+  id: ID!
+  uuid: UUID!
+  title: String!
+  description: String!
+  startTime: Time!
+  endTime: Time!
+  creator: User!
+  status: Int64!
+  polls: [Poll!]!
+}
+
+type SessionConnection {
+  edges: [SessionEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int64!
+}
+
+type SessionEdge {
+  node: Session!
+  cursor: ID!
+}
+
+"""
+Input for creating a session.
+All time fields must be in RFC3339/ISO8601 format (e.g., "2025-11-06T12:00:00Z")
+"""
+input SessionCreate {
+  title: String!
+  description: String
+  startTime: Time!
+  endTime: Time!
+}
+
+input SessionUpdate {
+  title: String
+  description: String
+  startTime: Time
+  endTime: Time
+  UpdatedAt: Time
+}
+
+input SessionQuery {
+  id: ID
+  uuid: UUID
+  title: String
+  startTime: Time
+  endTime: Time
+  first: Int64
+  after: String
+  last: Int64
+  before: String
+}
+
+extend type Query {
+  session(uuid: UUID, withPolls: Boolean!): Session
+    @hasPermission(resource: "session", action: "read")
+  sessions(input: SessionQuery, withPolls: Boolean!): [SessionConnection!]! 
+    @hasPermission(resource: "session", action: "read")
+}
+
+extend type Mutation {
+  createSession(input: SessionCreate!): Session! 
+    @hasPermission(resource: "session", action: "create")
+
+  updateSession(uuid: UUID!, input: SessionUpdate!): Session! 
+    @hasPermission(resource: "session", action: "update")
+    
+  deleteSession(uuids: [UUID!]!): [Session!]! 
+    @hasPermission(resource: "session", action: "delete")
+}

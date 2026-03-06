@@ -15,48 +15,48 @@ func NewBallotRepository() BallotRepository {
 	return BallotRepository{}
 }
 
-// GetBallotByVoterId 根據投票者ID獲取選票
-func (b BallotRepository) GetBallotByVoterId(voterId uint64) ([]model.Ballot) {
+// GetBallotByVoterId gets ballots by voter ID
+func (b BallotRepository) GetBallotByVoterId(voterId uint64) []model.Ballot {
 	var ballots []model.Ballot
-	database.SqlSession.Where("password_id = ?", voterId).Preload("BallotSelects").Find(&ballots)
+	database.SqlSession.Where("invitation_id = ?", voterId).Preload("BallotSelects").Find(&ballots)
 	return ballots
 }
 
-// GetBallotByVoteId 根據投票ID獲取選票
+// GetBallots gets ballots based on query parameters
 func (b BallotRepository) GetBallots(ballotQuery model.BallotQuery) ([]model.Ballot, int64, error) {
 	var ballots []model.Ballot
 	var total int64
 
 	query := database.SqlSession.Model(&model.Ballot{}).Preload("BallotSelects")
 
-	if ballotQuery.VoteID != uuid.Nil {
-		query = query.Joins("JOIN questions ON ballots.question_id = questions.id").
-			Where("questions.vote_id = ?", ballotQuery.VoteID)
+	if ballotQuery.SessionID != uuid.Nil {
+		query = query.Joins("JOIN polls ON ballots.poll_id = polls.id").
+			Where("polls.vote_id = ?", ballotQuery.SessionID)
 	}
 
-	if ballotQuery.QuestionID != 0 {
-		query = query.Where("ballots.question_id = ?", ballotQuery.QuestionID)
+	if ballotQuery.PollID != 0 {
+		query = query.Where("ballots.poll_id = ?", ballotQuery.PollID)
 	}
 
 	if ballotQuery.VoterID != 0 {
-		query = query.Where("ballots.password_id = ?", ballotQuery.VoterID)
+		query = query.Where("ballots.invitation_id = ?", ballotQuery.VoterID)
 	}
 
-	// 計算總筆數
+	// Count total records
 	err := query.Count(&total).Error
 	if err != nil {
 		return nil, 0, err
 	}
 
-	// 取得資料
-	// 使用分頁服務處理分頁
+	// Get data
+	// Use pagination service to handle pagination
 	paginationRepository := NewPaginationRepository[*model.BallotQuery, model.Ballot]()
 	query, err = paginationRepository.Handler(query, &ballotQuery)
 	if err != nil {
 		return nil, 0, err
 	}
 
-	// 查詢資料
+	// Query data
 	err = query.Find(&ballots).Error
 	if err != nil {
 		return nil, 0, err
@@ -65,7 +65,7 @@ func (b BallotRepository) GetBallots(ballotQuery model.BallotQuery) ([]model.Bal
 	return ballots, total, nil
 }
 
-// CreateBallots 建立投票
+// CreateBallots creates ballots for a voter
 func (b BallotRepository) CreateBallots(voter uint64, ballotSelections model.BallotCreate) error {
 	// check if voter has voted
 	isVoted, err := b.CheckIfVoterHasVoted(voter)
@@ -85,36 +85,36 @@ func (b BallotRepository) CreateBallots(voter uint64, ballotSelections model.Bal
 		}
 	}()
 
-	for _, question := range ballotSelections.Selections {
-		// 收集選中的候選人
-		selectedCandidates := make([]uint64, 0)
-		for _, candidate := range question.Candidates {
-			if candidate.IsSelected {
-				selectedCandidates = append(selectedCandidates, candidate.CandidateID)
+	for _, poll := range ballotSelections.Selections {
+		// Collect selected poll options
+		selectedPollOptions := make([]uint64, 0)
+		for _, pollOption := range poll.PollOptions {
+			if pollOption.IsSelected {
+				selectedPollOptions = append(selectedPollOptions, pollOption.PollOptionID)
 			}
 		}
 
-		// 如果沒有選中任何候選人，跳過此問題
-		if len(selectedCandidates) == 0 {
+		// Skip this poll if no poll options are selected
+		if len(selectedPollOptions) == 0 {
 			continue
 		}
 
-		// 建立投票記錄
+		// Create ballot record
 		ballot := model.Ballot{
-			PasswordID: voter,
-			QuestionID: question.QuestionID,
+			InvitationID: voter,
+			PollID:       poll.PollID,
 		}
 		if err := tx.Create(&ballot).Error; err != nil {
 			tx.Rollback()
 			return err
 		}
 
-		// 批量建立選擇記錄
-		ballotSelects := make([]model.BallotSelect, len(selectedCandidates))
-		for i, cid := range selectedCandidates {
+		// Batch create ballot selection records
+		ballotSelects := make([]model.BallotSelect, len(selectedPollOptions))
+		for i, cid := range selectedPollOptions {
 			ballotSelects[i] = model.BallotSelect{
-				BallotID:    ballot.ID,
-				CandidateID: cid,
+				BallotID:     ballot.ID,
+				PollOptionID: cid,
 			}
 		}
 
@@ -127,11 +127,11 @@ func (b BallotRepository) CreateBallots(voter uint64, ballotSelections model.Bal
 	return tx.Commit().Error
 }
 
-// CheckIfVoterHasVoted 檢查投票者是否已經投票
+// CheckIfVoterHasVoted checks if voter has already voted
 func (b BallotRepository) CheckIfVoterHasVoted(voterId uint64) (bool, error) {
 	var count int64
 	err := database.SqlSession.Model(&model.Ballot{}).
-		Where("password_id = ?", voterId).
+		Where("invitation_id = ?", voterId).
 		Count(&count).Error
 
 	if err != nil {
@@ -141,12 +141,12 @@ func (b BallotRepository) CheckIfVoterHasVoted(voterId uint64) (bool, error) {
 	return count > 0, nil
 }
 
-// DeleteBallot 刪除選票
+// DeleteBallot deletes ballot by voter ID
 func (b BallotRepository) DeleteBallot(voterID uint64) error {
-	err := database.SqlSession.Where("password_id = ?", voterID).Delete(&model.Ballot{}).Error
+	err := database.SqlSession.Where("invitation_id = ?", voterID).Delete(&model.Ballot{}).Error
 	if err != nil {
 		return err
 	}
-	
+
 	return nil
 }

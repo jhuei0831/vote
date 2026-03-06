@@ -12,10 +12,15 @@ import (
 	"vote/app/model"
 
 	"github.com/99designs/gqlgen/graphql"
+	"github.com/google/uuid"
 	"github.com/vektah/gqlparser/v2/ast"
 )
 
 // region    ************************** generated!.gotpl **************************
+
+type PollOptionQueryResolver interface {
+	SessionID(ctx context.Context, obj *model.PollOptionQuery, data uuid.UUID) error
+}
 
 // endregion ************************** generated!.gotpl **************************
 
@@ -29,12 +34,12 @@ import (
 
 // region    **************************** field.gotpl *****************************
 
-func (ec *executionContext) _Candidate_id(ctx context.Context, field graphql.CollectedField, obj *model.Candidate) (ret graphql.Marshaler) {
+func (ec *executionContext) _PollOption_id(ctx context.Context, field graphql.CollectedField, obj *model.PollOption) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_Candidate_id,
+		ec.fieldContext_PollOption_id,
 		func(ctx context.Context) (any, error) {
 			return obj.ID, nil
 		},
@@ -45,9 +50,9 @@ func (ec *executionContext) _Candidate_id(ctx context.Context, field graphql.Col
 	)
 }
 
-func (ec *executionContext) fieldContext_Candidate_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_PollOption_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "Candidate",
+		Object:     "PollOption",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -58,14 +63,14 @@ func (ec *executionContext) fieldContext_Candidate_id(_ context.Context, field g
 	return fc, nil
 }
 
-func (ec *executionContext) _Candidate_questionId(ctx context.Context, field graphql.CollectedField, obj *model.Candidate) (ret graphql.Marshaler) {
+func (ec *executionContext) _PollOption_pollId(ctx context.Context, field graphql.CollectedField, obj *model.PollOption) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_Candidate_questionId,
+		ec.fieldContext_PollOption_pollId,
 		func(ctx context.Context) (any, error) {
-			return obj.QuestionID, nil
+			return obj.PollID, nil
 		},
 		nil,
 		ec.marshalNUInt642uint64,
@@ -74,9 +79,9 @@ func (ec *executionContext) _Candidate_questionId(ctx context.Context, field gra
 	)
 }
 
-func (ec *executionContext) fieldContext_Candidate_questionId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_PollOption_pollId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "Candidate",
+		Object:     "PollOption",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -87,12 +92,12 @@ func (ec *executionContext) fieldContext_Candidate_questionId(_ context.Context,
 	return fc, nil
 }
 
-func (ec *executionContext) _Candidate_name(ctx context.Context, field graphql.CollectedField, obj *model.Candidate) (ret graphql.Marshaler) {
+func (ec *executionContext) _PollOption_name(ctx context.Context, field graphql.CollectedField, obj *model.PollOption) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_Candidate_name,
+		ec.fieldContext_PollOption_name,
 		func(ctx context.Context) (any, error) {
 			return obj.Name, nil
 		},
@@ -103,9 +108,9 @@ func (ec *executionContext) _Candidate_name(ctx context.Context, field graphql.C
 	)
 }
 
-func (ec *executionContext) fieldContext_Candidate_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_PollOption_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "Candidate",
+		Object:     "PollOption",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -116,12 +121,12 @@ func (ec *executionContext) fieldContext_Candidate_name(_ context.Context, field
 	return fc, nil
 }
 
-func (ec *executionContext) _Candidate_result(ctx context.Context, field graphql.CollectedField, obj *model.Candidate) (ret graphql.Marshaler) {
+func (ec *executionContext) _PollOption_result(ctx context.Context, field graphql.CollectedField, obj *model.PollOption) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_Candidate_result,
+		ec.fieldContext_PollOption_result,
 		func(ctx context.Context) (any, error) {
 			return obj.Result, nil
 		},
@@ -132,9 +137,9 @@ func (ec *executionContext) _Candidate_result(ctx context.Context, field graphql
 	)
 }
 
-func (ec *executionContext) fieldContext_Candidate_result(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_PollOption_result(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "Candidate",
+		Object:     "PollOption",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -145,12 +150,12 @@ func (ec *executionContext) fieldContext_Candidate_result(_ context.Context, fie
 	return fc, nil
 }
 
-func (ec *executionContext) _Candidate_createdAt(ctx context.Context, field graphql.CollectedField, obj *model.Candidate) (ret graphql.Marshaler) {
+func (ec *executionContext) _PollOption_createdAt(ctx context.Context, field graphql.CollectedField, obj *model.PollOption) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_Candidate_createdAt,
+		ec.fieldContext_PollOption_createdAt,
 		func(ctx context.Context) (any, error) {
 			return obj.CreatedAt, nil
 		},
@@ -161,9 +166,9 @@ func (ec *executionContext) _Candidate_createdAt(ctx context.Context, field grap
 	)
 }
 
-func (ec *executionContext) fieldContext_Candidate_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_PollOption_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "Candidate",
+		Object:     "PollOption",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -174,12 +179,12 @@ func (ec *executionContext) fieldContext_Candidate_createdAt(_ context.Context, 
 	return fc, nil
 }
 
-func (ec *executionContext) _Candidate_updatedAt(ctx context.Context, field graphql.CollectedField, obj *model.Candidate) (ret graphql.Marshaler) {
+func (ec *executionContext) _PollOption_updatedAt(ctx context.Context, field graphql.CollectedField, obj *model.PollOption) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_Candidate_updatedAt,
+		ec.fieldContext_PollOption_updatedAt,
 		func(ctx context.Context) (any, error) {
 			return obj.UpdatedAt, nil
 		},
@@ -190,9 +195,9 @@ func (ec *executionContext) _Candidate_updatedAt(ctx context.Context, field grap
 	)
 }
 
-func (ec *executionContext) fieldContext_Candidate_updatedAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_PollOption_updatedAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "Candidate",
+		Object:     "PollOption",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -203,47 +208,47 @@ func (ec *executionContext) fieldContext_Candidate_updatedAt(_ context.Context, 
 	return fc, nil
 }
 
-func (ec *executionContext) _CandidateConnection_edges(ctx context.Context, field graphql.CollectedField, obj *model.CandidateConnection) (ret graphql.Marshaler) {
+func (ec *executionContext) _PollOptionConnection_edges(ctx context.Context, field graphql.CollectedField, obj *model.PollOptionConnection) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_CandidateConnection_edges,
+		ec.fieldContext_PollOptionConnection_edges,
 		func(ctx context.Context) (any, error) {
 			return obj.Edges, nil
 		},
 		nil,
-		ec.marshalNCandidateEdge2ᚕvoteᚋappᚋmodelᚐCandidateEdgeᚄ,
+		ec.marshalNPollOptionEdge2ᚕvoteᚋappᚋmodelᚐPollOptionEdgeᚄ,
 		true,
 		true,
 	)
 }
 
-func (ec *executionContext) fieldContext_CandidateConnection_edges(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_PollOptionConnection_edges(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "CandidateConnection",
+		Object:     "PollOptionConnection",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "node":
-				return ec.fieldContext_CandidateEdge_node(ctx, field)
+				return ec.fieldContext_PollOptionEdge_node(ctx, field)
 			case "cursor":
-				return ec.fieldContext_CandidateEdge_cursor(ctx, field)
+				return ec.fieldContext_PollOptionEdge_cursor(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type CandidateEdge", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type PollOptionEdge", field.Name)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _CandidateConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *model.CandidateConnection) (ret graphql.Marshaler) {
+func (ec *executionContext) _PollOptionConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *model.PollOptionConnection) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_CandidateConnection_pageInfo,
+		ec.fieldContext_PollOptionConnection_pageInfo,
 		func(ctx context.Context) (any, error) {
 			return obj.PageInfo, nil
 		},
@@ -254,9 +259,9 @@ func (ec *executionContext) _CandidateConnection_pageInfo(ctx context.Context, f
 	)
 }
 
-func (ec *executionContext) fieldContext_CandidateConnection_pageInfo(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_PollOptionConnection_pageInfo(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "CandidateConnection",
+		Object:     "PollOptionConnection",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -277,12 +282,12 @@ func (ec *executionContext) fieldContext_CandidateConnection_pageInfo(_ context.
 	return fc, nil
 }
 
-func (ec *executionContext) _CandidateConnection_totalCount(ctx context.Context, field graphql.CollectedField, obj *model.CandidateConnection) (ret graphql.Marshaler) {
+func (ec *executionContext) _PollOptionConnection_totalCount(ctx context.Context, field graphql.CollectedField, obj *model.PollOptionConnection) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_CandidateConnection_totalCount,
+		ec.fieldContext_PollOptionConnection_totalCount,
 		func(ctx context.Context) (any, error) {
 			return obj.TotalCount, nil
 		},
@@ -293,9 +298,9 @@ func (ec *executionContext) _CandidateConnection_totalCount(ctx context.Context,
 	)
 }
 
-func (ec *executionContext) fieldContext_CandidateConnection_totalCount(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_PollOptionConnection_totalCount(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "CandidateConnection",
+		Object:     "PollOptionConnection",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -306,55 +311,55 @@ func (ec *executionContext) fieldContext_CandidateConnection_totalCount(_ contex
 	return fc, nil
 }
 
-func (ec *executionContext) _CandidateEdge_node(ctx context.Context, field graphql.CollectedField, obj *model.CandidateEdge) (ret graphql.Marshaler) {
+func (ec *executionContext) _PollOptionEdge_node(ctx context.Context, field graphql.CollectedField, obj *model.PollOptionEdge) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_CandidateEdge_node,
+		ec.fieldContext_PollOptionEdge_node,
 		func(ctx context.Context) (any, error) {
 			return obj.Node, nil
 		},
 		nil,
-		ec.marshalNCandidate2voteᚋappᚋmodelᚐCandidate,
+		ec.marshalNPollOption2voteᚋappᚋmodelᚐPollOption,
 		true,
 		true,
 	)
 }
 
-func (ec *executionContext) fieldContext_CandidateEdge_node(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_PollOptionEdge_node(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "CandidateEdge",
+		Object:     "PollOptionEdge",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "id":
-				return ec.fieldContext_Candidate_id(ctx, field)
-			case "questionId":
-				return ec.fieldContext_Candidate_questionId(ctx, field)
+				return ec.fieldContext_PollOption_id(ctx, field)
+			case "pollId":
+				return ec.fieldContext_PollOption_pollId(ctx, field)
 			case "name":
-				return ec.fieldContext_Candidate_name(ctx, field)
+				return ec.fieldContext_PollOption_name(ctx, field)
 			case "result":
-				return ec.fieldContext_Candidate_result(ctx, field)
+				return ec.fieldContext_PollOption_result(ctx, field)
 			case "createdAt":
-				return ec.fieldContext_Candidate_createdAt(ctx, field)
+				return ec.fieldContext_PollOption_createdAt(ctx, field)
 			case "updatedAt":
-				return ec.fieldContext_Candidate_updatedAt(ctx, field)
+				return ec.fieldContext_PollOption_updatedAt(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type Candidate", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type PollOption", field.Name)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _CandidateEdge_cursor(ctx context.Context, field graphql.CollectedField, obj *model.CandidateEdge) (ret graphql.Marshaler) {
+func (ec *executionContext) _PollOptionEdge_cursor(ctx context.Context, field graphql.CollectedField, obj *model.PollOptionEdge) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_CandidateEdge_cursor,
+		ec.fieldContext_PollOptionEdge_cursor,
 		func(ctx context.Context) (any, error) {
 			return obj.Cursor, nil
 		},
@@ -365,9 +370,9 @@ func (ec *executionContext) _CandidateEdge_cursor(ctx context.Context, field gra
 	)
 }
 
-func (ec *executionContext) fieldContext_CandidateEdge_cursor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_PollOptionEdge_cursor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "CandidateEdge",
+		Object:     "PollOptionEdge",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -382,27 +387,27 @@ func (ec *executionContext) fieldContext_CandidateEdge_cursor(_ context.Context,
 
 // region    **************************** input.gotpl *****************************
 
-func (ec *executionContext) unmarshalInputCandidateCreate(ctx context.Context, obj any) (model.CandidateCreate, error) {
-	var it model.CandidateCreate
+func (ec *executionContext) unmarshalInputPollOptionCreate(ctx context.Context, obj any) (model.PollOptionCreate, error) {
+	var it model.PollOptionCreate
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"questionId", "name"}
+	fieldsInOrder := [...]string{"pollId", "name"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
-		case "questionId":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("questionId"))
+		case "pollId":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("pollId"))
 			data, err := ec.unmarshalNUInt642uint64(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.QuestionID = data
+			it.PollID = data
 		case "name":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
 			data, err := ec.unmarshalNString2string(ctx, v)
@@ -416,34 +421,36 @@ func (ec *executionContext) unmarshalInputCandidateCreate(ctx context.Context, o
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputCandidateQuery(ctx context.Context, obj any) (model.CandidateQuery, error) {
-	var it model.CandidateQuery
+func (ec *executionContext) unmarshalInputPollOptionQuery(ctx context.Context, obj any) (model.PollOptionQuery, error) {
+	var it model.PollOptionQuery
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"voteId", "questionId", "name", "first", "after", "last", "before"}
+	fieldsInOrder := [...]string{"sessionId", "pollId", "name", "first", "after", "last", "before"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
-		case "voteId":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("voteId"))
+		case "sessionId":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("sessionId"))
 			data, err := ec.unmarshalNUUID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.VoteID = data
-		case "questionId":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("questionId"))
+			if err = ec.resolvers.PollOptionQuery().SessionID(ctx, &it, data); err != nil {
+				return it, err
+			}
+		case "pollId":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("pollId"))
 			data, err := ec.unmarshalOUInt642uint64(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.QuestionID = data
+			it.PollID = data
 		case "name":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
 			data, err := ec.unmarshalOString2string(ctx, v)
@@ -485,27 +492,27 @@ func (ec *executionContext) unmarshalInputCandidateQuery(ctx context.Context, ob
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputCandidateUpdate(ctx context.Context, obj any) (model.CandidateUpdate, error) {
-	var it model.CandidateUpdate
+func (ec *executionContext) unmarshalInputPollOptionUpdate(ctx context.Context, obj any) (model.PollOptionUpdate, error) {
+	var it model.PollOptionUpdate
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"questionId", "name"}
+	fieldsInOrder := [...]string{"pollId", "name"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
-		case "questionId":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("questionId"))
+		case "pollId":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("pollId"))
 			data, err := ec.unmarshalNUInt642uint64(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.QuestionID = data
+			it.PollID = data
 		case "name":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
 			data, err := ec.unmarshalNString2string(ctx, v)
@@ -527,44 +534,44 @@ func (ec *executionContext) unmarshalInputCandidateUpdate(ctx context.Context, o
 
 // region    **************************** object.gotpl ****************************
 
-var candidateImplementors = []string{"Candidate"}
+var pollOptionImplementors = []string{"PollOption"}
 
-func (ec *executionContext) _Candidate(ctx context.Context, sel ast.SelectionSet, obj *model.Candidate) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, candidateImplementors)
+func (ec *executionContext) _PollOption(ctx context.Context, sel ast.SelectionSet, obj *model.PollOption) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, pollOptionImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("Candidate")
+			out.Values[i] = graphql.MarshalString("PollOption")
 		case "id":
-			out.Values[i] = ec._Candidate_id(ctx, field, obj)
+			out.Values[i] = ec._PollOption_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "questionId":
-			out.Values[i] = ec._Candidate_questionId(ctx, field, obj)
+		case "pollId":
+			out.Values[i] = ec._PollOption_pollId(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "name":
-			out.Values[i] = ec._Candidate_name(ctx, field, obj)
+			out.Values[i] = ec._PollOption_name(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "result":
-			out.Values[i] = ec._Candidate_result(ctx, field, obj)
+			out.Values[i] = ec._PollOption_result(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "createdAt":
-			out.Values[i] = ec._Candidate_createdAt(ctx, field, obj)
+			out.Values[i] = ec._PollOption_createdAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "updatedAt":
-			out.Values[i] = ec._Candidate_updatedAt(ctx, field, obj)
+			out.Values[i] = ec._PollOption_updatedAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -591,29 +598,29 @@ func (ec *executionContext) _Candidate(ctx context.Context, sel ast.SelectionSet
 	return out
 }
 
-var candidateConnectionImplementors = []string{"CandidateConnection"}
+var pollOptionConnectionImplementors = []string{"PollOptionConnection"}
 
-func (ec *executionContext) _CandidateConnection(ctx context.Context, sel ast.SelectionSet, obj *model.CandidateConnection) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, candidateConnectionImplementors)
+func (ec *executionContext) _PollOptionConnection(ctx context.Context, sel ast.SelectionSet, obj *model.PollOptionConnection) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, pollOptionConnectionImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("CandidateConnection")
+			out.Values[i] = graphql.MarshalString("PollOptionConnection")
 		case "edges":
-			out.Values[i] = ec._CandidateConnection_edges(ctx, field, obj)
+			out.Values[i] = ec._PollOptionConnection_edges(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "pageInfo":
-			out.Values[i] = ec._CandidateConnection_pageInfo(ctx, field, obj)
+			out.Values[i] = ec._PollOptionConnection_pageInfo(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "totalCount":
-			out.Values[i] = ec._CandidateConnection_totalCount(ctx, field, obj)
+			out.Values[i] = ec._PollOptionConnection_totalCount(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -640,24 +647,24 @@ func (ec *executionContext) _CandidateConnection(ctx context.Context, sel ast.Se
 	return out
 }
 
-var candidateEdgeImplementors = []string{"CandidateEdge"}
+var pollOptionEdgeImplementors = []string{"PollOptionEdge"}
 
-func (ec *executionContext) _CandidateEdge(ctx context.Context, sel ast.SelectionSet, obj *model.CandidateEdge) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, candidateEdgeImplementors)
+func (ec *executionContext) _PollOptionEdge(ctx context.Context, sel ast.SelectionSet, obj *model.PollOptionEdge) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, pollOptionEdgeImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("CandidateEdge")
+			out.Values[i] = graphql.MarshalString("PollOptionEdge")
 		case "node":
-			out.Values[i] = ec._CandidateEdge_node(ctx, field, obj)
+			out.Values[i] = ec._PollOptionEdge_node(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "cursor":
-			out.Values[i] = ec._CandidateEdge_cursor(ctx, field, obj)
+			out.Values[i] = ec._PollOptionEdge_cursor(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -688,11 +695,11 @@ func (ec *executionContext) _CandidateEdge(ctx context.Context, sel ast.Selectio
 
 // region    ***************************** type.gotpl *****************************
 
-func (ec *executionContext) marshalNCandidate2voteᚋappᚋmodelᚐCandidate(ctx context.Context, sel ast.SelectionSet, v model.Candidate) graphql.Marshaler {
-	return ec._Candidate(ctx, sel, &v)
+func (ec *executionContext) marshalNPollOption2voteᚋappᚋmodelᚐPollOption(ctx context.Context, sel ast.SelectionSet, v model.PollOption) graphql.Marshaler {
+	return ec._PollOption(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNCandidate2ᚕvoteᚋappᚋmodelᚐCandidateᚄ(ctx context.Context, sel ast.SelectionSet, v []model.Candidate) graphql.Marshaler {
+func (ec *executionContext) marshalNPollOption2ᚕvoteᚋappᚋmodelᚐPollOptionᚄ(ctx context.Context, sel ast.SelectionSet, v []model.PollOption) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -716,7 +723,7 @@ func (ec *executionContext) marshalNCandidate2ᚕvoteᚋappᚋmodelᚐCandidate�
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNCandidate2voteᚋappᚋmodelᚐCandidate(ctx, sel, v[i])
+			ret[i] = ec.marshalNPollOption2voteᚋappᚋmodelᚐPollOption(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -736,7 +743,7 @@ func (ec *executionContext) marshalNCandidate2ᚕvoteᚋappᚋmodelᚐCandidate�
 	return ret
 }
 
-func (ec *executionContext) marshalNCandidate2ᚕᚖvoteᚋappᚋmodelᚐCandidateᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Candidate) graphql.Marshaler {
+func (ec *executionContext) marshalNPollOption2ᚕᚖvoteᚋappᚋmodelᚐPollOptionᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.PollOption) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -760,7 +767,7 @@ func (ec *executionContext) marshalNCandidate2ᚕᚖvoteᚋappᚋmodelᚐCandida
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNCandidate2ᚖvoteᚋappᚋmodelᚐCandidate(ctx, sel, v[i])
+			ret[i] = ec.marshalNPollOption2ᚖvoteᚋappᚋmodelᚐPollOption(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -780,17 +787,17 @@ func (ec *executionContext) marshalNCandidate2ᚕᚖvoteᚋappᚋmodelᚐCandida
 	return ret
 }
 
-func (ec *executionContext) marshalNCandidate2ᚖvoteᚋappᚋmodelᚐCandidate(ctx context.Context, sel ast.SelectionSet, v *model.Candidate) graphql.Marshaler {
+func (ec *executionContext) marshalNPollOption2ᚖvoteᚋappᚋmodelᚐPollOption(ctx context.Context, sel ast.SelectionSet, v *model.PollOption) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._Candidate(ctx, sel, v)
+	return ec._PollOption(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNCandidateConnection2ᚕᚖvoteᚋappᚋmodelᚐCandidateConnectionᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.CandidateConnection) graphql.Marshaler {
+func (ec *executionContext) marshalNPollOptionConnection2ᚕᚖvoteᚋappᚋmodelᚐPollOptionConnectionᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.PollOptionConnection) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -814,7 +821,7 @@ func (ec *executionContext) marshalNCandidateConnection2ᚕᚖvoteᚋappᚋmodel
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNCandidateConnection2ᚖvoteᚋappᚋmodelᚐCandidateConnection(ctx, sel, v[i])
+			ret[i] = ec.marshalNPollOptionConnection2ᚖvoteᚋappᚋmodelᚐPollOptionConnection(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -834,26 +841,26 @@ func (ec *executionContext) marshalNCandidateConnection2ᚕᚖvoteᚋappᚋmodel
 	return ret
 }
 
-func (ec *executionContext) marshalNCandidateConnection2ᚖvoteᚋappᚋmodelᚐCandidateConnection(ctx context.Context, sel ast.SelectionSet, v *model.CandidateConnection) graphql.Marshaler {
+func (ec *executionContext) marshalNPollOptionConnection2ᚖvoteᚋappᚋmodelᚐPollOptionConnection(ctx context.Context, sel ast.SelectionSet, v *model.PollOptionConnection) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._CandidateConnection(ctx, sel, v)
+	return ec._PollOptionConnection(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNCandidateCreate2voteᚋappᚋmodelᚐCandidateCreate(ctx context.Context, v any) (model.CandidateCreate, error) {
-	res, err := ec.unmarshalInputCandidateCreate(ctx, v)
+func (ec *executionContext) unmarshalNPollOptionCreate2voteᚋappᚋmodelᚐPollOptionCreate(ctx context.Context, v any) (model.PollOptionCreate, error) {
+	res, err := ec.unmarshalInputPollOptionCreate(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNCandidateEdge2voteᚋappᚋmodelᚐCandidateEdge(ctx context.Context, sel ast.SelectionSet, v model.CandidateEdge) graphql.Marshaler {
-	return ec._CandidateEdge(ctx, sel, &v)
+func (ec *executionContext) marshalNPollOptionEdge2voteᚋappᚋmodelᚐPollOptionEdge(ctx context.Context, sel ast.SelectionSet, v model.PollOptionEdge) graphql.Marshaler {
+	return ec._PollOptionEdge(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNCandidateEdge2ᚕvoteᚋappᚋmodelᚐCandidateEdgeᚄ(ctx context.Context, sel ast.SelectionSet, v []model.CandidateEdge) graphql.Marshaler {
+func (ec *executionContext) marshalNPollOptionEdge2ᚕvoteᚋappᚋmodelᚐPollOptionEdgeᚄ(ctx context.Context, sel ast.SelectionSet, v []model.PollOptionEdge) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -877,7 +884,7 @@ func (ec *executionContext) marshalNCandidateEdge2ᚕvoteᚋappᚋmodelᚐCandid
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNCandidateEdge2voteᚋappᚋmodelᚐCandidateEdge(ctx, sel, v[i])
+			ret[i] = ec.marshalNPollOptionEdge2voteᚋappᚋmodelᚐPollOptionEdge(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -897,13 +904,13 @@ func (ec *executionContext) marshalNCandidateEdge2ᚕvoteᚋappᚋmodelᚐCandid
 	return ret
 }
 
-func (ec *executionContext) unmarshalNCandidateQuery2voteᚋappᚋmodelᚐCandidateQuery(ctx context.Context, v any) (model.CandidateQuery, error) {
-	res, err := ec.unmarshalInputCandidateQuery(ctx, v)
+func (ec *executionContext) unmarshalNPollOptionQuery2voteᚋappᚋmodelᚐPollOptionQuery(ctx context.Context, v any) (model.PollOptionQuery, error) {
+	res, err := ec.unmarshalInputPollOptionQuery(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNCandidateUpdate2voteᚋappᚋmodelᚐCandidateUpdate(ctx context.Context, v any) (model.CandidateUpdate, error) {
-	res, err := ec.unmarshalInputCandidateUpdate(ctx, v)
+func (ec *executionContext) unmarshalNPollOptionUpdate2voteᚋappᚋmodelᚐPollOptionUpdate(ctx context.Context, v any) (model.PollOptionUpdate, error) {
+	res, err := ec.unmarshalInputPollOptionUpdate(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 

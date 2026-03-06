@@ -25,11 +25,11 @@ func Initialize(dbConfig string) (*gorm.DB, error) {
 	newLogger := logger.New(
 		utils.Logger(),
 		logger.Config{
-			SlowThreshold:              time.Second,   // Slow SQL threshold
-			LogLevel:                   logger.Info, // Log level
-			IgnoreRecordNotFoundError: true,           // Ignore ErrRecordNotFound error for logger
-			ParameterizedQueries:      false,           // Don't include params in the SQL log
-			Colorful:                  false,          // Disable color
+			SlowThreshold:              time.Second,   	// Slow SQL threshold
+			LogLevel:                   logger.Info, 		// Log level
+			IgnoreRecordNotFoundError: 	true,           // Ignore ErrRecordNotFound error for logger
+			ParameterizedQueries:      	false,          // Don't include params in the SQL log
+			Colorful:                  	false,          // Disable color
 		},
 	)
 	var err error
@@ -40,7 +40,7 @@ func Initialize(dbConfig string) (*gorm.DB, error) {
 	return SqlSession, err
 }
 
-// DbConfig 取得資料庫連線字串
+// DbConfig constructs the database connection string from environment variables
 func DbConfig() string {
 	dbDriver := os.Getenv("DB_DRIVER")
 	dbUser := os.Getenv("DB_USER")
@@ -70,7 +70,7 @@ func Rbac() (*gormadapter.Adapter, *casbin.Enforcer, error) {
 	return Adapter, Enforcer, err
 }
 
-// checkIfAdmin 檢查使用者是否為管理員
+// CheckIfAdmin checks if a user is an admin
 func CheckIfAdmin(userId uint64) (bool, error) {
 	return Enforcer.HasRoleForUser(strconv.FormatUint(userId, 10), string(enum.Admin))
 }

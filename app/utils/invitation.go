@@ -10,7 +10,7 @@ import (
 	"os"
 )
 
-type Password struct {
+type Invitation struct {
 }
 
 const (
@@ -28,14 +28,14 @@ var (
 	regexaz = "abcdefghijklmnopqrstuvwxyz"
 )
 
-// GeneratePassword 生成指定長度的隨機密碼。
-// 參數:
-// - number: 指定生成的密碼數量。
-// - length: 指定的密碼長度。
-// - format: 指定的密碼格式。
-// 返回值:
-// - 如果成功生成密碼則返回密碼字串切片，否則返回錯誤。
-func (p *Password) GeneratePassword(number uint, length uint, format string) ([]string, error) {
+// GenerateInvitation generates random passwords of specified length.
+// Parameters:
+// - number: specifies the number of passwords to generate.
+// - length: specifies the password length.
+// - format: specifies the password format.
+// Returns:
+// - Returns a slice of password strings if successful, otherwise returns an error.
+func (p *Invitation) GenerateInvitation(number uint, length uint, format string) ([]string, error) {
 	if length < 6 {
 		length = 6
 	}
@@ -70,12 +70,12 @@ func (p *Password) GeneratePassword(number uint, length uint, format string) ([]
 	return passwords, nil
 }
 
-// generateRandomString 生成指定長度的隨機字串。
-// 參數:
-// - chars: 指定的字符集。
-// - length: 指定的字串長度。
-// 返回值:
-// - 如果成功生成字串則返回字串，否則返回錯誤。
+// generateRandomString generates a random string of specified length.
+// Parameters:
+// - chars: specifies the character set.
+// - length: specifies the string length.
+// Returns:
+// - Returns the string if successful, otherwise returns an error.
 func generateRandomString(chars []rune, length int) (string, error) {
 	result := make([]rune, length)
 	for i := range result {
@@ -88,59 +88,59 @@ func generateRandomString(chars []rune, length int) (string, error) {
 	return string(result), nil
 }
 
-// Encrypt 加密字串
-func (p *Password) Encrypt(text string) (string, error) {
-	// 使用提供的密碼創建一個新的 AES 密碼區塊
+// Encrypt encrypts a string
+func (p *Invitation) Encrypt(text string) (string, error) {
+	// Create a new AES cipher block using the provided key
 	block, err := aes.NewCipher([]byte(os.Getenv("APP_ENCRYPT_KEY")))
 	if err != nil {
 		return "", err
 	}
 
-	// 使用固定的初始化向量 (IV)
+	// Use a fixed initialization vector (IV)
 	iv := []byte(os.Getenv("APP_ENCRYPT_IV"))
 
-	// 創建一個字節切片來保存密文，並在開頭放置 IV
+	// Create a byte slice to hold the ciphertext and place the IV at the beginning
 	ciphertext := make([]byte, aes.BlockSize+len(text))
 	copy(ciphertext[:aes.BlockSize], iv)
 
-	// 使用 AES 區塊和 IV 創建一個新的 CTR 流密碼
+	// Create a new CTR stream cipher using the AES block and IV
 	stream := cipher.NewCTR(block, iv)
 
-	// 加密明文並將其存儲在密文切片中，從 IV 之後開始
+	// Encrypt the plaintext and store it in the ciphertext slice, starting after the IV
 	stream.XORKeyStream(ciphertext[aes.BlockSize:], []byte(text))
 
-	// 將密文編碼為 base64 並以字串形式返回
+	// Encode the ciphertext to base64 and return it as a string
 	return base64.StdEncoding.EncodeToString(ciphertext), nil
 }
 
-// Decrypt 解密字串
-func (p *Password) Decrypt(text string) (string, error) {
-	// 使用提供的密碼創建一個新的 AES 密碼區塊
+// Decrypt decrypts a string
+func (p *Invitation) Decrypt(text string) (string, error) {
+	// Create a new AES cipher block using the provided key
 	block, err := aes.NewCipher([]byte(os.Getenv("APP_ENCRYPT_KEY")))
 	if err != nil {
 		return "", err
 	}
 
-	// 從 base64 解碼密文
+	// Decode the ciphertext from base64
 	ciphertext, err := base64.StdEncoding.DecodeString(text)
 	if err != nil {
 		return "", err
 	}
 
-	// 檢查密文長度是否小於 AES 區塊大小
+	// Check if the ciphertext length is less than the AES block size
 	if len(ciphertext) < aes.BlockSize {
 		return "", errors.New("ciphertext too short")
 	}
 
-	// 從密文提取初始化向量 (IV)
+	// Extract the initialization vector (IV) from the ciphertext
 	iv := ciphertext[:aes.BlockSize]
 
-	// 使用 AES 區塊和 IV 創建一個新的 CTR 流密碼
+	// Create a new CTR stream cipher using the AES block and IV
 	stream := cipher.NewCTR(block, iv)
 
-	// 解密密文並將結果存儲在相同的密文切片中，從 IV 之後開始
+	// Decrypt the ciphertext and store the result in the same ciphertext slice, starting after the IV
 	stream.XORKeyStream(ciphertext[aes.BlockSize:], ciphertext[aes.BlockSize:])
 
-	// 返回解密後的字串，從 IV 之後開始
+	// Return the decrypted string, starting after the IV
 	return string(ciphertext[aes.BlockSize:]), nil
 }

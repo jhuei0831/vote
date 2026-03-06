@@ -22,17 +22,17 @@ func NewVoterController() VoterController {
 	return VoterController{}
 }
 
-// VoterLogin 匿名投票登入
-// @Summary 匿名投票登入
-// @tags 匿名投票
-// @Summary 匿名投票登入
-// @Description 匿名投票登入
+// VoterLogin Anonymous voter login
+// @Summary Anonymous voter login
+// @tags Anonymous Voting
+// @Summary Anonymous voter login
+// @Description Anonymous voter login
 // @Accept json
 // @Produce json
 // @Success 200 {string} string "ok"
 // @Router /voter/login [post]
 func (a VoterController) VoterLogin(c *gin.Context) {
-	// 設定超時控制
+	// Set timeout control
 	ctx, cancel := context.WithTimeout(c.Request.Context(), 5*time.Second)
 	defer cancel()
 
@@ -42,17 +42,17 @@ func (a VoterController) VoterLogin(c *gin.Context) {
 		return
 	}
 
-	// 驗證UUID
-	voteUUID, err := uuid.Parse(form.VoteID.String())
+	// Validate UUID
+	voteUUID, err := uuid.Parse(form.SessionID.String())
 	if err != nil {
-		utils.HandleError(c, http.StatusBadRequest, -1, "Invalid vote ID", err)
+		utils.HandleError(c, http.StatusBadRequest, -1, "Invalid session ID", err)
 		return
 	}
 
-	// 定義用於並行處理的結果結構
+	// Define result structures for concurrent processing
 	type passwordResult struct {
-		password *model.Password
-		err      error
+		invitation *model.Invitation
+		err        error
 	}
 
 	type votedResult struct {
@@ -66,22 +66,22 @@ func (a VoterController) VoterLogin(c *gin.Context) {
 		err     error
 	}
 
-	// 創建所有channel並設定適當大小以避免goroutine洩漏
+	// Create all channels with appropriate size to avoid goroutine leaks
 	passwordCh := make(chan passwordResult, 1)
 	votedCh := make(chan votedResult, 1)
 	tokenCh := make(chan tokenResult, 1)
 
-	// 密碼加密與驗證 - 單一goroutine處理整個流程
+	// Password encryption and validation - single goroutine handles entire flow
 	go func() {
-		// 密碼加密
-		passwordEncrypt, err := (&utils.Password{}).Encrypt(form.Password)
+		// Encrypt password
+		passwordEncrypt, err := (&utils.Invitation{}).Encrypt(form.CodeHash)
 		if err != nil {
 			passwordCh <- passwordResult{nil, fmt.Errorf("failed to encrypt password: %w", err)}
 			return
 		}
 
-		// 密碼檢查
-		password, err := service.NewPasswordService().GetPassword(voteUUID, passwordEncrypt)
+		// Check password
+		password, err := service.NewInvitationService().GetInvitation(voteUUID, passwordEncrypt)
 		fmt.Println(passwordEncrypt)
 		if err != nil {
 			passwordCh <- passwordResult{nil, fmt.Errorf("failed to validate password: %w", err)}
@@ -91,7 +91,7 @@ func (a VoterController) VoterLogin(c *gin.Context) {
 		passwordCh <- passwordResult{password, nil}
 	}()
 
-	// 接收密碼檢查結果，附帶超時處理
+	// Receive password check result with timeout handling
 	var voter uint64
 	select {
 	case <-ctx.Done():
@@ -102,16 +102,16 @@ func (a VoterController) VoterLogin(c *gin.Context) {
 			utils.HandleError(c, http.StatusBadRequest, -1, "Authentication failed", res.err)
 			return
 		}
-		voter = res.password.ID
+		voter = res.invitation.ID
 	}
 
-	// 檢查用戶是否已經投票
+	// Check if user has already voted
 	go func() {
 		hasVoted, err := repository.NewBallotRepository().CheckIfVoterHasVoted(voter)
 		votedCh <- votedResult{hasVoted, err}
 	}()
 
-	// 接收投票狀態檢查結果，附帶超時處理
+	// Receive voting status check result with timeout handling
 	var isVoted bool
 	select {
 	case <-ctx.Done():
@@ -130,13 +130,13 @@ func (a VoterController) VoterLogin(c *gin.Context) {
 		return
 	}
 
-	// 產生Token
+	// Generate Token
 	go func() {
 		tokenString, refreshToken, err := middleware.GenVoterToken(voter, voteUUID, isVoted)
 		tokenCh <- tokenResult{tokenString, refreshToken, err}
 	}()
 
-	// 接收Token生成結果，附帶超時處理
+	// Receive Token generation result with timeout handling
 	select {
 	case <-ctx.Done():
 		utils.HandleError(c, http.StatusGatewayTimeout, -1, "Request timeout during token generation", nil)
@@ -147,10 +147,10 @@ func (a VoterController) VoterLogin(c *gin.Context) {
 			return
 		}
 
-		// 將token存入cookie
+		// Store token in cookie
 		c.SetCookie("voter-token", res.token, 3600, "/", "", true, true)
 
-		// 返回成功響應
+		// Return success response
 		c.JSON(http.StatusOK, gin.H{
 			"code": 0,
 			"msg":  "Voter login success",
@@ -161,16 +161,16 @@ func (a VoterController) VoterLogin(c *gin.Context) {
 	}
 }
 
-// CheckAuth 檢查投票者的Token
-// @Summary 檢查投票者的Token
-// @tags 匿名投票
-// @Description 檢查投票者的Token
+// CheckAuth Check voter's Token
+// @Summary Check voter's Token
+// @tags Anonymous Voting
+// @Description Check voter's Token
 // @Accept json
 // @Produce json
 // @Success 200 {string} string "ok"
 // @Router /voter/check-auth [post]
 func (a VoterController) CheckAuth(c *gin.Context) {
-	// 設定超時控制
+	// Set timeout control
 	ctx, cancel := context.WithTimeout(c.Request.Context(), 3*time.Second)
 	defer cancel()
 
@@ -184,7 +184,9 @@ func (a VoterController) CheckAuth(c *gin.Context) {
 	if err != nil {
 		utils.HandleError(c, http.StatusUnauthorized, -1, "Invalid Token", err)
 		return
-	} // 檢查投票狀態並生成新token
+	}
+
+	// Check voting status and generate new token
 	type authResult struct {
 		isVoted     bool
 		tokenString string
@@ -193,15 +195,15 @@ func (a VoterController) CheckAuth(c *gin.Context) {
 	resultCh := make(chan authResult, 1)
 
 	go func() {
-		// 檢查投票狀態
+		// Check voting status
 		hasVoted, err := repository.NewBallotRepository().CheckIfVoterHasVoted(claims.ID)
 		if err != nil {
 			resultCh <- authResult{false, "", fmt.Errorf("failed to check voting status: %w", err)}
 			return
 		}
 
-		// 重新產生token
-		tokenString, _, err := middleware.GenVoterToken(claims.ID, claims.VoteID, hasVoted)
+		// Regenerate token
+		tokenString, _, err := middleware.GenVoterToken(claims.ID, claims.SessionID, hasVoted)
 		if err != nil {
 			resultCh <- authResult{hasVoted, "", fmt.Errorf("failed to generate token: %w", err)}
 			return
@@ -210,7 +212,7 @@ func (a VoterController) CheckAuth(c *gin.Context) {
 		resultCh <- authResult{hasVoted, tokenString, nil}
 	}()
 
-	// 處理結果並添加超時控制
+	// Process result with timeout control
 	select {
 	case <-ctx.Done():
 		utils.HandleError(c, http.StatusGatewayTimeout, -1, "Request timeout during auth check", nil)
@@ -221,16 +223,16 @@ func (a VoterController) CheckAuth(c *gin.Context) {
 			return
 		}
 
-		// 更新cookie中的token
+		// Update token in cookie
 		c.SetCookie("voter-token", res.tokenString, 3600, "/", "", true, true)
 
 		c.JSON(http.StatusOK, gin.H{
 			"code": 0,
 			"msg":  "Success",
 			"data": gin.H{
-				"id":     claims.ID,
-				"voteId": claims.VoteID,
-				"voted":  res.isVoted,
+				"id":        claims.ID,
+				"sessionID": claims.SessionID,
+				"voted":     res.isVoted,
 			},
 		})
 	}
@@ -253,16 +255,16 @@ func (a VoterController) Logout(c *gin.Context) {
 	})
 }
 
-// CheckIsVoted 檢查投票者是否已經投票
-// @Summary 檢查投票者是否已經投票
-// @tags 匿名投票
-// @Description 檢查投票者是否已經投票
+// CheckIsVoted Check if voter has already voted
+// @Summary Check if voter has already voted
+// @tags Anonymous Voting
+// @Description Check if voter has already voted
 // @Accept json
 // @Produce json
 // @Success 200 {string} string "ok"
 // @Router /voter/is-voted [get]
 func (a VoterController) CheckIsVoted(c *gin.Context) {
-	// 設定超時控制
+	// Set timeout control
 	ctx, cancel := context.WithTimeout(c.Request.Context(), 3*time.Second)
 	defer cancel()
 
@@ -278,7 +280,7 @@ func (a VoterController) CheckIsVoted(c *gin.Context) {
 		return
 	}
 
-	// 使用goroutine檢查投票狀態
+	// Use goroutine to check voting status
 	type checkResult struct {
 		hasVoted bool
 		err      error
@@ -290,7 +292,7 @@ func (a VoterController) CheckIsVoted(c *gin.Context) {
 		resultCh <- checkResult{hasVoted, err}
 	}()
 
-	// 處理結果並添加超時控制
+	// Process result with timeout control
 	select {
 	case <-ctx.Done():
 		utils.HandleError(c, http.StatusGatewayTimeout, -1, "Request timeout during voting status check", nil)

@@ -1,0 +1,59 @@
+type Invitation {
+  id: ID!
+  sessionId: UUID!
+  codeHash: String!
+  status: Boolean!
+  createdAt: Time!
+  ballot: [Ballot!]!
+}
+
+type InvitationConnection {
+  edges: [InvitationEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int64!
+}
+
+type InvitationEdge {
+  node: Invitation!
+  cursor: ID!
+}
+
+input InvitationCreate {
+  sessionId: UUID!
+  number: Uint!
+  length: Uint!
+  format: String!
+}
+
+input InvitationUpdate {
+  sessionId: UUID!
+  status: Boolean!
+}
+
+input InvitationQuery {
+  sessionId: UUID!
+  codeHash: String
+  status: Boolean
+  first: Int64
+  after: String
+  last: Int64
+  before: String
+}
+
+extend type Query {
+  invitations(input: InvitationQuery!): [InvitationConnection!]!
+    @hasPermission(resource: "invitation", action: "read")
+  decryptInvitation(codeHash: String!): String!
+    @hasPermission(resource: "invitation", action: "read")
+}
+
+extend type Mutation {
+  createInvitation(input: InvitationCreate!): [Invitation!]!
+    @hasPermission(resource: "invitation", action: "create")
+
+  updateInvitation(ids: [UInt64!]!, input: InvitationUpdate!): [Invitation!]!
+    @hasPermission(resource: "invitation", action: "update")
+
+  deleteInvitation(ids: [UInt64!]!): [Invitation!]!
+    @hasPermission(resource: "invitation", action: "delete")
+}

@@ -1,0 +1,57 @@
+type PollOption {
+  id: ID!
+  pollId: UInt64!
+  name: String!
+  result: String!
+  createdAt: Time!
+  updatedAt: Time!
+}
+
+type PollOptionConnection {
+  edges: [PollOptionEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int64!
+}
+
+type PollOptionEdge {
+  node: PollOption!
+  cursor: ID!
+}
+
+input PollOptionCreate {
+  pollId: UInt64!
+  name: String!
+}
+
+input PollOptionUpdate {
+  pollId: UInt64!
+  name: String!
+}
+
+input PollOptionQuery {
+  sessionId: UUID!
+  pollId: UInt64
+  name: String
+  first: Int64
+  after: String
+  last: Int64
+  before: String
+}
+
+extend type Query {
+  pollOption(id: UInt64!): PollOption!
+    @hasPermission(resource: "poll_option", action: "read")
+  pollOptions(input: PollOptionQuery!): [PollOptionConnection!]!
+    @hasPermission(resource: "poll_option", action: "read")
+}
+
+extend type Mutation {
+  createPollOption(input: PollOptionCreate!): PollOption!
+    @hasPermission(resource: "poll_option", action: "create")
+
+  updatePollOption(id: UInt64!, input: PollOptionUpdate!): PollOption!
+    @hasPermission(resource: "poll_option", action: "update")
+
+  deletePollOption(ids: [UInt64!]!): [PollOption!]!
+    @hasPermission(resource: "poll_option", action: "delete")
+}

@@ -6,26 +6,26 @@ import (
 	"github.com/google/uuid"
 )
 
-func (Vote) TableName() string {
-	return "votes"
+func (Session) TableName() string {
+	return "sessions"
 }
 
-type Vote struct {
-	ID          uint64     `gorm:"primary_key;auto_increment" json:"id"`
-	Uuid        uuid.UUID  `gorm:"type:uuid;default:uuid_generate_v4();uniqueIndex;" json:"uuid"`
-	Title       string     `gorm:"size:100;not null;" json:"title"`
-	Description string     `gorm:"size:255;" json:"description"`
-	StartTime   time.Time  `gorm:"not null;" json:"start_time"`
-	EndTime     time.Time  `gorm:"not null;" json:"end_time"`
-	UserID      uint64     `gorm:"index;not null;" json:"user_id"`
-	Status      int        `gorm:"default:0;not null;" json:"status"`
-	CreatedAt   time.Time  `gorm:"default:CURRENT_TIMESTAMP" json:"created_at"`
-	UpdatedAt   time.Time  `gorm:"default:CURRENT_TIMESTAMP" json:"updated_at"`
-	Questions   []Question `gorm:"foreignKey:VoteID;references:Uuid;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"questions,omitempty"`
-	Passwords   []Password `gorm:"foreignKey:VoteID;references:Uuid;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"passwords,omitempty"`
+type Session struct {
+	ID          	uint64     		`gorm:"primary_key;auto_increment" json:"id"`
+	Uuid        	uuid.UUID  		`gorm:"type:uuid;default:uuid_generate_v4();uniqueIndex;" json:"uuid"`
+	Title       	string     		`gorm:"size:100;not null;" json:"title"`
+	Description 	string     		`gorm:"size:255;" json:"description"`
+	StartTime   	time.Time  		`gorm:"not null;" json:"start_time"`
+	EndTime     	time.Time  		`gorm:"not null;" json:"end_time"`
+	UserID      	uint64     		`gorm:"index;not null;" json:"user_id"`
+	Status      	int        		`gorm:"default:0;not null;" json:"status"`
+	CreatedAt   	time.Time  		`gorm:"default:CURRENT_TIMESTAMP" json:"created_at"`
+	UpdatedAt   	time.Time  		`gorm:"default:CURRENT_TIMESTAMP" json:"updated_at"`
+	Polls       	[]Poll     		`gorm:"foreignKey:SessionID;references:Uuid;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"polls,omitempty"`
+	Invitations   []Invitation 	`gorm:"foreignKey:SessionID;references:Uuid;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"invitations,omitempty"`
 }
 
-type VoteCreate struct {
+type SessionCreate struct {
 	Title       string    `json:"title" binding:"required,max=100" example:"title"`
 	Description string    `json:"description" binding:"max=255" example:"description"`
 	UserID      uint64    `json:"user_id" example:"1"`
@@ -33,7 +33,7 @@ type VoteCreate struct {
 	EndTime     time.Time `json:"end_time" binding:"required" example:"2006-01-02 15:04:05"`
 }
 
-type VoteUpdate struct {
+type SessionUpdate struct {
 	Title       string    `json:"title" binding:"required,max=100" example:"title"`
 	Description string    `json:"description" binding:"max=255" example:"description"`
 	UserID      uint64    `json:"user_id" example:"1"`
@@ -43,7 +43,7 @@ type VoteUpdate struct {
 }
 
 // Query parameters for filtering, sorting, and pagination
-type VoteQuery struct {
+type SessionQuery struct {
 	ID        uint64    `json:"id" example:"1"`
 	Uuid      uuid.UUID `json:"uuid" example:"00000000-0000-0000-0000-000000000000"`
 	Title     string    `json:"title" example:"title"`
@@ -55,33 +55,33 @@ type VoteQuery struct {
 	Before    string    `json:"before" binding:"min=1" example:"1"`
 }
 
-type VoteConnection struct {
-	Edges      []VoteEdge `json:"edges"`
-	PageInfo 	 PageInfo   `json:"pageInfo"`
-	TotalCount int64			  `json:"totalCount"`
+type SessionConnection struct {
+	Edges      []SessionEdge 	`json:"edges"`
+	PageInfo 	 PageInfo   		`json:"pageInfo"`
+	TotalCount int64			  	`json:"totalCount"`
 }
 
-type VoteEdge struct {
-	Node   Vote   `json:"node"`
-	Cursor string `json:"cursor"`
+type SessionEdge struct {
+	Node   Session   `json:"node"`
+	Cursor string    `json:"cursor"`
 }
 
 // GetFirst implements PaginationQuery
-func (v *VoteQuery) GetFirst() int {
-	return v.First
+func (s *SessionQuery) GetFirst() int {
+	return s.First
 }
 
 // GetAfter implements PaginationQuery
-func (v *VoteQuery) GetAfter() string {
-	return v.After
+func (s *SessionQuery) GetAfter() string {
+	return s.After
 }
 
 // GetLast implements PaginationQuery
-func (v *VoteQuery) GetLast() int {
-	return v.Last
+func (s *SessionQuery) GetLast() int {
+	return s.Last
 }
 
 // GetBefore implements PaginationQuery
-func (v *VoteQuery) GetBefore() string {
-	return v.Before
+func (s *SessionQuery) GetBefore() string {
+	return s.Before
 }

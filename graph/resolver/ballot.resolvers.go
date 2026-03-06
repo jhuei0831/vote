@@ -10,6 +10,9 @@ import (
 	model1 "vote/app/model"
 	"vote/app/repository"
 	"vote/app/service"
+	graph "vote/graph/generated"
+
+	"github.com/google/uuid"
 )
 
 // CreateBallot is the resolver for the createBallot field.
@@ -32,12 +35,12 @@ func (r *mutationResolver) CreateBallot(ctx context.Context, input model1.Ballot
 
 // DeleteBallot is the resolver for the deleteBallot field.
 func (r *mutationResolver) DeleteBallot(ctx context.Context, voterID uint64) (bool, error) {
-	voteId, err := repository.NewPasswordRepository().GetVoteIdByVoterId(voterID)
+	voteId, err := repository.NewInvitationRepository().GetSessionIdByVoterId(voterID)
 	if err != nil {
 		return false, fmt.Errorf("failed to get vote ID by voter ID: %v", err)
 	}
 
-	if err := service.NewAuthorizationService().AuthorizeVoteAccess(ctx, voteId, "delete ballot"); err != nil {
+	if err := service.NewAuthorizationService().AuthorizeSessionAccess(ctx, voteId, "delete ballot"); err != nil {
 		return false, err
 	}
 
@@ -51,7 +54,7 @@ func (r *mutationResolver) DeleteBallot(ctx context.Context, voterID uint64) (bo
 
 // Ballots is the resolver for the ballots field.
 func (r *queryResolver) Ballots(ctx context.Context, input model1.BallotQuery) ([]*model1.BallotConnection, error) {
-	if err := service.NewAuthorizationService().AuthorizeVoteAccess(ctx, input.VoteID, "read ballot"); err != nil {
+	if err := service.NewAuthorizationService().AuthorizeSessionAccess(ctx, input.SessionID, "read ballot"); err != nil {
 		return nil, err
 	}
 
@@ -62,3 +65,13 @@ func (r *queryResolver) Ballots(ctx context.Context, input model1.BallotQuery) (
 
 	return ballotConnections, nil
 }
+
+// VoteID is the resolver for the voteId field.
+func (r *ballotQueryResolver) VoteID(ctx context.Context, obj *model1.BallotQuery, data uuid.UUID) error {
+	panic(fmt.Errorf("not implemented: VoteID - voteId"))
+}
+
+// BallotQuery returns graph.BallotQueryResolver implementation.
+func (r *Resolver) BallotQuery() graph.BallotQueryResolver { return &ballotQueryResolver{r} }
+
+type ballotQueryResolver struct{ *Resolver }

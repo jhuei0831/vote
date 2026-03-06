@@ -15,9 +15,9 @@ var SecretKey = []byte(os.Getenv("JWT_SECRET_KEY"))
 var RefreshSecretKey = []byte(os.Getenv("JWT_REFRESH_SECRET_KEY"))
 
 const TokenExpireDuration = time.Hour * 2
-const RefreshTokenExpireDuration = time.Hour * 24 * 7 // Refresh Token 有效期 7 天
+const RefreshTokenExpireDuration = time.Hour * 24 * 7 // Refresh token valid for 7 days
 
-// UserClaims 用戶 JWT 令牌
+// UserClaims represents user JWT token claims
 type UserClaims struct {
 	ID      uint64   `json:"id"`
 	Account string   `json:"account"`
@@ -25,15 +25,15 @@ type UserClaims struct {
 	jwt.RegisteredClaims
 }
 
-// VoterClaims 投票者 JWT 令牌
+// VoterClaims represents voter JWT token claims
 type VoterClaims struct {
 	ID      uint64    `json:"id"`
-	VoteID  uuid.UUID `json:"voteId"`
+	SessionID  uuid.UUID `json:"sessionID"`
 	IsVoted bool      `json:"isVoted"`
 	jwt.RegisteredClaims
 }
 
-// GenUserToken 生成用戶 JWT 令牌
+// GenUserToken generates user JWT token
 func GenUserToken(Id uint64, account string, roles []string) (string, string, error) {
 	// Access Token
 	accessClaims := UserClaims{
@@ -49,13 +49,13 @@ func GenUserToken(Id uint64, account string, roles []string) (string, string, er
 	return GenToken(accessClaims)
 }
 
-// GenVoterToken 生成投票者 JWT 令牌
-func GenVoterToken(Id uint64, voteId uuid.UUID, isVoted bool) (string, string, error) {
+// GenVoterToken generates voter JWT token
+func GenVoterToken(Id uint64, sessionID uuid.UUID, isVoted bool) (string, string, error) {
 	accessClaims := VoterClaims{
-		ID:      Id,
-		VoteID:  voteId,
-		IsVoted: isVoted,
-		RegisteredClaims: jwt.RegisteredClaims{
+			ID:      Id,
+			SessionID:  sessionID,
+			IsVoted: isVoted,
+			RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(TokenExpireDuration)),
 			Issuer:    os.Getenv("APP_NAME"),
 		},
@@ -64,7 +64,7 @@ func GenVoterToken(Id uint64, voteId uuid.UUID, isVoted bool) (string, string, e
 	return GenToken(accessClaims)
 }
 
-// GenToken 生成 JWT 令牌
+// GenToken generates JWT token
 func GenToken(accessClaims jwt.Claims) (string, string, error) {
 	accessToken := jwt.NewWithClaims(jwt.SigningMethodHS256, accessClaims)
 	accessTokenString, err := accessToken.SignedString(SecretKey)
@@ -86,7 +86,7 @@ func GenToken(accessClaims jwt.Claims) (string, string, error) {
 	return accessTokenString, refreshTokenString, nil
 }
 
-// ParseUserToken 解析使用者 JWT 令牌
+// ParseUserToken parses user JWT token
 func ParseUserToken(tokenString string) (*UserClaims, error) {
 	claims := &UserClaims{}
 	token, err := parseToken(tokenString, claims)
@@ -99,7 +99,7 @@ func ParseUserToken(tokenString string) (*UserClaims, error) {
 	return nil, errors.New("invalid token")
 }
 
-// ParseVoterToken 解析投票者 JWT 令牌
+// ParseVoterToken parses voter JWT token
 func ParseVoterToken(tokenString string) (*VoterClaims, error) {
 	claims := &VoterClaims{}
 	token, err := parseToken(tokenString, claims)
@@ -112,14 +112,14 @@ func ParseVoterToken(tokenString string) (*VoterClaims, error) {
 	return nil, errors.New("invalid token")
 }
 
-// parseToken 解析 JWT 令牌的通用函數
+// parseToken is a generic function to parse JWT token
 func parseToken(tokenString string, claims jwt.Claims) (*jwt.Token, error) {
 	return jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
 		return SecretKey, nil
 	})
 }
 
-// ParseRefreshToken Parse and validate refresh token
+// ParseRefreshToken parses and validates refresh token
 func ParseRefreshToken(tokenString string) error {
 	token, err := jwt.ParseWithClaims(tokenString, &jwt.RegisteredClaims{}, func(token *jwt.Token) (interface{}, error) {
 		return RefreshSecretKey, nil
@@ -138,11 +138,11 @@ func ParseRefreshToken(tokenString string) error {
 	return errors.New("invalid refresh token")
 }
 
-// JWTAuthMiddleware 可選的 JWT middleware (適用於 GraphQL)
-// 不會阻止請求,但會嘗試解析並設置所有可用的 token claims
+// JWTAuthMiddleware is an optional JWT middleware (for GraphQL)
+// It doesn't block requests, but attempts to parse and set all available token claims
 func JWTAuthMiddleware() func(c *gin.Context) {
 	return func(c *gin.Context) {
-		// 嘗試從 Header 取得 token
+		// Attempt to get token from Header
 		var headerToken string
 		if authHeader := c.Request.Header.Get("Authorization"); authHeader != "" {
 			if parts := strings.SplitN(authHeader, " ", 2); len(parts) == 2 && parts[0] == "Bearer" {
@@ -150,7 +150,7 @@ func JWTAuthMiddleware() func(c *gin.Context) {
 			}
 		}
 
-		// 嘗試解析 user-token (從 Header 或 Cookie)
+		// Attempt to parse user-token (from Header or Cookie)
 		userTokenString := headerToken
 		if userTokenString == "" {
 			if userToken, err := c.Cookie("user-token"); err == nil && userToken != "" {
@@ -166,11 +166,11 @@ func JWTAuthMiddleware() func(c *gin.Context) {
 			}
 		}
 
-		// 嘗試解析 voter-token (從 Cookie,因為 Header 只能有一個)
+		// Attempt to parse voter-token (from Cookie, since Header can only have one)
 		if voterToken, err := c.Cookie("voter-token"); err == nil && voterToken != "" {
 			if voterClaims, err := ParseVoterToken(voterToken); err == nil {
 				c.Set("voterId", voterClaims.ID)
-				c.Set("voterVoteId", voterClaims.VoteID)
+				c.Set("voterVoteId", voterClaims.SessionID)
 				c.Set("voterIsVoted", voterClaims.IsVoted)
 				c.Set("hasVoterToken", true)
 			}
@@ -180,10 +180,10 @@ func JWTAuthMiddleware() func(c *gin.Context) {
 	}
 }
 
-// RequireUserToken 在 GraphQL resolver 中驗證 user token
-// 返回 UserClaims 或錯誤
+// RequireUserToken validates user token in GraphQL resolver
+// Returns UserClaims or error
 func RequireUserToken(c *gin.Context) (*UserClaims, error) {
-	// 先檢查是否已經由 middleware 設置
+	// First check if already set by middleware
 	if hasToken, exists := c.Get("hasUserToken"); exists && hasToken.(bool) {
 		return &UserClaims{
 			ID:      c.GetUint64("userId"),
@@ -192,7 +192,7 @@ func RequireUserToken(c *gin.Context) (*UserClaims, error) {
 		}, nil
 	}
 
-	// 否則嘗試手動解析
+	// Otherwise attempt to parse manually
 	var tokenString string
 	if authHeader := c.Request.Header.Get("Authorization"); authHeader != "" {
 		if parts := strings.SplitN(authHeader, " ", 2); len(parts) == 2 && parts[0] == "Bearer" {
@@ -212,20 +212,20 @@ func RequireUserToken(c *gin.Context) (*UserClaims, error) {
 	return ParseUserToken(tokenString)
 }
 
-// RequireVoterToken 在 GraphQL resolver 中驗證 voter token
-// 返回 VoterClaims 或錯誤
+// RequireVoterToken validates voter token in GraphQL resolver
+// Returns VoterClaims or error
 func RequireVoterToken(c *gin.Context) (*VoterClaims, error) {
-	// 先檢查是否已經由 middleware 設置
+	// First check if already set by middleware
 	if hasToken, exists := c.Get("hasVoterToken"); exists && hasToken.(bool) {
-		voteId, _ := c.Get("voterVoteId")
+		sessionID, _ := c.Get("voterVoteId")
 		return &VoterClaims{
 			ID:      c.GetUint64("voterId"),
-			VoteID:  voteId.(uuid.UUID),
+			SessionID:  sessionID.(uuid.UUID),
 			IsVoted: c.GetBool("voterIsVoted"),
 		}, nil
 	}
 
-	// 否則嘗試手動解析
+	// Otherwise attempt to parse manually
 	var tokenString string
 	if voterToken, err := c.Cookie("voter-token"); err == nil && voterToken != "" {
 		tokenString = voterToken
@@ -238,15 +238,15 @@ func RequireVoterToken(c *gin.Context) (*VoterClaims, error) {
 	return ParseVoterToken(tokenString)
 }
 
-// GetOptionalUserToken 在 GraphQL resolver 中嘗試取得 user token (不強制)
-// 返回 UserClaims 或 nil
+// GetOptionalUserToken attempts to get user token in GraphQL resolver (not required)
+// Returns UserClaims or nil
 func GetOptionalUserToken(c *gin.Context) *UserClaims {
 	claims, _ := RequireUserToken(c)
 	return claims
 }
 
-// GetOptionalVoterToken 在 GraphQL resolver 中嘗試取得 voter token (不強制)
-// 返回 VoterClaims 或 nil
+// GetOptionalVoterToken attempts to get voter token in GraphQL resolver (not required)
+// Returns VoterClaims or nil
 func GetOptionalVoterToken(c *gin.Context) *VoterClaims {
 	claims, _ := RequireVoterToken(c)
 	return claims

@@ -16,93 +16,93 @@ import (
 )
 
 var (
-    // 建立新的 FlagSet
-    flags = flag.NewFlagSet("goose", flag.ExitOnError)
-    // 設定遷移檔案的目錄
-    dir = flags.String("dir", os.Getenv("GOOSE_MIGRATION_DIR"), "directory with migration files")
-    // 決定migrate的動作是seed還是migration
-    action = flags.String("action", "migrate", "action to perform: seed or migrate")
-    // -no-versioning apply migration commands with no versioning, in file order, from directory pointed to
-    noVersioning = flags.Bool("no-versioning", false, "apply migration commands with no versioning, in file order, from directory pointed to")
+	// Create a new FlagSet
+	flags = flag.NewFlagSet("goose", flag.ExitOnError)
+	// Set the directory for migration files
+	dir = flags.String("dir", os.Getenv("GOOSE_MIGRATION_DIR"), "directory with migration files")
+	// Determine whether the migrate action is seed or migration
+	action = flags.String("action", "migrate", "action to perform: seed or migrate")
+	// -no-versioning apply migration commands with no versioning, in file order, from directory pointed to
+	noVersioning = flags.Bool("no-versioning", false, "apply migration commands with no versioning, in file order, from directory pointed to")
 )
 
 func main() {
-    // 解析命令列參數
-    err := flags.Parse(os.Args[2:])
-    if err != nil {
-        panic(err)
-    }
+	// Parse command line arguments
+	err := flags.Parse(os.Args[2:])
+	if err != nil {
+		panic(err)
+	}
 
-    // 載入 .env 檔案
-    if err := godotenv.Load(); err != nil {
-        panic(err)
-    }
+	// Load .env file
+	if err := godotenv.Load(); err != nil {
+		panic(err)
+	}
 
-    if *dir == "" {
-        *dir = os.Getenv("GOOSE_MIGRATION_DIR")
-    }
-    
-    // 動作，預設是 migrate，如果是seed，則次竟改成GOOSE_SEED_DIR
-    if *action == "seed" {
-        *dir = os.Getenv("GOOSE_SEED_DIR")
-        *noVersioning = true
-    } else if *action != "migrate" {
-        slog.Error("Invalid action", "action", *action)
-        return
-    }
+	if *dir == "" {
+		*dir = os.Getenv("GOOSE_MIGRATION_DIR")
+	}
 
-    // 取得解析後的參數
-    args := flags.Args()
-    slog.Info("Args are", "args", args, "dir", *dir, "action", *action)
+	// Action defaults to migrate; if seed, change directory to GOOSE_SEED_DIR
+	if *action == "seed" {
+		*dir = os.Getenv("GOOSE_SEED_DIR")
+		*noVersioning = true
+	} else if *action != "migrate" {
+		slog.Error("Invalid action", "action", *action)
+		return
+	}
 
-    // 如果參數數量小於 1，顯示使用說明並返回
-    if len(args) < 1 {
-        flags.Usage()
-        return
-    }
+	// Get parsed arguments
+	args := flags.Args()
+	slog.Info("Args are", "args", args, "dir", *dir, "action", *action)
 
-    // 取得命令
-    command := args[0]
+	// If number of arguments is less than 1, show usage and return
+	if len(args) < 1 {
+		flags.Usage()
+		return
+	}
 
-    // 從環境變數取得資料庫設定
-    dbConfig := database.DbConfig()
-    // 初始化資料庫
-    db, err := database.Initialize(dbConfig)
-    if err != nil {
-        panic(err)
-    }
+	// Get the command
+	command := args[0]
 
-    // 取得 SQL 資料庫物件
-    sqlDB, err := db.DB()
-    if err != nil {
-        panic(err)
-    }
+	// Get database configuration from environment variables
+	dbConfig := database.DbConfig()
+	// Initialize database
+	db, err := database.Initialize(dbConfig)
+	if err != nil {
+		panic(err)
+	}
 
-    // 確保在函數結束時關閉資料庫連線
-    defer func() {
-        if err := sqlDB.Close(); err != nil {
-            panic(err)
-        }
-    }()
+	// Get SQL database object
+	sqlDB, err := db.DB()
+	if err != nil {
+		panic(err)
+	}
 
-    // 準備命令的參數
-    arguments := make([]string, 0)
-    if len(args) > 1 {
-        arguments = append(arguments, args[1:]...)
-    }
+	// Ensure database connection is closed when function ends
+	defer func() {
+		if err := sqlDB.Close(); err != nil {
+			panic(err)
+		}
+	}()
 
-    options := []goose.OptionsFunc{}
-    if *noVersioning {
+	// Prepare command arguments
+	arguments := make([]string, 0)
+	if len(args) > 1 {
+		arguments = append(arguments, args[1:]...)
+	}
+
+	options := []goose.OptionsFunc{}
+	if *noVersioning {
 		options = append(options, goose.WithNoVersioning())
 	}
 
-    // 設定 goose 的資料庫方言
-    if err := goose.SetDialect("postgres"); err != nil {
-        panic(err)
-    }
+	// Set goose database dialect
+	if err := goose.SetDialect("postgres"); err != nil {
+		panic(err)
+	}
 
-    // 執行 goose 命令
-    if err := goose.RunWithOptionsContext(context.Background(), command, sqlDB, *dir, arguments, options...); err != nil {
-        log.Fatalf("goose %v: %v", command, err)
-    }
+	// Execute goose command
+	if err := goose.RunWithOptionsContext(context.Background(), command, sqlDB, *dir, arguments, options...); err != nil {
+		log.Fatalf("goose %v: %v", command, err)
+	}
 }

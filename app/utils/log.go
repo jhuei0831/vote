@@ -2,58 +2,59 @@ package utils
 
 import (
 	"fmt"
-	"github.com/sirupsen/logrus"
 	"os"
 	"path"
 	"time"
+
+	"github.com/sirupsen/logrus"
 )
 
-// Logger 建立並返回一個配置好的 logrus.Logger 實例。
-// 它會在當前工作目錄下創建一個 logs 目錄，並在其中生成一個以當前日期命名的日誌文件。
-// 日誌文件會以追加模式打開，並設置日誌級別為 Debug。
-// 日誌的時間戳格式為 "2006-01-02 15:04:05"。
+// Logger creates and returns a configured logrus.Logger instance.
+// It creates a logs directory in the current working directory and generates a log file named with the current date.
+// The log file is opened in append mode, and the log level is set to Debug.
+// The timestamp format for logs is "2006-01-02 15:04:05".
 func Logger() *logrus.Logger {
-	// 取得當前時間
+	// Get current time
 	now := time.Now()
-	// 設定日誌文件路徑
+	// Set log file path
 	logFilePath := ""
 	if dir, err := os.Getwd(); err == nil {
 		logFilePath = dir + "/logs/"
 	}
-	// 創建 logs 目錄
+	// Create logs directory
 	if err := os.MkdirAll(logFilePath, 0777); err != nil {
 		fmt.Println(err.Error())
 	}
-	// 設定日誌文件名稱，格式為 "2006-01-02.log"
+	// Set log file name with format "2006-01-02.log"
 	logFileName := now.Format("2006-01-02") + ".log"
 
-	// 組合日誌文件完整路徑
+	// Combine full log file path
 	fileName := path.Join(logFilePath, logFileName)
-	// 檢查日誌文件是否存在，不存在則創建
+	// Check if log file exists, create if it doesn't
 	if _, err := os.Stat(fileName); err != nil {
 		if _, err := os.Create(fileName); err != nil {
 			fmt.Println(err.Error())
 		}
 	}
 
-	// 以追加模式打開日誌文件
+	// Open log file in append mode
 	src, err := os.OpenFile(fileName, os.O_APPEND|os.O_WRONLY, os.ModeAppend)
 	if err != nil {
 		fmt.Println("err", err)
 	}
 
-	// 創建一個新的 logrus.Logger 實例
+	// Create a new logrus.Logger instance
 	logger := logrus.New()
-	// 設置日誌輸出到文件
+	// Set log output to file
 	logger.Out = src
-	// 設置日誌級別為 Debug
+	// Set log level to Debug
 	logger.SetLevel(logrus.DebugLevel)
-	// 設置日誌格式
+	// Set log format
 	logger.SetFormatter(&logrus.TextFormatter{
 		TimestampFormat: "2006-01-02 15:04:05",
-		FullTimestamp: true,
+		FullTimestamp:   true,
 	})
 
-	// 返回配置好的 logger 實例
+	// Return the configured logger instance
 	return logger
 }

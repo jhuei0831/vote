@@ -66,13 +66,13 @@ func (u UserService) CreateUser(input model.UserCreate) (*model.User, error) {
 	return &user, insertErr
 }
 
-// CheckAccountExist 根據提供的帳號檢查用戶是否存在。
-// 如果用戶存在，返回 true；否則返回 false。
-// 參數:
-//   - account: 用戶的帳號。
+// CheckAccountExist checks if a user exists based on the provided account.
+// Returns true if the user exists, false otherwise.
+// Parameters:
+//   - account: The user's account name.
 //
-// 返回值:
-//   - bool: 如果用戶存在返回 true，否則返回 false。
+// Returns:
+//   - bool: Returns true if the user exists, false otherwise.
 func (u UserService) CheckAccountExist(account string) bool {
 	var user model.User
 	dbResult := database.SqlSession.Model(&model.User{}).Select("id").Where("account = ?", account).Limit(1).Find(&user)
@@ -103,16 +103,16 @@ func (u UserService) CheckEmailExist(email string) bool {
 	return dbResult.RowsAffected > 0
 }
 
-// LoginOneUser 根據提供的帳號和密碼登錄用戶。
-// 它首先使用 SHA256Hasher 對密碼進行哈希處理，然後比較哈希值以驗證密碼。
-// 如果密碼驗證成功，則從資料庫中查找對應帳號的用戶資料。
-// 參數:
-//   - account: 用戶帳號
-//   - password: 用戶密碼
+// LoginOneUser authenticates a user based on the provided account and password.
+// It retrieves the user from the database, then compares the hashed password using SHA256Hasher.
+// If the password verification succeeds, it returns the user data.
+// Parameters:
+//   - account: The user's account name.
+//   - password: The user's password.
 //
-// 返回值:
-//   - *model.User: 如果登錄成功，返回用戶資料
-//   - error: 如果登錄失敗，返回錯誤信息
+// Returns:
+//   - *model.User: Returns the user data if login is successful.
+//   - error: Returns an error message if login fails.
 func (u UserService) LoginOneUser(account string, password string) (*model.User, error) {
 	var user model.User
 	var SHA256Hasher utils.SHA256Hasher

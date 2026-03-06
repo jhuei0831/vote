@@ -86,14 +86,14 @@ func (ec *executionContext) fieldContext_BallotSelect_ballotId(_ context.Context
 	return fc, nil
 }
 
-func (ec *executionContext) _BallotSelect_candidateId(ctx context.Context, field graphql.CollectedField, obj *model.BallotSelect) (ret graphql.Marshaler) {
+func (ec *executionContext) _BallotSelect_pollOptionId(ctx context.Context, field graphql.CollectedField, obj *model.BallotSelect) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_BallotSelect_candidateId,
+		ec.fieldContext_BallotSelect_pollOptionId,
 		func(ctx context.Context) (any, error) {
-			return obj.CandidateID, nil
+			return obj.PollOptionID, nil
 		},
 		nil,
 		ec.marshalNUInt642uint64,
@@ -102,7 +102,7 @@ func (ec *executionContext) _BallotSelect_candidateId(ctx context.Context, field
 	)
 }
 
-func (ec *executionContext) fieldContext_BallotSelect_candidateId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_BallotSelect_pollOptionId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "BallotSelect",
 		Field:      field,
@@ -148,8 +148,8 @@ func (ec *executionContext) _BallotSelect(ctx context.Context, sel ast.Selection
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "candidateId":
-			out.Values[i] = ec._BallotSelect_candidateId(ctx, field, obj)
+		case "pollOptionId":
+			out.Values[i] = ec._BallotSelect_pollOptionId(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}

@@ -12,30 +12,30 @@ func (Ballot) TableName() string {
 
 type Ballot struct {
 	ID        	  uint64    	 		`gorm:"primary_key;auto_increment" json:"id"`
-	PasswordID    uint64    	 		`gorm:"index;not null;" json:"password_id"`
-	QuestionID	  uint64    	 		`gorm:"index;not null;" json:"question_id"`
+	InvitationID  uint64    	 		`gorm:"index;not null;" json:"invitation_id"`
+	PollID	  		uint64    	 		`gorm:"index;not null;" json:"poll_id"`
 	CreatedAt 	  time.Time 	 		`gorm:"default:CURRENT_TIMESTAMP" json:"created_at"`
 	UpdatedAt 	  time.Time 	 		`gorm:"default:CURRENT_TIMESTAMP" json:"updated_at"`
 	BallotSelects []BallotSelect 	`gorm:"foreignKey:BallotID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"ballot_selects,omitempty"`
 }
 
-type BallotCandidate struct {
-	CandidateID   uint64 `json:"candidateId" binding:"required"`
-	IsSelected 		bool   `json:"isSelected" binding:"required"`
+type BallotPollOptions struct {
+	PollOptionID   	uint64 `json:"pollOptionId" binding:"required"`
+	IsSelected 			bool   `json:"isSelected" binding:"required"`
 }
 
-type BallotQuestions struct {
-	QuestionID  uint64             `json:"questionId" binding:"required"`
-	Candidates  []BallotCandidate  `json:"candidates"`
+type BallotPolls struct {
+	PollID  		 uint64             `json:"pollId" binding:"required"`
+	PollOptions  []BallotPollOptions  `json:"pollOptions"`
 }
 
 type BallotCreate struct {
-	Selections []BallotQuestions `json:"selections" binding:"required"`
+	Selections []BallotPolls `json:"selections" binding:"required"`
 }
 
 type BallotQuery struct {
-	VoteID    	uuid.UUID   `json:"voteId" binding:"required"`
-	QuestionID  uint64   		`json:"questionId"`
+	SessionID   uuid.UUID   `json:"sessionId" binding:"required"`
+	PollID  		uint64   		`json:"pollId"`
 	VoterID    	uint64   		`json:"voterId"`
 	First     	int       	`json:"first" binding:"min=1" example:"1"`
 	After     	string    	`json:"after" binding:"min=1" example:"1"`

@@ -12,8 +12,8 @@ import (
 )
 
 var (
-	ErrVoteIDsMissing = errors.New("no vote ids provided")
-	ErrForbiddenVote  = errors.New("forbidden")
+	ErrSessionIDsMissing = errors.New("no session ids provided")
+	ErrForbiddenSession  = errors.New("forbidden")
 )
 
 type AuthorizationService struct{}
@@ -22,10 +22,10 @@ func NewAuthorizationService() AuthorizationService {
 	return AuthorizationService{}
 }
 
-// EnsureVoteOwnership verifies that the user either has admin privileges or owns every vote ID provided.
-func (a AuthorizationService) EnsureVoteOwnership(userID uint64, voteIDs []uuid.UUID) error {
-	if len(voteIDs) == 0 {
-		return ErrVoteIDsMissing
+// EnsureSessionOwnership verifies that the user either has admin privileges or owns every session ID provided.
+func (a AuthorizationService) EnsureSessionOwnership(userID uint64, SessionIDs []uuid.UUID) error {
+	if len(SessionIDs) == 0 {
+		return ErrSessionIDsMissing
 	}
 
 	isAdmin, err := database.CheckIfAdmin(userID)
@@ -38,42 +38,42 @@ func (a AuthorizationService) EnsureVoteOwnership(userID uint64, voteIDs []uuid.
 	}
 
 	var ownedCount int64
-	if err := database.SqlSession.Model(&model.Vote{}).
-		Where("uuid IN ?", voteIDs).
+	if err := database.SqlSession.Model(&model.Session{}).
+		Where("uuid IN ?", SessionIDs).
 		Where("user_id = ?", userID).
 		Count(&ownedCount).Error; err != nil {
 		return err
 	}
 
-	if ownedCount != int64(len(voteIDs)) {
-		return ErrForbiddenVote
+	if ownedCount != int64(len(SessionIDs)) {
+		return ErrForbiddenSession
 	}
 
 	return nil
 }
 
-// AuthorizeVoteAccess checks if the user has permission to perform an action on a vote.
-func (a AuthorizationService) AuthorizeVoteAccess(ctx context.Context, voteID interface{}, action string) error {
+// AuthorizeSessionAccess checks if the user has permission to perform an action on a session.
+func (a AuthorizationService) AuthorizeSessionAccess(ctx context.Context, SessionID interface{}, action string) error {
 	userInfo, err := NewGraphqlService().GetUserInfoFromContext(ctx)
 	if err != nil {
 		return gqlerror.Errorf("failed to get user info from context: %v", err)
 	}
 
 	if !userInfo.IsAdmin {
-		var voteIDs []uuid.UUID
-		switch v := voteID.(type) {
+		var SessionIDs []uuid.UUID
+		switch v := SessionID.(type) {
 			case uuid.UUID:
 				if v != uuid.Nil {
-					voteIDs = []uuid.UUID{v}
+					SessionIDs = []uuid.UUID{v}
 				}
 			case []uuid.UUID:
-				voteIDs = v
+				SessionIDs = v
 			default:
-				return gqlerror.Errorf("invalid voteID type")
+				return gqlerror.Errorf("invalid SessionID type")
 		}
 
-		if len(voteIDs) > 0 {
-			if err := a.EnsureVoteOwnership(userInfo.UserID, voteIDs); err != nil {
+		if len(SessionIDs) > 0 {
+			if err := a.EnsureSessionOwnership(userInfo.UserID, SessionIDs); err != nil {
 				return gqlerror.Errorf("failed to authorize %s: %v", action, err)
 			}
 		}

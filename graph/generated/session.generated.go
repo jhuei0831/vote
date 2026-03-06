@@ -17,22 +17,22 @@ import (
 
 // region    ************************** generated!.gotpl **************************
 
-type VoteResolver interface {
-	Creator(ctx context.Context, obj *model.Vote) (*model.User, error)
+type SessionResolver interface {
+	Creator(ctx context.Context, obj *model.Session) (*model.User, error)
 }
 
 // endregion ************************** generated!.gotpl **************************
 
 // region    ***************************** args.gotpl *****************************
 
-func (ec *executionContext) dir_withQuestions_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+func (ec *executionContext) dir_withPolls_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
-	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "withQuestions", ec.unmarshalNBoolean2bool)
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "withPolls", ec.unmarshalNBoolean2bool)
 	if err != nil {
 		return nil, err
 	}
-	args["withQuestions"] = arg0
+	args["withPolls"] = arg0
 	return args, nil
 }
 
@@ -44,12 +44,12 @@ func (ec *executionContext) dir_withQuestions_args(ctx context.Context, rawArgs 
 
 // region    **************************** field.gotpl *****************************
 
-func (ec *executionContext) _Vote_id(ctx context.Context, field graphql.CollectedField, obj *model.Vote) (ret graphql.Marshaler) {
+func (ec *executionContext) _Session_id(ctx context.Context, field graphql.CollectedField, obj *model.Session) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_Vote_id,
+		ec.fieldContext_Session_id,
 		func(ctx context.Context) (any, error) {
 			return obj.ID, nil
 		},
@@ -60,9 +60,9 @@ func (ec *executionContext) _Vote_id(ctx context.Context, field graphql.Collecte
 	)
 }
 
-func (ec *executionContext) fieldContext_Vote_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Session_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "Vote",
+		Object:     "Session",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -73,12 +73,12 @@ func (ec *executionContext) fieldContext_Vote_id(_ context.Context, field graphq
 	return fc, nil
 }
 
-func (ec *executionContext) _Vote_uuid(ctx context.Context, field graphql.CollectedField, obj *model.Vote) (ret graphql.Marshaler) {
+func (ec *executionContext) _Session_uuid(ctx context.Context, field graphql.CollectedField, obj *model.Session) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_Vote_uuid,
+		ec.fieldContext_Session_uuid,
 		func(ctx context.Context) (any, error) {
 			return obj.Uuid, nil
 		},
@@ -89,9 +89,9 @@ func (ec *executionContext) _Vote_uuid(ctx context.Context, field graphql.Collec
 	)
 }
 
-func (ec *executionContext) fieldContext_Vote_uuid(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Session_uuid(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "Vote",
+		Object:     "Session",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -102,12 +102,12 @@ func (ec *executionContext) fieldContext_Vote_uuid(_ context.Context, field grap
 	return fc, nil
 }
 
-func (ec *executionContext) _Vote_title(ctx context.Context, field graphql.CollectedField, obj *model.Vote) (ret graphql.Marshaler) {
+func (ec *executionContext) _Session_title(ctx context.Context, field graphql.CollectedField, obj *model.Session) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_Vote_title,
+		ec.fieldContext_Session_title,
 		func(ctx context.Context) (any, error) {
 			return obj.Title, nil
 		},
@@ -118,9 +118,9 @@ func (ec *executionContext) _Vote_title(ctx context.Context, field graphql.Colle
 	)
 }
 
-func (ec *executionContext) fieldContext_Vote_title(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Session_title(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "Vote",
+		Object:     "Session",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -131,12 +131,12 @@ func (ec *executionContext) fieldContext_Vote_title(_ context.Context, field gra
 	return fc, nil
 }
 
-func (ec *executionContext) _Vote_description(ctx context.Context, field graphql.CollectedField, obj *model.Vote) (ret graphql.Marshaler) {
+func (ec *executionContext) _Session_description(ctx context.Context, field graphql.CollectedField, obj *model.Session) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_Vote_description,
+		ec.fieldContext_Session_description,
 		func(ctx context.Context) (any, error) {
 			return obj.Description, nil
 		},
@@ -147,9 +147,9 @@ func (ec *executionContext) _Vote_description(ctx context.Context, field graphql
 	)
 }
 
-func (ec *executionContext) fieldContext_Vote_description(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Session_description(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "Vote",
+		Object:     "Session",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -160,12 +160,12 @@ func (ec *executionContext) fieldContext_Vote_description(_ context.Context, fie
 	return fc, nil
 }
 
-func (ec *executionContext) _Vote_startTime(ctx context.Context, field graphql.CollectedField, obj *model.Vote) (ret graphql.Marshaler) {
+func (ec *executionContext) _Session_startTime(ctx context.Context, field graphql.CollectedField, obj *model.Session) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_Vote_startTime,
+		ec.fieldContext_Session_startTime,
 		func(ctx context.Context) (any, error) {
 			return obj.StartTime, nil
 		},
@@ -176,9 +176,9 @@ func (ec *executionContext) _Vote_startTime(ctx context.Context, field graphql.C
 	)
 }
 
-func (ec *executionContext) fieldContext_Vote_startTime(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Session_startTime(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "Vote",
+		Object:     "Session",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -189,12 +189,12 @@ func (ec *executionContext) fieldContext_Vote_startTime(_ context.Context, field
 	return fc, nil
 }
 
-func (ec *executionContext) _Vote_endTime(ctx context.Context, field graphql.CollectedField, obj *model.Vote) (ret graphql.Marshaler) {
+func (ec *executionContext) _Session_endTime(ctx context.Context, field graphql.CollectedField, obj *model.Session) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_Vote_endTime,
+		ec.fieldContext_Session_endTime,
 		func(ctx context.Context) (any, error) {
 			return obj.EndTime, nil
 		},
@@ -205,9 +205,9 @@ func (ec *executionContext) _Vote_endTime(ctx context.Context, field graphql.Col
 	)
 }
 
-func (ec *executionContext) fieldContext_Vote_endTime(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Session_endTime(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "Vote",
+		Object:     "Session",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -218,14 +218,14 @@ func (ec *executionContext) fieldContext_Vote_endTime(_ context.Context, field g
 	return fc, nil
 }
 
-func (ec *executionContext) _Vote_creator(ctx context.Context, field graphql.CollectedField, obj *model.Vote) (ret graphql.Marshaler) {
+func (ec *executionContext) _Session_creator(ctx context.Context, field graphql.CollectedField, obj *model.Session) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_Vote_creator,
+		ec.fieldContext_Session_creator,
 		func(ctx context.Context) (any, error) {
-			return ec.resolvers.Vote().Creator(ctx, obj)
+			return ec.resolvers.Session().Creator(ctx, obj)
 		},
 		nil,
 		ec.marshalNUser2ᚖvoteᚋappᚋmodelᚐUser,
@@ -234,9 +234,9 @@ func (ec *executionContext) _Vote_creator(ctx context.Context, field graphql.Col
 	)
 }
 
-func (ec *executionContext) fieldContext_Vote_creator(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Session_creator(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "Vote",
+		Object:     "Session",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
@@ -255,12 +255,12 @@ func (ec *executionContext) fieldContext_Vote_creator(_ context.Context, field g
 	return fc, nil
 }
 
-func (ec *executionContext) _Vote_status(ctx context.Context, field graphql.CollectedField, obj *model.Vote) (ret graphql.Marshaler) {
+func (ec *executionContext) _Session_status(ctx context.Context, field graphql.CollectedField, obj *model.Session) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_Vote_status,
+		ec.fieldContext_Session_status,
 		func(ctx context.Context) (any, error) {
 			return obj.Status, nil
 		},
@@ -271,9 +271,9 @@ func (ec *executionContext) _Vote_status(ctx context.Context, field graphql.Coll
 	)
 }
 
-func (ec *executionContext) fieldContext_Vote_status(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Session_status(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "Vote",
+		Object:     "Session",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -284,92 +284,92 @@ func (ec *executionContext) fieldContext_Vote_status(_ context.Context, field gr
 	return fc, nil
 }
 
-func (ec *executionContext) _Vote_questions(ctx context.Context, field graphql.CollectedField, obj *model.Vote) (ret graphql.Marshaler) {
+func (ec *executionContext) _Session_polls(ctx context.Context, field graphql.CollectedField, obj *model.Session) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_Vote_questions,
+		ec.fieldContext_Session_polls,
 		func(ctx context.Context) (any, error) {
-			return obj.Questions, nil
+			return obj.Polls, nil
 		},
 		nil,
-		ec.marshalNQuestion2ᚕvoteᚋappᚋmodelᚐQuestionᚄ,
+		ec.marshalNPoll2ᚕvoteᚋappᚋmodelᚐPollᚄ,
 		true,
 		true,
 	)
 }
 
-func (ec *executionContext) fieldContext_Vote_questions(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Session_polls(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "Vote",
+		Object:     "Session",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "id":
-				return ec.fieldContext_Question_id(ctx, field)
-			case "voteId":
-				return ec.fieldContext_Question_voteId(ctx, field)
+				return ec.fieldContext_Poll_id(ctx, field)
+			case "sessionId":
+				return ec.fieldContext_Poll_sessionId(ctx, field)
 			case "title":
-				return ec.fieldContext_Question_title(ctx, field)
+				return ec.fieldContext_Poll_title(ctx, field)
 			case "description":
-				return ec.fieldContext_Question_description(ctx, field)
+				return ec.fieldContext_Poll_description(ctx, field)
 			case "createdAt":
-				return ec.fieldContext_Question_createdAt(ctx, field)
+				return ec.fieldContext_Poll_createdAt(ctx, field)
 			case "updatedAt":
-				return ec.fieldContext_Question_updatedAt(ctx, field)
-			case "candidates":
-				return ec.fieldContext_Question_candidates(ctx, field)
+				return ec.fieldContext_Poll_updatedAt(ctx, field)
+			case "pollOptions":
+				return ec.fieldContext_Poll_pollOptions(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type Question", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type Poll", field.Name)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _VoteConnection_edges(ctx context.Context, field graphql.CollectedField, obj *model.VoteConnection) (ret graphql.Marshaler) {
+func (ec *executionContext) _SessionConnection_edges(ctx context.Context, field graphql.CollectedField, obj *model.SessionConnection) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_VoteConnection_edges,
+		ec.fieldContext_SessionConnection_edges,
 		func(ctx context.Context) (any, error) {
 			return obj.Edges, nil
 		},
 		nil,
-		ec.marshalNVoteEdge2ᚕvoteᚋappᚋmodelᚐVoteEdgeᚄ,
+		ec.marshalNSessionEdge2ᚕvoteᚋappᚋmodelᚐSessionEdgeᚄ,
 		true,
 		true,
 	)
 }
 
-func (ec *executionContext) fieldContext_VoteConnection_edges(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SessionConnection_edges(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "VoteConnection",
+		Object:     "SessionConnection",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "node":
-				return ec.fieldContext_VoteEdge_node(ctx, field)
+				return ec.fieldContext_SessionEdge_node(ctx, field)
 			case "cursor":
-				return ec.fieldContext_VoteEdge_cursor(ctx, field)
+				return ec.fieldContext_SessionEdge_cursor(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type VoteEdge", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type SessionEdge", field.Name)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _VoteConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *model.VoteConnection) (ret graphql.Marshaler) {
+func (ec *executionContext) _SessionConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *model.SessionConnection) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_VoteConnection_pageInfo,
+		ec.fieldContext_SessionConnection_pageInfo,
 		func(ctx context.Context) (any, error) {
 			return obj.PageInfo, nil
 		},
@@ -380,9 +380,9 @@ func (ec *executionContext) _VoteConnection_pageInfo(ctx context.Context, field 
 	)
 }
 
-func (ec *executionContext) fieldContext_VoteConnection_pageInfo(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SessionConnection_pageInfo(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "VoteConnection",
+		Object:     "SessionConnection",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -403,12 +403,12 @@ func (ec *executionContext) fieldContext_VoteConnection_pageInfo(_ context.Conte
 	return fc, nil
 }
 
-func (ec *executionContext) _VoteConnection_totalCount(ctx context.Context, field graphql.CollectedField, obj *model.VoteConnection) (ret graphql.Marshaler) {
+func (ec *executionContext) _SessionConnection_totalCount(ctx context.Context, field graphql.CollectedField, obj *model.SessionConnection) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_VoteConnection_totalCount,
+		ec.fieldContext_SessionConnection_totalCount,
 		func(ctx context.Context) (any, error) {
 			return obj.TotalCount, nil
 		},
@@ -419,9 +419,9 @@ func (ec *executionContext) _VoteConnection_totalCount(ctx context.Context, fiel
 	)
 }
 
-func (ec *executionContext) fieldContext_VoteConnection_totalCount(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SessionConnection_totalCount(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "VoteConnection",
+		Object:     "SessionConnection",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -432,61 +432,61 @@ func (ec *executionContext) fieldContext_VoteConnection_totalCount(_ context.Con
 	return fc, nil
 }
 
-func (ec *executionContext) _VoteEdge_node(ctx context.Context, field graphql.CollectedField, obj *model.VoteEdge) (ret graphql.Marshaler) {
+func (ec *executionContext) _SessionEdge_node(ctx context.Context, field graphql.CollectedField, obj *model.SessionEdge) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_VoteEdge_node,
+		ec.fieldContext_SessionEdge_node,
 		func(ctx context.Context) (any, error) {
 			return obj.Node, nil
 		},
 		nil,
-		ec.marshalNVote2voteᚋappᚋmodelᚐVote,
+		ec.marshalNSession2voteᚋappᚋmodelᚐSession,
 		true,
 		true,
 	)
 }
 
-func (ec *executionContext) fieldContext_VoteEdge_node(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SessionEdge_node(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "VoteEdge",
+		Object:     "SessionEdge",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "id":
-				return ec.fieldContext_Vote_id(ctx, field)
+				return ec.fieldContext_Session_id(ctx, field)
 			case "uuid":
-				return ec.fieldContext_Vote_uuid(ctx, field)
+				return ec.fieldContext_Session_uuid(ctx, field)
 			case "title":
-				return ec.fieldContext_Vote_title(ctx, field)
+				return ec.fieldContext_Session_title(ctx, field)
 			case "description":
-				return ec.fieldContext_Vote_description(ctx, field)
+				return ec.fieldContext_Session_description(ctx, field)
 			case "startTime":
-				return ec.fieldContext_Vote_startTime(ctx, field)
+				return ec.fieldContext_Session_startTime(ctx, field)
 			case "endTime":
-				return ec.fieldContext_Vote_endTime(ctx, field)
+				return ec.fieldContext_Session_endTime(ctx, field)
 			case "creator":
-				return ec.fieldContext_Vote_creator(ctx, field)
+				return ec.fieldContext_Session_creator(ctx, field)
 			case "status":
-				return ec.fieldContext_Vote_status(ctx, field)
-			case "questions":
-				return ec.fieldContext_Vote_questions(ctx, field)
+				return ec.fieldContext_Session_status(ctx, field)
+			case "polls":
+				return ec.fieldContext_Session_polls(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type Vote", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type Session", field.Name)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _VoteEdge_cursor(ctx context.Context, field graphql.CollectedField, obj *model.VoteEdge) (ret graphql.Marshaler) {
+func (ec *executionContext) _SessionEdge_cursor(ctx context.Context, field graphql.CollectedField, obj *model.SessionEdge) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_VoteEdge_cursor,
+		ec.fieldContext_SessionEdge_cursor,
 		func(ctx context.Context) (any, error) {
 			return obj.Cursor, nil
 		},
@@ -497,9 +497,9 @@ func (ec *executionContext) _VoteEdge_cursor(ctx context.Context, field graphql.
 	)
 }
 
-func (ec *executionContext) fieldContext_VoteEdge_cursor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_SessionEdge_cursor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "VoteEdge",
+		Object:     "SessionEdge",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -514,8 +514,8 @@ func (ec *executionContext) fieldContext_VoteEdge_cursor(_ context.Context, fiel
 
 // region    **************************** input.gotpl *****************************
 
-func (ec *executionContext) unmarshalInputVoteCreate(ctx context.Context, obj any) (model.VoteCreate, error) {
-	var it model.VoteCreate
+func (ec *executionContext) unmarshalInputSessionCreate(ctx context.Context, obj any) (model.SessionCreate, error) {
+	var it model.SessionCreate
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -562,8 +562,8 @@ func (ec *executionContext) unmarshalInputVoteCreate(ctx context.Context, obj an
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputVoteQuery(ctx context.Context, obj any) (model.VoteQuery, error) {
-	var it model.VoteQuery
+func (ec *executionContext) unmarshalInputSessionQuery(ctx context.Context, obj any) (model.SessionQuery, error) {
+	var it model.SessionQuery
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -645,8 +645,8 @@ func (ec *executionContext) unmarshalInputVoteQuery(ctx context.Context, obj any
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputVoteUpdate(ctx context.Context, obj any) (model.VoteUpdate, error) {
-	var it model.VoteUpdate
+func (ec *executionContext) unmarshalInputSessionUpdate(ctx context.Context, obj any) (model.SessionUpdate, error) {
+	var it model.SessionUpdate
 	asMap := map[string]any{}
 	for k, v := range obj.(map[string]any) {
 		asMap[k] = v
@@ -708,44 +708,44 @@ func (ec *executionContext) unmarshalInputVoteUpdate(ctx context.Context, obj an
 
 // region    **************************** object.gotpl ****************************
 
-var voteImplementors = []string{"Vote"}
+var sessionImplementors = []string{"Session"}
 
-func (ec *executionContext) _Vote(ctx context.Context, sel ast.SelectionSet, obj *model.Vote) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, voteImplementors)
+func (ec *executionContext) _Session(ctx context.Context, sel ast.SelectionSet, obj *model.Session) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, sessionImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("Vote")
+			out.Values[i] = graphql.MarshalString("Session")
 		case "id":
-			out.Values[i] = ec._Vote_id(ctx, field, obj)
+			out.Values[i] = ec._Session_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "uuid":
-			out.Values[i] = ec._Vote_uuid(ctx, field, obj)
+			out.Values[i] = ec._Session_uuid(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "title":
-			out.Values[i] = ec._Vote_title(ctx, field, obj)
+			out.Values[i] = ec._Session_title(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "description":
-			out.Values[i] = ec._Vote_description(ctx, field, obj)
+			out.Values[i] = ec._Session_description(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "startTime":
-			out.Values[i] = ec._Vote_startTime(ctx, field, obj)
+			out.Values[i] = ec._Session_startTime(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "endTime":
-			out.Values[i] = ec._Vote_endTime(ctx, field, obj)
+			out.Values[i] = ec._Session_endTime(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
@@ -758,7 +758,7 @@ func (ec *executionContext) _Vote(ctx context.Context, sel ast.SelectionSet, obj
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Vote_creator(ctx, field, obj)
+				res = ec._Session_creator(ctx, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -786,12 +786,12 @@ func (ec *executionContext) _Vote(ctx context.Context, sel ast.SelectionSet, obj
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "status":
-			out.Values[i] = ec._Vote_status(ctx, field, obj)
+			out.Values[i] = ec._Session_status(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
-		case "questions":
-			out.Values[i] = ec._Vote_questions(ctx, field, obj)
+		case "polls":
+			out.Values[i] = ec._Session_polls(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
@@ -818,29 +818,29 @@ func (ec *executionContext) _Vote(ctx context.Context, sel ast.SelectionSet, obj
 	return out
 }
 
-var voteConnectionImplementors = []string{"VoteConnection"}
+var sessionConnectionImplementors = []string{"SessionConnection"}
 
-func (ec *executionContext) _VoteConnection(ctx context.Context, sel ast.SelectionSet, obj *model.VoteConnection) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, voteConnectionImplementors)
+func (ec *executionContext) _SessionConnection(ctx context.Context, sel ast.SelectionSet, obj *model.SessionConnection) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, sessionConnectionImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("VoteConnection")
+			out.Values[i] = graphql.MarshalString("SessionConnection")
 		case "edges":
-			out.Values[i] = ec._VoteConnection_edges(ctx, field, obj)
+			out.Values[i] = ec._SessionConnection_edges(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "pageInfo":
-			out.Values[i] = ec._VoteConnection_pageInfo(ctx, field, obj)
+			out.Values[i] = ec._SessionConnection_pageInfo(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "totalCount":
-			out.Values[i] = ec._VoteConnection_totalCount(ctx, field, obj)
+			out.Values[i] = ec._SessionConnection_totalCount(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -867,24 +867,24 @@ func (ec *executionContext) _VoteConnection(ctx context.Context, sel ast.Selecti
 	return out
 }
 
-var voteEdgeImplementors = []string{"VoteEdge"}
+var sessionEdgeImplementors = []string{"SessionEdge"}
 
-func (ec *executionContext) _VoteEdge(ctx context.Context, sel ast.SelectionSet, obj *model.VoteEdge) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, voteEdgeImplementors)
+func (ec *executionContext) _SessionEdge(ctx context.Context, sel ast.SelectionSet, obj *model.SessionEdge) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, sessionEdgeImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("VoteEdge")
+			out.Values[i] = graphql.MarshalString("SessionEdge")
 		case "node":
-			out.Values[i] = ec._VoteEdge_node(ctx, field, obj)
+			out.Values[i] = ec._SessionEdge_node(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "cursor":
-			out.Values[i] = ec._VoteEdge_cursor(ctx, field, obj)
+			out.Values[i] = ec._SessionEdge_cursor(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -915,11 +915,11 @@ func (ec *executionContext) _VoteEdge(ctx context.Context, sel ast.SelectionSet,
 
 // region    ***************************** type.gotpl *****************************
 
-func (ec *executionContext) marshalNVote2voteᚋappᚋmodelᚐVote(ctx context.Context, sel ast.SelectionSet, v model.Vote) graphql.Marshaler {
-	return ec._Vote(ctx, sel, &v)
+func (ec *executionContext) marshalNSession2voteᚋappᚋmodelᚐSession(ctx context.Context, sel ast.SelectionSet, v model.Session) graphql.Marshaler {
+	return ec._Session(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNVote2ᚕᚖvoteᚋappᚋmodelᚐVoteᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Vote) graphql.Marshaler {
+func (ec *executionContext) marshalNSession2ᚕᚖvoteᚋappᚋmodelᚐSessionᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Session) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -943,7 +943,7 @@ func (ec *executionContext) marshalNVote2ᚕᚖvoteᚋappᚋmodelᚐVoteᚄ(ctx 
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNVote2ᚖvoteᚋappᚋmodelᚐVote(ctx, sel, v[i])
+			ret[i] = ec.marshalNSession2ᚖvoteᚋappᚋmodelᚐSession(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -963,17 +963,17 @@ func (ec *executionContext) marshalNVote2ᚕᚖvoteᚋappᚋmodelᚐVoteᚄ(ctx 
 	return ret
 }
 
-func (ec *executionContext) marshalNVote2ᚖvoteᚋappᚋmodelᚐVote(ctx context.Context, sel ast.SelectionSet, v *model.Vote) graphql.Marshaler {
+func (ec *executionContext) marshalNSession2ᚖvoteᚋappᚋmodelᚐSession(ctx context.Context, sel ast.SelectionSet, v *model.Session) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._Vote(ctx, sel, v)
+	return ec._Session(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNVoteConnection2ᚕᚖvoteᚋappᚋmodelᚐVoteConnectionᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.VoteConnection) graphql.Marshaler {
+func (ec *executionContext) marshalNSessionConnection2ᚕᚖvoteᚋappᚋmodelᚐSessionConnectionᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.SessionConnection) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -997,7 +997,7 @@ func (ec *executionContext) marshalNVoteConnection2ᚕᚖvoteᚋappᚋmodelᚐVo
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNVoteConnection2ᚖvoteᚋappᚋmodelᚐVoteConnection(ctx, sel, v[i])
+			ret[i] = ec.marshalNSessionConnection2ᚖvoteᚋappᚋmodelᚐSessionConnection(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -1017,26 +1017,26 @@ func (ec *executionContext) marshalNVoteConnection2ᚕᚖvoteᚋappᚋmodelᚐVo
 	return ret
 }
 
-func (ec *executionContext) marshalNVoteConnection2ᚖvoteᚋappᚋmodelᚐVoteConnection(ctx context.Context, sel ast.SelectionSet, v *model.VoteConnection) graphql.Marshaler {
+func (ec *executionContext) marshalNSessionConnection2ᚖvoteᚋappᚋmodelᚐSessionConnection(ctx context.Context, sel ast.SelectionSet, v *model.SessionConnection) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._VoteConnection(ctx, sel, v)
+	return ec._SessionConnection(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNVoteCreate2voteᚋappᚋmodelᚐVoteCreate(ctx context.Context, v any) (model.VoteCreate, error) {
-	res, err := ec.unmarshalInputVoteCreate(ctx, v)
+func (ec *executionContext) unmarshalNSessionCreate2voteᚋappᚋmodelᚐSessionCreate(ctx context.Context, v any) (model.SessionCreate, error) {
+	res, err := ec.unmarshalInputSessionCreate(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNVoteEdge2voteᚋappᚋmodelᚐVoteEdge(ctx context.Context, sel ast.SelectionSet, v model.VoteEdge) graphql.Marshaler {
-	return ec._VoteEdge(ctx, sel, &v)
+func (ec *executionContext) marshalNSessionEdge2voteᚋappᚋmodelᚐSessionEdge(ctx context.Context, sel ast.SelectionSet, v model.SessionEdge) graphql.Marshaler {
+	return ec._SessionEdge(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNVoteEdge2ᚕvoteᚋappᚋmodelᚐVoteEdgeᚄ(ctx context.Context, sel ast.SelectionSet, v []model.VoteEdge) graphql.Marshaler {
+func (ec *executionContext) marshalNSessionEdge2ᚕvoteᚋappᚋmodelᚐSessionEdgeᚄ(ctx context.Context, sel ast.SelectionSet, v []model.SessionEdge) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -1060,7 +1060,7 @@ func (ec *executionContext) marshalNVoteEdge2ᚕvoteᚋappᚋmodelᚐVoteEdgeᚄ
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNVoteEdge2voteᚋappᚋmodelᚐVoteEdge(ctx, sel, v[i])
+			ret[i] = ec.marshalNSessionEdge2voteᚋappᚋmodelᚐSessionEdge(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -1080,23 +1080,23 @@ func (ec *executionContext) marshalNVoteEdge2ᚕvoteᚋappᚋmodelᚐVoteEdgeᚄ
 	return ret
 }
 
-func (ec *executionContext) unmarshalNVoteUpdate2voteᚋappᚋmodelᚐVoteUpdate(ctx context.Context, v any) (model.VoteUpdate, error) {
-	res, err := ec.unmarshalInputVoteUpdate(ctx, v)
+func (ec *executionContext) unmarshalNSessionUpdate2voteᚋappᚋmodelᚐSessionUpdate(ctx context.Context, v any) (model.SessionUpdate, error) {
+	res, err := ec.unmarshalInputSessionUpdate(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalOVote2ᚖvoteᚋappᚋmodelᚐVote(ctx context.Context, sel ast.SelectionSet, v *model.Vote) graphql.Marshaler {
+func (ec *executionContext) marshalOSession2ᚖvoteᚋappᚋmodelᚐSession(ctx context.Context, sel ast.SelectionSet, v *model.Session) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
-	return ec._Vote(ctx, sel, v)
+	return ec._Session(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalOVoteQuery2ᚖvoteᚋappᚋmodelᚐVoteQuery(ctx context.Context, v any) (*model.VoteQuery, error) {
+func (ec *executionContext) unmarshalOSessionQuery2ᚖvoteᚋappᚋmodelᚐSessionQuery(ctx context.Context, v any) (*model.SessionQuery, error) {
 	if v == nil {
 		return nil, nil
 	}
-	res, err := ec.unmarshalInputVoteQuery(ctx, v)
+	res, err := ec.unmarshalInputSessionQuery(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 

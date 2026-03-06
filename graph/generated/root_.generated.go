@@ -34,17 +34,19 @@ type Config struct {
 }
 
 type ResolverRoot interface {
+	Invitation() InvitationResolver
 	Mutation() MutationResolver
-	Password() PasswordResolver
 	Query() QueryResolver
-	Vote() VoteResolver
-	PasswordCreate() PasswordCreateResolver
+	Session() SessionResolver
+	BallotQuery() BallotQueryResolver
+	InvitationCreate() InvitationCreateResolver
+	PollOptionQuery() PollOptionQueryResolver
 }
 
 type DirectiveRoot struct {
-	HasPermission  func(ctx context.Context, obj any, next graphql.Resolver, resource string, action string) (res any, err error)
-	WithCandidates func(ctx context.Context, obj any, next graphql.Resolver, withCandidates bool) (res any, err error)
-	WithQuestions  func(ctx context.Context, obj any, next graphql.Resolver, withQuestions bool) (res any, err error)
+	HasPermission   func(ctx context.Context, obj any, next graphql.Resolver, resource string, action string) (res any, err error)
+	WithPollOptions func(ctx context.Context, obj any, next graphql.Resolver, withPollOptions bool) (res any, err error)
+	WithPolls       func(ctx context.Context, obj any, next graphql.Resolver, withPolls bool) (res any, err error)
 }
 
 type ComplexityRoot struct {
@@ -52,8 +54,8 @@ type ComplexityRoot struct {
 		BallotSelects func(childComplexity int) int
 		CreatedAt     func(childComplexity int) int
 		ID            func(childComplexity int) int
-		PasswordID    func(childComplexity int) int
-		QuestionID    func(childComplexity int) int
+		InvitationID  func(childComplexity int) int
+		PollID        func(childComplexity int) int
 		UpdatedAt     func(childComplexity int) int
 	}
 
@@ -69,47 +71,47 @@ type ComplexityRoot struct {
 	}
 
 	BallotSelect struct {
-		BallotID    func(childComplexity int) int
-		CandidateID func(childComplexity int) int
-		ID          func(childComplexity int) int
+		BallotID     func(childComplexity int) int
+		ID           func(childComplexity int) int
+		PollOptionID func(childComplexity int) int
 	}
 
-	Candidate struct {
-		CreatedAt  func(childComplexity int) int
-		ID         func(childComplexity int) int
-		Name       func(childComplexity int) int
-		QuestionID func(childComplexity int) int
-		Result     func(childComplexity int) int
-		UpdatedAt  func(childComplexity int) int
+	Invitation struct {
+		Ballot    func(childComplexity int) int
+		CodeHash  func(childComplexity int) int
+		CreatedAt func(childComplexity int) int
+		ID        func(childComplexity int) int
+		SessionID func(childComplexity int) int
+		Status    func(childComplexity int) int
 	}
 
-	CandidateConnection struct {
+	InvitationConnection struct {
 		Edges      func(childComplexity int) int
 		PageInfo   func(childComplexity int) int
 		TotalCount func(childComplexity int) int
 	}
 
-	CandidateEdge struct {
+	InvitationEdge struct {
 		Cursor func(childComplexity int) int
 		Node   func(childComplexity int) int
 	}
 
 	Mutation struct {
-		CreateBallot    func(childComplexity int, input model.BallotCreate) int
-		CreateCandidate func(childComplexity int, input model.CandidateCreate) int
-		CreatePassword  func(childComplexity int, input model.PasswordCreate) int
-		CreateQuestion  func(childComplexity int, input model.QuestionCreate) int
-		CreateUser      func(childComplexity int, input model.UserCreate) int
-		CreateVote      func(childComplexity int, input model.VoteCreate) int
-		DeleteBallot    func(childComplexity int, voterID uint64) int
-		DeleteCandidate func(childComplexity int, ids []uint64) int
-		DeletePassword  func(childComplexity int, ids []uint64) int
-		DeleteQuestion  func(childComplexity int, ids []uint64) int
-		DeleteVote      func(childComplexity int, uuids []uuid.UUID) int
-		UpdateCandidate func(childComplexity int, id uint64, input model.CandidateUpdate) int
-		UpdatePassword  func(childComplexity int, ids []uint64, input model.PasswordUpdate) int
-		UpdateQuestion  func(childComplexity int, id uint64, input model.QuestionUpdate) int
-		UpdateVote      func(childComplexity int, uuid uuid.UUID, input model.VoteUpdate) int
+		CreateBallot     func(childComplexity int, input model.BallotCreate) int
+		CreateInvitation func(childComplexity int, input model.InvitationCreate) int
+		CreatePoll       func(childComplexity int, input model.PollCreate) int
+		CreatePollOption func(childComplexity int, input model.PollOptionCreate) int
+		CreateSession    func(childComplexity int, input model.SessionCreate) int
+		CreateUser       func(childComplexity int, input model.UserCreate) int
+		DeleteBallot     func(childComplexity int, voterID uint64) int
+		DeleteInvitation func(childComplexity int, ids []uint64) int
+		DeletePoll       func(childComplexity int, ids []uint64) int
+		DeletePollOption func(childComplexity int, ids []uint64) int
+		DeleteSession    func(childComplexity int, uuids []uuid.UUID) int
+		UpdateInvitation func(childComplexity int, ids []uint64, input model.InvitationUpdate) int
+		UpdatePoll       func(childComplexity int, id uint64, input model.PollUpdate) int
+		UpdatePollOption func(childComplexity int, id uint64, input model.PollOptionUpdate) int
+		UpdateSession    func(childComplexity int, uuid uuid.UUID, input model.SessionUpdate) int
 	}
 
 	PageInfo struct {
@@ -119,92 +121,92 @@ type ComplexityRoot struct {
 		StartCursor     func(childComplexity int) int
 	}
 
-	Password struct {
-		Ballot    func(childComplexity int) int
-		CreatedAt func(childComplexity int) int
-		ID        func(childComplexity int) int
-		Password  func(childComplexity int) int
-		Status    func(childComplexity int) int
-		VoteID    func(childComplexity int) int
+	Poll struct {
+		CreatedAt   func(childComplexity int) int
+		Description func(childComplexity int) int
+		ID          func(childComplexity int) int
+		PollOptions func(childComplexity int) int
+		SessionID   func(childComplexity int) int
+		Title       func(childComplexity int) int
+		UpdatedAt   func(childComplexity int) int
 	}
 
-	PasswordConnection struct {
+	PollConnection struct {
 		Edges      func(childComplexity int) int
 		PageInfo   func(childComplexity int) int
 		TotalCount func(childComplexity int) int
 	}
 
-	PasswordEdge struct {
+	PollEdge struct {
+		Cursor func(childComplexity int) int
+		Node   func(childComplexity int) int
+	}
+
+	PollList struct {
+		List func(childComplexity int) int
+	}
+
+	PollOption struct {
+		CreatedAt func(childComplexity int) int
+		ID        func(childComplexity int) int
+		Name      func(childComplexity int) int
+		PollID    func(childComplexity int) int
+		Result    func(childComplexity int) int
+		UpdatedAt func(childComplexity int) int
+	}
+
+	PollOptionConnection struct {
+		Edges      func(childComplexity int) int
+		PageInfo   func(childComplexity int) int
+		TotalCount func(childComplexity int) int
+	}
+
+	PollOptionEdge struct {
 		Cursor func(childComplexity int) int
 		Node   func(childComplexity int) int
 	}
 
 	Query struct {
-		Ballots         func(childComplexity int, input model.BallotQuery) int
-		Candidate       func(childComplexity int, id uint64) int
-		Candidates      func(childComplexity int, input model.CandidateQuery) int
-		DecryptPassword func(childComplexity int, password string) int
-		Passwords       func(childComplexity int, input model.PasswordQuery) int
-		Question        func(childComplexity int, id uint64, withCandidates bool) int
-		QuestionOptions func(childComplexity int, voteID uuid.UUID) int
-		Questions       func(childComplexity int, input model.QuestionQuery, withCandidates bool) int
-		Users           func(childComplexity int) int
-		Vote            func(childComplexity int, uuid *uuid.UUID, withQuestions bool) int
-		Votes           func(childComplexity int, input *model.VoteQuery, withQuestions bool) int
+		Ballots           func(childComplexity int, input model.BallotQuery) int
+		DecryptInvitation func(childComplexity int, codeHash string) int
+		Invitations       func(childComplexity int, input model.InvitationQuery) int
+		Poll              func(childComplexity int, id uint64, withPollOptions bool) int
+		PollList          func(childComplexity int, sessionID uuid.UUID) int
+		PollOption        func(childComplexity int, id uint64) int
+		PollOptions       func(childComplexity int, input model.PollOptionQuery) int
+		Polls             func(childComplexity int, input model.PollQuery, withPollOptions bool) int
+		Session           func(childComplexity int, uuid *uuid.UUID, withPolls bool) int
+		Sessions          func(childComplexity int, input *model.SessionQuery, withPolls bool) int
+		Users             func(childComplexity int) int
 	}
 
-	Question struct {
-		Candidates  func(childComplexity int) int
-		CreatedAt   func(childComplexity int) int
-		Description func(childComplexity int) int
-		ID          func(childComplexity int) int
-		Title       func(childComplexity int) int
-		UpdatedAt   func(childComplexity int) int
-		VoteID      func(childComplexity int) int
-	}
-
-	QuestionConnection struct {
-		Edges      func(childComplexity int) int
-		PageInfo   func(childComplexity int) int
-		TotalCount func(childComplexity int) int
-	}
-
-	QuestionEdge struct {
-		Cursor func(childComplexity int) int
-		Node   func(childComplexity int) int
-	}
-
-	QuestionOptions struct {
-		Options func(childComplexity int) int
-	}
-
-	User struct {
-		Account func(childComplexity int) int
-		Email   func(childComplexity int) int
-		ID      func(childComplexity int) int
-	}
-
-	Vote struct {
+	Session struct {
 		Creator     func(childComplexity int) int
 		Description func(childComplexity int) int
 		EndTime     func(childComplexity int) int
 		ID          func(childComplexity int) int
-		Questions   func(childComplexity int) int
+		Polls       func(childComplexity int) int
 		StartTime   func(childComplexity int) int
 		Status      func(childComplexity int) int
 		Title       func(childComplexity int) int
 		Uuid        func(childComplexity int) int
 	}
 
-	VoteConnection struct {
+	SessionConnection struct {
 		Edges      func(childComplexity int) int
 		PageInfo   func(childComplexity int) int
 		TotalCount func(childComplexity int) int
 	}
 
-	VoteEdge struct {
+	SessionEdge struct {
 		Cursor func(childComplexity int) int
 		Node   func(childComplexity int) int
+	}
+
+	User struct {
+		Account func(childComplexity int) int
+		Email   func(childComplexity int) int
+		ID      func(childComplexity int) int
 	}
 }
 
@@ -248,19 +250,19 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.Ballot.ID(childComplexity), true
 
-	case "Ballot.passwordId":
-		if e.complexity.Ballot.PasswordID == nil {
+	case "Ballot.invitationId":
+		if e.complexity.Ballot.InvitationID == nil {
 			break
 		}
 
-		return e.complexity.Ballot.PasswordID(childComplexity), true
+		return e.complexity.Ballot.InvitationID(childComplexity), true
 
-	case "Ballot.questionId":
-		if e.complexity.Ballot.QuestionID == nil {
+	case "Ballot.pollId":
+		if e.complexity.Ballot.PollID == nil {
 			break
 		}
 
-		return e.complexity.Ballot.QuestionID(childComplexity), true
+		return e.complexity.Ballot.PollID(childComplexity), true
 
 	case "Ballot.updatedAt":
 		if e.complexity.Ballot.UpdatedAt == nil {
@@ -311,13 +313,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.BallotSelect.BallotID(childComplexity), true
 
-	case "BallotSelect.candidateId":
-		if e.complexity.BallotSelect.CandidateID == nil {
-			break
-		}
-
-		return e.complexity.BallotSelect.CandidateID(childComplexity), true
-
 	case "BallotSelect.id":
 		if e.complexity.BallotSelect.ID == nil {
 			break
@@ -325,82 +320,89 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.BallotSelect.ID(childComplexity), true
 
-	case "Candidate.createdAt":
-		if e.complexity.Candidate.CreatedAt == nil {
+	case "BallotSelect.pollOptionId":
+		if e.complexity.BallotSelect.PollOptionID == nil {
 			break
 		}
 
-		return e.complexity.Candidate.CreatedAt(childComplexity), true
+		return e.complexity.BallotSelect.PollOptionID(childComplexity), true
 
-	case "Candidate.id":
-		if e.complexity.Candidate.ID == nil {
+	case "Invitation.ballot":
+		if e.complexity.Invitation.Ballot == nil {
 			break
 		}
 
-		return e.complexity.Candidate.ID(childComplexity), true
+		return e.complexity.Invitation.Ballot(childComplexity), true
 
-	case "Candidate.name":
-		if e.complexity.Candidate.Name == nil {
+	case "Invitation.codeHash":
+		if e.complexity.Invitation.CodeHash == nil {
 			break
 		}
 
-		return e.complexity.Candidate.Name(childComplexity), true
+		return e.complexity.Invitation.CodeHash(childComplexity), true
 
-	case "Candidate.questionId":
-		if e.complexity.Candidate.QuestionID == nil {
+	case "Invitation.createdAt":
+		if e.complexity.Invitation.CreatedAt == nil {
 			break
 		}
 
-		return e.complexity.Candidate.QuestionID(childComplexity), true
+		return e.complexity.Invitation.CreatedAt(childComplexity), true
 
-	case "Candidate.result":
-		if e.complexity.Candidate.Result == nil {
+	case "Invitation.id":
+		if e.complexity.Invitation.ID == nil {
 			break
 		}
 
-		return e.complexity.Candidate.Result(childComplexity), true
+		return e.complexity.Invitation.ID(childComplexity), true
 
-	case "Candidate.updatedAt":
-		if e.complexity.Candidate.UpdatedAt == nil {
+	case "Invitation.sessionId":
+		if e.complexity.Invitation.SessionID == nil {
 			break
 		}
 
-		return e.complexity.Candidate.UpdatedAt(childComplexity), true
+		return e.complexity.Invitation.SessionID(childComplexity), true
 
-	case "CandidateConnection.edges":
-		if e.complexity.CandidateConnection.Edges == nil {
+	case "Invitation.status":
+		if e.complexity.Invitation.Status == nil {
 			break
 		}
 
-		return e.complexity.CandidateConnection.Edges(childComplexity), true
+		return e.complexity.Invitation.Status(childComplexity), true
 
-	case "CandidateConnection.pageInfo":
-		if e.complexity.CandidateConnection.PageInfo == nil {
+	case "InvitationConnection.edges":
+		if e.complexity.InvitationConnection.Edges == nil {
 			break
 		}
 
-		return e.complexity.CandidateConnection.PageInfo(childComplexity), true
+		return e.complexity.InvitationConnection.Edges(childComplexity), true
 
-	case "CandidateConnection.totalCount":
-		if e.complexity.CandidateConnection.TotalCount == nil {
+	case "InvitationConnection.pageInfo":
+		if e.complexity.InvitationConnection.PageInfo == nil {
 			break
 		}
 
-		return e.complexity.CandidateConnection.TotalCount(childComplexity), true
+		return e.complexity.InvitationConnection.PageInfo(childComplexity), true
 
-	case "CandidateEdge.cursor":
-		if e.complexity.CandidateEdge.Cursor == nil {
+	case "InvitationConnection.totalCount":
+		if e.complexity.InvitationConnection.TotalCount == nil {
 			break
 		}
 
-		return e.complexity.CandidateEdge.Cursor(childComplexity), true
+		return e.complexity.InvitationConnection.TotalCount(childComplexity), true
 
-	case "CandidateEdge.node":
-		if e.complexity.CandidateEdge.Node == nil {
+	case "InvitationEdge.cursor":
+		if e.complexity.InvitationEdge.Cursor == nil {
 			break
 		}
 
-		return e.complexity.CandidateEdge.Node(childComplexity), true
+		return e.complexity.InvitationEdge.Cursor(childComplexity), true
+
+	case "InvitationEdge.node":
+		if e.complexity.InvitationEdge.Node == nil {
+			break
+		}
+
+		return e.complexity.InvitationEdge.Node(childComplexity), true
 
 	case "Mutation.createBallot":
 		if e.complexity.Mutation.CreateBallot == nil {
@@ -414,41 +416,53 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.Mutation.CreateBallot(childComplexity, args["input"].(model.BallotCreate)), true
 
-	case "Mutation.createCandidate":
-		if e.complexity.Mutation.CreateCandidate == nil {
+	case "Mutation.createInvitation":
+		if e.complexity.Mutation.CreateInvitation == nil {
 			break
 		}
 
-		args, err := ec.field_Mutation_createCandidate_args(ctx, rawArgs)
+		args, err := ec.field_Mutation_createInvitation_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Mutation.CreateCandidate(childComplexity, args["input"].(model.CandidateCreate)), true
+		return e.complexity.Mutation.CreateInvitation(childComplexity, args["input"].(model.InvitationCreate)), true
 
-	case "Mutation.createPassword":
-		if e.complexity.Mutation.CreatePassword == nil {
+	case "Mutation.createPoll":
+		if e.complexity.Mutation.CreatePoll == nil {
 			break
 		}
 
-		args, err := ec.field_Mutation_createPassword_args(ctx, rawArgs)
+		args, err := ec.field_Mutation_createPoll_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Mutation.CreatePassword(childComplexity, args["input"].(model.PasswordCreate)), true
+		return e.complexity.Mutation.CreatePoll(childComplexity, args["input"].(model.PollCreate)), true
 
-	case "Mutation.createQuestion":
-		if e.complexity.Mutation.CreateQuestion == nil {
+	case "Mutation.createPollOption":
+		if e.complexity.Mutation.CreatePollOption == nil {
 			break
 		}
 
-		args, err := ec.field_Mutation_createQuestion_args(ctx, rawArgs)
+		args, err := ec.field_Mutation_createPollOption_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Mutation.CreateQuestion(childComplexity, args["input"].(model.QuestionCreate)), true
+		return e.complexity.Mutation.CreatePollOption(childComplexity, args["input"].(model.PollOptionCreate)), true
+
+	case "Mutation.createSession":
+		if e.complexity.Mutation.CreateSession == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_createSession_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.CreateSession(childComplexity, args["input"].(model.SessionCreate)), true
 
 	case "Mutation.createUser":
 		if e.complexity.Mutation.CreateUser == nil {
@@ -462,18 +476,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.Mutation.CreateUser(childComplexity, args["input"].(model.UserCreate)), true
 
-	case "Mutation.createVote":
-		if e.complexity.Mutation.CreateVote == nil {
-			break
-		}
-
-		args, err := ec.field_Mutation_createVote_args(ctx, rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Mutation.CreateVote(childComplexity, args["input"].(model.VoteCreate)), true
-
 	case "Mutation.deleteBallot":
 		if e.complexity.Mutation.DeleteBallot == nil {
 			break
@@ -486,101 +488,101 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.Mutation.DeleteBallot(childComplexity, args["VoterId"].(uint64)), true
 
-	case "Mutation.deleteCandidate":
-		if e.complexity.Mutation.DeleteCandidate == nil {
+	case "Mutation.deleteInvitation":
+		if e.complexity.Mutation.DeleteInvitation == nil {
 			break
 		}
 
-		args, err := ec.field_Mutation_deleteCandidate_args(ctx, rawArgs)
+		args, err := ec.field_Mutation_deleteInvitation_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Mutation.DeleteCandidate(childComplexity, args["ids"].([]uint64)), true
+		return e.complexity.Mutation.DeleteInvitation(childComplexity, args["ids"].([]uint64)), true
 
-	case "Mutation.deletePassword":
-		if e.complexity.Mutation.DeletePassword == nil {
+	case "Mutation.deletePoll":
+		if e.complexity.Mutation.DeletePoll == nil {
 			break
 		}
 
-		args, err := ec.field_Mutation_deletePassword_args(ctx, rawArgs)
+		args, err := ec.field_Mutation_deletePoll_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Mutation.DeletePassword(childComplexity, args["ids"].([]uint64)), true
+		return e.complexity.Mutation.DeletePoll(childComplexity, args["ids"].([]uint64)), true
 
-	case "Mutation.deleteQuestion":
-		if e.complexity.Mutation.DeleteQuestion == nil {
+	case "Mutation.deletePollOption":
+		if e.complexity.Mutation.DeletePollOption == nil {
 			break
 		}
 
-		args, err := ec.field_Mutation_deleteQuestion_args(ctx, rawArgs)
+		args, err := ec.field_Mutation_deletePollOption_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Mutation.DeleteQuestion(childComplexity, args["ids"].([]uint64)), true
+		return e.complexity.Mutation.DeletePollOption(childComplexity, args["ids"].([]uint64)), true
 
-	case "Mutation.deleteVote":
-		if e.complexity.Mutation.DeleteVote == nil {
+	case "Mutation.deleteSession":
+		if e.complexity.Mutation.DeleteSession == nil {
 			break
 		}
 
-		args, err := ec.field_Mutation_deleteVote_args(ctx, rawArgs)
+		args, err := ec.field_Mutation_deleteSession_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Mutation.DeleteVote(childComplexity, args["uuids"].([]uuid.UUID)), true
+		return e.complexity.Mutation.DeleteSession(childComplexity, args["uuids"].([]uuid.UUID)), true
 
-	case "Mutation.updateCandidate":
-		if e.complexity.Mutation.UpdateCandidate == nil {
+	case "Mutation.updateInvitation":
+		if e.complexity.Mutation.UpdateInvitation == nil {
 			break
 		}
 
-		args, err := ec.field_Mutation_updateCandidate_args(ctx, rawArgs)
+		args, err := ec.field_Mutation_updateInvitation_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UpdateCandidate(childComplexity, args["id"].(uint64), args["input"].(model.CandidateUpdate)), true
+		return e.complexity.Mutation.UpdateInvitation(childComplexity, args["ids"].([]uint64), args["input"].(model.InvitationUpdate)), true
 
-	case "Mutation.updatePassword":
-		if e.complexity.Mutation.UpdatePassword == nil {
+	case "Mutation.updatePoll":
+		if e.complexity.Mutation.UpdatePoll == nil {
 			break
 		}
 
-		args, err := ec.field_Mutation_updatePassword_args(ctx, rawArgs)
+		args, err := ec.field_Mutation_updatePoll_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UpdatePassword(childComplexity, args["ids"].([]uint64), args["input"].(model.PasswordUpdate)), true
+		return e.complexity.Mutation.UpdatePoll(childComplexity, args["id"].(uint64), args["input"].(model.PollUpdate)), true
 
-	case "Mutation.updateQuestion":
-		if e.complexity.Mutation.UpdateQuestion == nil {
+	case "Mutation.updatePollOption":
+		if e.complexity.Mutation.UpdatePollOption == nil {
 			break
 		}
 
-		args, err := ec.field_Mutation_updateQuestion_args(ctx, rawArgs)
+		args, err := ec.field_Mutation_updatePollOption_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UpdateQuestion(childComplexity, args["id"].(uint64), args["input"].(model.QuestionUpdate)), true
+		return e.complexity.Mutation.UpdatePollOption(childComplexity, args["id"].(uint64), args["input"].(model.PollOptionUpdate)), true
 
-	case "Mutation.updateVote":
-		if e.complexity.Mutation.UpdateVote == nil {
+	case "Mutation.updateSession":
+		if e.complexity.Mutation.UpdateSession == nil {
 			break
 		}
 
-		args, err := ec.field_Mutation_updateVote_args(ctx, rawArgs)
+		args, err := ec.field_Mutation_updateSession_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UpdateVote(childComplexity, args["uuid"].(uuid.UUID), args["input"].(model.VoteUpdate)), true
+		return e.complexity.Mutation.UpdateSession(childComplexity, args["uuid"].(uuid.UUID), args["input"].(model.SessionUpdate)), true
 
 	case "PageInfo.endCursor":
 		if e.complexity.PageInfo.EndCursor == nil {
@@ -610,82 +612,173 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.PageInfo.StartCursor(childComplexity), true
 
-	case "Password.ballot":
-		if e.complexity.Password.Ballot == nil {
+	case "Poll.createdAt":
+		if e.complexity.Poll.CreatedAt == nil {
 			break
 		}
 
-		return e.complexity.Password.Ballot(childComplexity), true
+		return e.complexity.Poll.CreatedAt(childComplexity), true
 
-	case "Password.createdAt":
-		if e.complexity.Password.CreatedAt == nil {
+	case "Poll.description":
+		if e.complexity.Poll.Description == nil {
 			break
 		}
 
-		return e.complexity.Password.CreatedAt(childComplexity), true
+		return e.complexity.Poll.Description(childComplexity), true
 
-	case "Password.id":
-		if e.complexity.Password.ID == nil {
+	case "Poll.id":
+		if e.complexity.Poll.ID == nil {
 			break
 		}
 
-		return e.complexity.Password.ID(childComplexity), true
+		return e.complexity.Poll.ID(childComplexity), true
 
-	case "Password.password":
-		if e.complexity.Password.Password == nil {
+	case "Poll.pollOptions":
+		if e.complexity.Poll.PollOptions == nil {
 			break
 		}
 
-		return e.complexity.Password.Password(childComplexity), true
+		return e.complexity.Poll.PollOptions(childComplexity), true
 
-	case "Password.status":
-		if e.complexity.Password.Status == nil {
+	case "Poll.sessionId":
+		if e.complexity.Poll.SessionID == nil {
 			break
 		}
 
-		return e.complexity.Password.Status(childComplexity), true
+		return e.complexity.Poll.SessionID(childComplexity), true
 
-	case "Password.voteId":
-		if e.complexity.Password.VoteID == nil {
+	case "Poll.title":
+		if e.complexity.Poll.Title == nil {
 			break
 		}
 
-		return e.complexity.Password.VoteID(childComplexity), true
+		return e.complexity.Poll.Title(childComplexity), true
 
-	case "PasswordConnection.edges":
-		if e.complexity.PasswordConnection.Edges == nil {
+	case "Poll.updatedAt":
+		if e.complexity.Poll.UpdatedAt == nil {
 			break
 		}
 
-		return e.complexity.PasswordConnection.Edges(childComplexity), true
+		return e.complexity.Poll.UpdatedAt(childComplexity), true
 
-	case "PasswordConnection.pageInfo":
-		if e.complexity.PasswordConnection.PageInfo == nil {
+	case "PollConnection.edges":
+		if e.complexity.PollConnection.Edges == nil {
 			break
 		}
 
-		return e.complexity.PasswordConnection.PageInfo(childComplexity), true
+		return e.complexity.PollConnection.Edges(childComplexity), true
 
-	case "PasswordConnection.totalCount":
-		if e.complexity.PasswordConnection.TotalCount == nil {
+	case "PollConnection.pageInfo":
+		if e.complexity.PollConnection.PageInfo == nil {
 			break
 		}
 
-		return e.complexity.PasswordConnection.TotalCount(childComplexity), true
+		return e.complexity.PollConnection.PageInfo(childComplexity), true
 
-	case "PasswordEdge.cursor":
-		if e.complexity.PasswordEdge.Cursor == nil {
+	case "PollConnection.totalCount":
+		if e.complexity.PollConnection.TotalCount == nil {
 			break
 		}
 
-		return e.complexity.PasswordEdge.Cursor(childComplexity), true
+		return e.complexity.PollConnection.TotalCount(childComplexity), true
 
-	case "PasswordEdge.node":
-		if e.complexity.PasswordEdge.Node == nil {
+	case "PollEdge.cursor":
+		if e.complexity.PollEdge.Cursor == nil {
 			break
 		}
 
-		return e.complexity.PasswordEdge.Node(childComplexity), true
+		return e.complexity.PollEdge.Cursor(childComplexity), true
+
+	case "PollEdge.node":
+		if e.complexity.PollEdge.Node == nil {
+			break
+		}
+
+		return e.complexity.PollEdge.Node(childComplexity), true
+
+	case "PollList.list":
+		if e.complexity.PollList.List == nil {
+			break
+		}
+
+		return e.complexity.PollList.List(childComplexity), true
+
+	case "PollOption.createdAt":
+		if e.complexity.PollOption.CreatedAt == nil {
+			break
+		}
+
+		return e.complexity.PollOption.CreatedAt(childComplexity), true
+
+	case "PollOption.id":
+		if e.complexity.PollOption.ID == nil {
+			break
+		}
+
+		return e.complexity.PollOption.ID(childComplexity), true
+
+	case "PollOption.name":
+		if e.complexity.PollOption.Name == nil {
+			break
+		}
+
+		return e.complexity.PollOption.Name(childComplexity), true
+
+	case "PollOption.pollId":
+		if e.complexity.PollOption.PollID == nil {
+			break
+		}
+
+		return e.complexity.PollOption.PollID(childComplexity), true
+
+	case "PollOption.result":
+		if e.complexity.PollOption.Result == nil {
+			break
+		}
+
+		return e.complexity.PollOption.Result(childComplexity), true
+
+	case "PollOption.updatedAt":
+		if e.complexity.PollOption.UpdatedAt == nil {
+			break
+		}
+
+		return e.complexity.PollOption.UpdatedAt(childComplexity), true
+
+	case "PollOptionConnection.edges":
+		if e.complexity.PollOptionConnection.Edges == nil {
+			break
+		}
+
+		return e.complexity.PollOptionConnection.Edges(childComplexity), true
+
+	case "PollOptionConnection.pageInfo":
+		if e.complexity.PollOptionConnection.PageInfo == nil {
+			break
+		}
+
+		return e.complexity.PollOptionConnection.PageInfo(childComplexity), true
+
+	case "PollOptionConnection.totalCount":
+		if e.complexity.PollOptionConnection.TotalCount == nil {
+			break
+		}
+
+		return e.complexity.PollOptionConnection.TotalCount(childComplexity), true
+
+	case "PollOptionEdge.cursor":
+		if e.complexity.PollOptionEdge.Cursor == nil {
+			break
+		}
+
+		return e.complexity.PollOptionEdge.Cursor(childComplexity), true
+
+	case "PollOptionEdge.node":
+		if e.complexity.PollOptionEdge.Node == nil {
+			break
+		}
+
+		return e.complexity.PollOptionEdge.Node(childComplexity), true
 
 	case "Query.ballots":
 		if e.complexity.Query.Ballots == nil {
@@ -699,89 +792,113 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.Query.Ballots(childComplexity, args["input"].(model.BallotQuery)), true
 
-	case "Query.candidate":
-		if e.complexity.Query.Candidate == nil {
+	case "Query.decryptInvitation":
+		if e.complexity.Query.DecryptInvitation == nil {
 			break
 		}
 
-		args, err := ec.field_Query_candidate_args(ctx, rawArgs)
+		args, err := ec.field_Query_decryptInvitation_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Query.Candidate(childComplexity, args["id"].(uint64)), true
+		return e.complexity.Query.DecryptInvitation(childComplexity, args["codeHash"].(string)), true
 
-	case "Query.candidates":
-		if e.complexity.Query.Candidates == nil {
+	case "Query.invitations":
+		if e.complexity.Query.Invitations == nil {
 			break
 		}
 
-		args, err := ec.field_Query_candidates_args(ctx, rawArgs)
+		args, err := ec.field_Query_invitations_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Query.Candidates(childComplexity, args["input"].(model.CandidateQuery)), true
+		return e.complexity.Query.Invitations(childComplexity, args["input"].(model.InvitationQuery)), true
 
-	case "Query.decryptPassword":
-		if e.complexity.Query.DecryptPassword == nil {
+	case "Query.poll":
+		if e.complexity.Query.Poll == nil {
 			break
 		}
 
-		args, err := ec.field_Query_decryptPassword_args(ctx, rawArgs)
+		args, err := ec.field_Query_poll_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Query.DecryptPassword(childComplexity, args["password"].(string)), true
+		return e.complexity.Query.Poll(childComplexity, args["id"].(uint64), args["withPollOptions"].(bool)), true
 
-	case "Query.passwords":
-		if e.complexity.Query.Passwords == nil {
+	case "Query.pollList":
+		if e.complexity.Query.PollList == nil {
 			break
 		}
 
-		args, err := ec.field_Query_passwords_args(ctx, rawArgs)
+		args, err := ec.field_Query_pollList_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Query.Passwords(childComplexity, args["input"].(model.PasswordQuery)), true
+		return e.complexity.Query.PollList(childComplexity, args["sessionId"].(uuid.UUID)), true
 
-	case "Query.question":
-		if e.complexity.Query.Question == nil {
+	case "Query.pollOption":
+		if e.complexity.Query.PollOption == nil {
 			break
 		}
 
-		args, err := ec.field_Query_question_args(ctx, rawArgs)
+		args, err := ec.field_Query_pollOption_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Query.Question(childComplexity, args["id"].(uint64), args["withCandidates"].(bool)), true
+		return e.complexity.Query.PollOption(childComplexity, args["id"].(uint64)), true
 
-	case "Query.questionOptions":
-		if e.complexity.Query.QuestionOptions == nil {
+	case "Query.pollOptions":
+		if e.complexity.Query.PollOptions == nil {
 			break
 		}
 
-		args, err := ec.field_Query_questionOptions_args(ctx, rawArgs)
+		args, err := ec.field_Query_pollOptions_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Query.QuestionOptions(childComplexity, args["voteId"].(uuid.UUID)), true
+		return e.complexity.Query.PollOptions(childComplexity, args["input"].(model.PollOptionQuery)), true
 
-	case "Query.questions":
-		if e.complexity.Query.Questions == nil {
+	case "Query.polls":
+		if e.complexity.Query.Polls == nil {
 			break
 		}
 
-		args, err := ec.field_Query_questions_args(ctx, rawArgs)
+		args, err := ec.field_Query_polls_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Query.Questions(childComplexity, args["input"].(model.QuestionQuery), args["withCandidates"].(bool)), true
+		return e.complexity.Query.Polls(childComplexity, args["input"].(model.PollQuery), args["withPollOptions"].(bool)), true
+
+	case "Query.session":
+		if e.complexity.Query.Session == nil {
+			break
+		}
+
+		args, err := ec.field_Query_session_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.Session(childComplexity, args["uuid"].(*uuid.UUID), args["withPolls"].(bool)), true
+
+	case "Query.sessions":
+		if e.complexity.Query.Sessions == nil {
+			break
+		}
+
+		args, err := ec.field_Query_sessions_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.Sessions(childComplexity, args["input"].(*model.SessionQuery), args["withPolls"].(bool)), true
 
 	case "Query.users":
 		if e.complexity.Query.Users == nil {
@@ -790,120 +907,103 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.Query.Users(childComplexity), true
 
-	case "Query.vote":
-		if e.complexity.Query.Vote == nil {
+	case "Session.creator":
+		if e.complexity.Session.Creator == nil {
 			break
 		}
 
-		args, err := ec.field_Query_vote_args(ctx, rawArgs)
-		if err != nil {
-			return 0, false
-		}
+		return e.complexity.Session.Creator(childComplexity), true
 
-		return e.complexity.Query.Vote(childComplexity, args["uuid"].(*uuid.UUID), args["withQuestions"].(bool)), true
-
-	case "Query.votes":
-		if e.complexity.Query.Votes == nil {
+	case "Session.description":
+		if e.complexity.Session.Description == nil {
 			break
 		}
 
-		args, err := ec.field_Query_votes_args(ctx, rawArgs)
-		if err != nil {
-			return 0, false
-		}
+		return e.complexity.Session.Description(childComplexity), true
 
-		return e.complexity.Query.Votes(childComplexity, args["input"].(*model.VoteQuery), args["withQuestions"].(bool)), true
-
-	case "Question.candidates":
-		if e.complexity.Question.Candidates == nil {
+	case "Session.endTime":
+		if e.complexity.Session.EndTime == nil {
 			break
 		}
 
-		return e.complexity.Question.Candidates(childComplexity), true
+		return e.complexity.Session.EndTime(childComplexity), true
 
-	case "Question.createdAt":
-		if e.complexity.Question.CreatedAt == nil {
+	case "Session.id":
+		if e.complexity.Session.ID == nil {
 			break
 		}
 
-		return e.complexity.Question.CreatedAt(childComplexity), true
+		return e.complexity.Session.ID(childComplexity), true
 
-	case "Question.description":
-		if e.complexity.Question.Description == nil {
+	case "Session.polls":
+		if e.complexity.Session.Polls == nil {
 			break
 		}
 
-		return e.complexity.Question.Description(childComplexity), true
+		return e.complexity.Session.Polls(childComplexity), true
 
-	case "Question.id":
-		if e.complexity.Question.ID == nil {
+	case "Session.startTime":
+		if e.complexity.Session.StartTime == nil {
 			break
 		}
 
-		return e.complexity.Question.ID(childComplexity), true
+		return e.complexity.Session.StartTime(childComplexity), true
 
-	case "Question.title":
-		if e.complexity.Question.Title == nil {
+	case "Session.status":
+		if e.complexity.Session.Status == nil {
 			break
 		}
 
-		return e.complexity.Question.Title(childComplexity), true
+		return e.complexity.Session.Status(childComplexity), true
 
-	case "Question.updatedAt":
-		if e.complexity.Question.UpdatedAt == nil {
+	case "Session.title":
+		if e.complexity.Session.Title == nil {
 			break
 		}
 
-		return e.complexity.Question.UpdatedAt(childComplexity), true
+		return e.complexity.Session.Title(childComplexity), true
 
-	case "Question.voteId":
-		if e.complexity.Question.VoteID == nil {
+	case "Session.uuid":
+		if e.complexity.Session.Uuid == nil {
 			break
 		}
 
-		return e.complexity.Question.VoteID(childComplexity), true
+		return e.complexity.Session.Uuid(childComplexity), true
 
-	case "QuestionConnection.edges":
-		if e.complexity.QuestionConnection.Edges == nil {
+	case "SessionConnection.edges":
+		if e.complexity.SessionConnection.Edges == nil {
 			break
 		}
 
-		return e.complexity.QuestionConnection.Edges(childComplexity), true
+		return e.complexity.SessionConnection.Edges(childComplexity), true
 
-	case "QuestionConnection.pageInfo":
-		if e.complexity.QuestionConnection.PageInfo == nil {
+	case "SessionConnection.pageInfo":
+		if e.complexity.SessionConnection.PageInfo == nil {
 			break
 		}
 
-		return e.complexity.QuestionConnection.PageInfo(childComplexity), true
+		return e.complexity.SessionConnection.PageInfo(childComplexity), true
 
-	case "QuestionConnection.totalCount":
-		if e.complexity.QuestionConnection.TotalCount == nil {
+	case "SessionConnection.totalCount":
+		if e.complexity.SessionConnection.TotalCount == nil {
 			break
 		}
 
-		return e.complexity.QuestionConnection.TotalCount(childComplexity), true
+		return e.complexity.SessionConnection.TotalCount(childComplexity), true
 
-	case "QuestionEdge.cursor":
-		if e.complexity.QuestionEdge.Cursor == nil {
+	case "SessionEdge.cursor":
+		if e.complexity.SessionEdge.Cursor == nil {
 			break
 		}
 
-		return e.complexity.QuestionEdge.Cursor(childComplexity), true
+		return e.complexity.SessionEdge.Cursor(childComplexity), true
 
-	case "QuestionEdge.node":
-		if e.complexity.QuestionEdge.Node == nil {
+	case "SessionEdge.node":
+		if e.complexity.SessionEdge.Node == nil {
 			break
 		}
 
-		return e.complexity.QuestionEdge.Node(childComplexity), true
-
-	case "QuestionOptions.options":
-		if e.complexity.QuestionOptions.Options == nil {
-			break
-		}
-
-		return e.complexity.QuestionOptions.Options(childComplexity), true
+		return e.complexity.SessionEdge.Node(childComplexity), true
 
 	case "User.account":
 		if e.complexity.User.Account == nil {
@@ -926,104 +1026,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.User.ID(childComplexity), true
 
-	case "Vote.creator":
-		if e.complexity.Vote.Creator == nil {
-			break
-		}
-
-		return e.complexity.Vote.Creator(childComplexity), true
-
-	case "Vote.description":
-		if e.complexity.Vote.Description == nil {
-			break
-		}
-
-		return e.complexity.Vote.Description(childComplexity), true
-
-	case "Vote.endTime":
-		if e.complexity.Vote.EndTime == nil {
-			break
-		}
-
-		return e.complexity.Vote.EndTime(childComplexity), true
-
-	case "Vote.id":
-		if e.complexity.Vote.ID == nil {
-			break
-		}
-
-		return e.complexity.Vote.ID(childComplexity), true
-
-	case "Vote.questions":
-		if e.complexity.Vote.Questions == nil {
-			break
-		}
-
-		return e.complexity.Vote.Questions(childComplexity), true
-
-	case "Vote.startTime":
-		if e.complexity.Vote.StartTime == nil {
-			break
-		}
-
-		return e.complexity.Vote.StartTime(childComplexity), true
-
-	case "Vote.status":
-		if e.complexity.Vote.Status == nil {
-			break
-		}
-
-		return e.complexity.Vote.Status(childComplexity), true
-
-	case "Vote.title":
-		if e.complexity.Vote.Title == nil {
-			break
-		}
-
-		return e.complexity.Vote.Title(childComplexity), true
-
-	case "Vote.uuid":
-		if e.complexity.Vote.Uuid == nil {
-			break
-		}
-
-		return e.complexity.Vote.Uuid(childComplexity), true
-
-	case "VoteConnection.edges":
-		if e.complexity.VoteConnection.Edges == nil {
-			break
-		}
-
-		return e.complexity.VoteConnection.Edges(childComplexity), true
-
-	case "VoteConnection.pageInfo":
-		if e.complexity.VoteConnection.PageInfo == nil {
-			break
-		}
-
-		return e.complexity.VoteConnection.PageInfo(childComplexity), true
-
-	case "VoteConnection.totalCount":
-		if e.complexity.VoteConnection.TotalCount == nil {
-			break
-		}
-
-		return e.complexity.VoteConnection.TotalCount(childComplexity), true
-
-	case "VoteEdge.cursor":
-		if e.complexity.VoteEdge.Cursor == nil {
-			break
-		}
-
-		return e.complexity.VoteEdge.Cursor(childComplexity), true
-
-	case "VoteEdge.node":
-		if e.complexity.VoteEdge.Node == nil {
-			break
-		}
-
-		return e.complexity.VoteEdge.Node(childComplexity), true
-
 	}
 	return 0, false
 }
@@ -1032,23 +1034,23 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	opCtx := graphql.GetOperationContext(ctx)
 	ec := executionContext{opCtx, e, 0, 0, make(chan graphql.DeferredResult)}
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
-		ec.unmarshalInputBallotCandidate,
 		ec.unmarshalInputBallotCreate,
+		ec.unmarshalInputBallotPollOptions,
+		ec.unmarshalInputBallotPolls,
 		ec.unmarshalInputBallotQuery,
-		ec.unmarshalInputBallotQuestions,
-		ec.unmarshalInputCandidateCreate,
-		ec.unmarshalInputCandidateQuery,
-		ec.unmarshalInputCandidateUpdate,
-		ec.unmarshalInputPasswordCreate,
-		ec.unmarshalInputPasswordQuery,
-		ec.unmarshalInputPasswordUpdate,
-		ec.unmarshalInputQuestionCreate,
-		ec.unmarshalInputQuestionQuery,
-		ec.unmarshalInputQuestionUpdate,
+		ec.unmarshalInputInvitationCreate,
+		ec.unmarshalInputInvitationQuery,
+		ec.unmarshalInputInvitationUpdate,
+		ec.unmarshalInputPollCreate,
+		ec.unmarshalInputPollOptionCreate,
+		ec.unmarshalInputPollOptionQuery,
+		ec.unmarshalInputPollOptionUpdate,
+		ec.unmarshalInputPollQuery,
+		ec.unmarshalInputPollUpdate,
+		ec.unmarshalInputSessionCreate,
+		ec.unmarshalInputSessionQuery,
+		ec.unmarshalInputSessionUpdate,
 		ec.unmarshalInputUserCreate,
-		ec.unmarshalInputVoteCreate,
-		ec.unmarshalInputVoteQuery,
-		ec.unmarshalInputVoteUpdate,
 	)
 	first := true
 
@@ -1148,8 +1150,8 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 var sources = []*ast.Source{
 	{Name: "../ballot.graphqls", Input: `type Ballot {
   id: ID!
-  passwordId: UInt64!
-  questionId: UInt64!
+  invitationId: UInt64!
+  pollId: UInt64!
   createdAt: Time!
   updatedAt: Time!
   ballotSelects: [BallotSelect!]!
@@ -1166,23 +1168,23 @@ type BallotEdge {
   cursor: ID!
 }
 
-input BallotCandidate {
-  candidateId: UInt64!
+input BallotPollOptions {
+  pollOptionId: UInt64!
   isSelected: Boolean!
 }
 
-input BallotQuestions {
-  questionId: UInt64!
-  candidates: [BallotCandidate!]
+input BallotPolls {
+  pollId: UInt64!
+  pollOptions: [BallotPollOptions!]
 }
 
 input BallotCreate {
-  selections: [BallotQuestions!]!
+  selections: [BallotPolls!]!
 }
 
 input BallotQuery {
   voteId: UUID!
-  questionId: UInt64
+  pollId: UInt64
   voterId: UInt64
   first: Int64
   after: String
@@ -1204,64 +1206,7 @@ extend type Mutation {
 	{Name: "../ballotSelect.graphqls", Input: `type BallotSelect {
   id: ID!
   ballotId: UInt64!
-  candidateId: UInt64!
-}`, BuiltIn: false},
-	{Name: "../candidate.graphqls", Input: `type Candidate {
-  id: ID!
-  questionId: UInt64!
-  name: String!
-  result: String!
-  createdAt: Time!
-  updatedAt: Time!
-}
-
-type CandidateConnection {
-  edges: [CandidateEdge!]!
-  pageInfo: PageInfo!
-  totalCount: Int64!
-}
-
-type CandidateEdge {
-  node: Candidate!
-  cursor: ID!
-}
-
-input CandidateCreate {
-  questionId: UInt64!
-  name: String!
-}
-
-input CandidateUpdate {
-  questionId: UInt64!
-  name: String!
-}
-
-input CandidateQuery {
-  voteId: UUID!
-  questionId: UInt64
-  name: String
-  first: Int64
-  after: String
-  last: Int64
-  before: String
-}
-
-extend type Query {
-  candidate(id: UInt64!): Candidate!
-    @hasPermission(resource: "candidate", action: "read")
-  candidates(input: CandidateQuery!): [CandidateConnection!]!
-    @hasPermission(resource: "candidate", action: "read")
-}
-
-extend type Mutation {
-  createCandidate(input: CandidateCreate!): Candidate!
-    @hasPermission(resource: "candidate", action: "create")
-
-  updateCandidate(id: UInt64!, input: CandidateUpdate!): Candidate!
-    @hasPermission(resource: "candidate", action: "update")
-
-  deleteCandidate(ids: [UInt64!]!): [Candidate!]!
-    @hasPermission(resource: "candidate", action: "delete")
+  pollOptionId: UInt64!
 }`, BuiltIn: false},
 	{Name: "../global.graphqls", Input: `scalar Time
 scalar UUID
@@ -1290,41 +1235,41 @@ interface pageQuery {
   last: Int64
   before: String
 }`, BuiltIn: false},
-	{Name: "../password.graphqls", Input: `type Password {
+	{Name: "../invitation.graphqls", Input: `type Invitation {
   id: ID!
-  voteId: UUID!
-  password: String!
+  sessionId: UUID!
+  codeHash: String!
   status: Boolean!
   createdAt: Time!
   ballot: [Ballot!]!
 }
 
-type PasswordConnection {
-  edges: [PasswordEdge!]!
+type InvitationConnection {
+  edges: [InvitationEdge!]!
   pageInfo: PageInfo!
   totalCount: Int64!
 }
 
-type PasswordEdge {
-  node: Password!
+type InvitationEdge {
+  node: Invitation!
   cursor: ID!
 }
 
-input PasswordCreate {
-  voteId: UUID!
+input InvitationCreate {
+  sessionId: UUID!
   number: Uint!
   length: Uint!
   format: String!
 }
 
-input PasswordUpdate {
-  voteId: UUID!
+input InvitationUpdate {
+  sessionId: UUID!
   status: Boolean!
 }
 
-input PasswordQuery {
-  voteId: UUID!
-  password: String
+input InvitationQuery {
+  sessionId: UUID!
+  codeHash: String
   status: Boolean
   first: Int64
   after: String
@@ -1333,63 +1278,63 @@ input PasswordQuery {
 }
 
 extend type Query {
-  passwords(input: PasswordQuery!): [PasswordConnection!]!
-    @hasPermission(resource: "password", action: "read")
-  decryptPassword(password: String!): String!
-    @hasPermission(resource: "password", action: "read")
+  invitations(input: InvitationQuery!): [InvitationConnection!]!
+    @hasPermission(resource: "invitation", action: "read")
+  decryptInvitation(codeHash: String!): String!
+    @hasPermission(resource: "invitation", action: "read")
 }
 
 extend type Mutation {
-  createPassword(input: PasswordCreate!): [Password!]!
-    @hasPermission(resource: "password", action: "create")
+  createInvitation(input: InvitationCreate!): [Invitation!]!
+    @hasPermission(resource: "invitation", action: "create")
 
-  updatePassword(ids: [UInt64!]!, input: PasswordUpdate!): [Password!]!
-    @hasPermission(resource: "password", action: "update")
+  updateInvitation(ids: [UInt64!]!, input: InvitationUpdate!): [Invitation!]!
+    @hasPermission(resource: "invitation", action: "update")
 
-  deletePassword(ids: [UInt64!]!): [Password!]!
-    @hasPermission(resource: "password", action: "delete")
+  deleteInvitation(ids: [UInt64!]!): [Invitation!]!
+    @hasPermission(resource: "invitation", action: "delete")
 }`, BuiltIn: false},
-	{Name: "../question.graphqls", Input: `directive @withCandidates(withCandidates: Boolean!) on FIELD_DEFINITION
+	{Name: "../poll.graphqls", Input: `directive @withPollOptions(withPollOptions: Boolean!) on FIELD_DEFINITION
 
-type Question {
+type Poll {
   id: ID!
-  voteId: UUID!
+  sessionId: UUID!
   title: String!
   description: String!
   createdAt: Time!
   updatedAt: Time!
-  candidates: [Candidate!]!
+  pollOptions: [PollOption!]!
 }
 
-type QuestionConnection {
-  edges: [QuestionEdge!]!
+type PollConnection {
+  edges: [PollEdge!]!
   pageInfo: PageInfo!
   totalCount: Int64!
 }
 
-type QuestionEdge {
-  node: Question!
+type PollEdge {
+  node: Poll!
   cursor: ID!
 }
 
-type QuestionOptions {
-  options: [Question]!
+type PollList {
+  list: [Poll]!
 }
 
-input QuestionCreate {
-  voteId: UUID!
+input PollCreate {
+  sessionId: UUID!
   title: String!
   description: String
 }
 
-input QuestionUpdate {
-  voteId: UUID!
+input PollUpdate {
+  sessionId: UUID!
   title: String!
   description: String
 }
 
-input QuestionQuery {
-  voteId: UUID!
+input PollQuery {
+  sessionId: UUID!
   title: String
   first: Int64
   after: String
@@ -1398,23 +1343,153 @@ input QuestionQuery {
 }
 
 extend type Query {
-  question(id: UInt64!, withCandidates: Boolean!): Question!
-    @hasPermission(resource: "question", action: "read")
-  questions(input: QuestionQuery!, withCandidates: Boolean!): [QuestionConnection!]! 
-    @hasPermission(resource: "question", action: "read")
-  questionOptions(voteId: UUID!): QuestionOptions!
-    @hasPermission(resource: "question", action: "read")
+  poll(id: UInt64!, withPollOptions: Boolean!): Poll!
+    @hasPermission(resource: "poll", action: "read")
+  polls(input: PollQuery!, withPollOptions: Boolean!): [PollConnection!]! 
+    @hasPermission(resource: "poll", action: "read")
+  pollList(sessionId: UUID!): PollList!
+    @hasPermission(resource: "poll", action: "read")
 }
 
 extend type Mutation {
-  createQuestion(input: QuestionCreate!): Question!
-    @hasPermission(resource: "question", action: "create")
+  createPoll(input: PollCreate!): Poll!
+    @hasPermission(resource: "poll", action: "create")
 
-  updateQuestion(id: UInt64!, input: QuestionUpdate!): Question!
-    @hasPermission(resource: "question", action: "update")
+  updatePoll(id: UInt64!, input: PollUpdate!): Poll!
+    @hasPermission(resource: "poll", action: "update")
     
-  deleteQuestion(ids: [UInt64!]!): [Question!]!
-    @hasPermission(resource: "question", action: "delete")
+  deletePoll(ids: [UInt64!]!): [Poll!]!
+    @hasPermission(resource: "poll", action: "delete")
+}`, BuiltIn: false},
+	{Name: "../pollOption.graphqls", Input: `type PollOption {
+  id: ID!
+  pollId: UInt64!
+  name: String!
+  result: String!
+  createdAt: Time!
+  updatedAt: Time!
+}
+
+type PollOptionConnection {
+  edges: [PollOptionEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int64!
+}
+
+type PollOptionEdge {
+  node: PollOption!
+  cursor: ID!
+}
+
+input PollOptionCreate {
+  pollId: UInt64!
+  name: String!
+}
+
+input PollOptionUpdate {
+  pollId: UInt64!
+  name: String!
+}
+
+input PollOptionQuery {
+  sessionId: UUID!
+  pollId: UInt64
+  name: String
+  first: Int64
+  after: String
+  last: Int64
+  before: String
+}
+
+extend type Query {
+  pollOption(id: UInt64!): PollOption!
+    @hasPermission(resource: "poll_option", action: "read")
+  pollOptions(input: PollOptionQuery!): [PollOptionConnection!]!
+    @hasPermission(resource: "poll_option", action: "read")
+}
+
+extend type Mutation {
+  createPollOption(input: PollOptionCreate!): PollOption!
+    @hasPermission(resource: "poll_option", action: "create")
+
+  updatePollOption(id: UInt64!, input: PollOptionUpdate!): PollOption!
+    @hasPermission(resource: "poll_option", action: "update")
+
+  deletePollOption(ids: [UInt64!]!): [PollOption!]!
+    @hasPermission(resource: "poll_option", action: "delete")
+}`, BuiltIn: false},
+	{Name: "../session.graphqls", Input: `directive @withPolls(withPolls: Boolean!) on FIELD_DEFINITION
+
+type Session {
+  id: ID!
+  uuid: UUID!
+  title: String!
+  description: String!
+  startTime: Time!
+  endTime: Time!
+  creator: User!
+  status: Int64!
+  polls: [Poll!]!
+}
+
+type SessionConnection {
+  edges: [SessionEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int64!
+}
+
+type SessionEdge {
+  node: Session!
+  cursor: ID!
+}
+
+"""
+Input for creating a session.
+All time fields must be in RFC3339/ISO8601 format (e.g., "2025-11-06T12:00:00Z")
+"""
+input SessionCreate {
+  title: String!
+  description: String
+  startTime: Time!
+  endTime: Time!
+}
+
+input SessionUpdate {
+  title: String
+  description: String
+  startTime: Time
+  endTime: Time
+  UpdatedAt: Time
+}
+
+input SessionQuery {
+  id: ID
+  uuid: UUID
+  title: String
+  startTime: Time
+  endTime: Time
+  first: Int64
+  after: String
+  last: Int64
+  before: String
+}
+
+extend type Query {
+  session(uuid: UUID, withPolls: Boolean!): Session
+    @hasPermission(resource: "session", action: "read")
+  sessions(input: SessionQuery, withPolls: Boolean!): [SessionConnection!]! 
+    @hasPermission(resource: "session", action: "read")
+}
+
+extend type Mutation {
+  createSession(input: SessionCreate!): Session! 
+    @hasPermission(resource: "session", action: "create")
+
+  updateSession(uuid: UUID!, input: SessionUpdate!): Session! 
+    @hasPermission(resource: "session", action: "update")
+    
+  deleteSession(uuids: [UUID!]!): [Session!]! 
+    @hasPermission(resource: "session", action: "delete")
 }`, BuiltIn: false},
 	{Name: "../user.graphqls", Input: `type User {
   id: ID!
@@ -1434,79 +1509,6 @@ type Query {
 
 type Mutation {
   createUser(input: UserCreate!): User!
-}`, BuiltIn: false},
-	{Name: "../vote.graphqls", Input: `directive @withQuestions(withQuestions: Boolean!) on FIELD_DEFINITION
-
-type Vote {
-  id: ID!
-  uuid: UUID!
-  title: String!
-  description: String!
-  startTime: Time!
-  endTime: Time!
-  creator: User!
-  status: Int64!
-  questions: [Question!]!
-}
-
-type VoteConnection {
-  edges: [VoteEdge!]!
-  pageInfo: PageInfo!
-  totalCount: Int64!
-}
-
-type VoteEdge {
-  node: Vote!
-  cursor: ID!
-}
-
-"""
-Input for creating a vote.
-All time fields must be in RFC3339/ISO8601 format (e.g., "2025-11-06T12:00:00Z")
-"""
-input VoteCreate {
-  title: String!
-  description: String
-  startTime: Time!
-  endTime: Time!
-}
-
-input VoteUpdate {
-  title: String
-  description: String
-  startTime: Time
-  endTime: Time
-  UpdatedAt: Time
-}
-
-input VoteQuery {
-  id: ID
-  uuid: UUID
-  title: String
-  startTime: Time
-  endTime: Time
-  first: Int64
-  after: String
-  last: Int64
-  before: String
-}
-
-extend type Query {
-  vote(uuid: UUID, withQuestions: Boolean!): Vote
-    @hasPermission(resource: "vote", action: "read")
-  votes(input: VoteQuery, withQuestions: Boolean!): [VoteConnection!]! 
-    @hasPermission(resource: "vote", action: "read")
-}
-
-extend type Mutation {
-  createVote(input: VoteCreate!): Vote! 
-    @hasPermission(resource: "vote", action: "create")
-
-  updateVote(uuid: UUID!, input: VoteUpdate!): Vote! 
-    @hasPermission(resource: "vote", action: "update")
-    
-  deleteVote(uuids: [UUID!]!): [Vote!]! 
-    @hasPermission(resource: "vote", action: "delete")
 }`, BuiltIn: false},
 }
 var parsedSchema = gqlparser.MustLoadSchema(sources...)

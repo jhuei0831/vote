@@ -59,10 +59,10 @@ func upSeedUsersTable(ctx context.Context, tx *sql.Tx) error {
 		enforcer.AddPolicy(role, "user", "read")
 		enforcer.AddPolicy(role, "user", "update")
 		enforcer.AddPolicy(role, "user", "delete")
-		enforcer.AddPolicy(role, "vote", "create")
-		enforcer.AddPolicy(role, "vote", "read")
-		enforcer.AddPolicy(role, "vote", "update")
-		enforcer.AddPolicy(role, "vote", "delete")
+		enforcer.AddPolicy(role, "session", "create")
+		enforcer.AddPolicy(role, "session", "read")
+		enforcer.AddPolicy(role, "session", "update")
+		enforcer.AddPolicy(role, "session", "delete")
 	}
 	
 	if err != nil {

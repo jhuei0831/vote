@@ -14,7 +14,7 @@ func NewPaginationService[T any, E any, C any]() PaginationService[T, E, C] {
 	return PaginationService[T, E, C]{}
 }
 
-// BuildConnection 會建立 edges、pageInfo 並透過 createConnection 回傳特定型別的 Connection 結構。
+// BuildConnection creates edges and pageInfo, then returns a specific type of Connection structure.
 func (p PaginationService[T, E, C]) BuildConnection(
 	records []T,
 	total int64,
@@ -27,7 +27,7 @@ func (p PaginationService[T, E, C]) BuildConnection(
 	var lastCursor string
 
 	for i, record := range records {
-		cursor, _ := (&utils.Password{}).Encrypt(strconv.FormatUint(getID(record), 10))
+		cursor, _ := (&utils.Invitation{}).Encrypt(strconv.FormatUint(getID(record), 10))
 		edges = append(edges, buildEdge[T, E](record, cursor))
 
 		if i == 0 {
