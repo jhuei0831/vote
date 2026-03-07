@@ -12,15 +12,10 @@ import (
 	"vote/app/model"
 
 	"github.com/99designs/gqlgen/graphql"
-	"github.com/google/uuid"
 	"github.com/vektah/gqlparser/v2/ast"
 )
 
 // region    ************************** generated!.gotpl **************************
-
-type PollOptionQueryResolver interface {
-	SessionID(ctx context.Context, obj *model.PollOptionQuery, data uuid.UUID) error
-}
 
 // endregion ************************** generated!.gotpl **************************
 
@@ -441,9 +436,7 @@ func (ec *executionContext) unmarshalInputPollOptionQuery(ctx context.Context, o
 			if err != nil {
 				return it, err
 			}
-			if err = ec.resolvers.PollOptionQuery().SessionID(ctx, &it, data); err != nil {
-				return it, err
-			}
+			it.SessionID = data
 		case "pollId":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("pollId"))
 			data, err := ec.unmarshalOUInt642uint64(ctx, v)

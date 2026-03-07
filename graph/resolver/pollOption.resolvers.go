@@ -9,9 +9,6 @@ import (
 	"fmt"
 	"vote/app/model"
 	"vote/app/service"
-	graph "vote/graph/generated"
-
-	"github.com/google/uuid"
 )
 
 // CreatePollOption is the resolver for the createPollOption field.
@@ -83,7 +80,7 @@ func (r *queryResolver) PollOption(ctx context.Context, id uint64) (*model.PollO
 
 // PollOptions is the resolver for the pollOptions field.
 func (r *queryResolver) PollOptions(ctx context.Context, input model.PollOptionQuery) ([]*model.PollOptionConnection, error) {
-	if err := service.NewAuthorizationService().AuthorizeSessionAccess(ctx, input.VoteID, "read poll option"); err != nil {
+	if err := service.NewAuthorizationService().AuthorizeSessionAccess(ctx, input.SessionID, "read poll option"); err != nil {
 		return nil, err
 	}
 
@@ -95,15 +92,3 @@ func (r *queryResolver) PollOptions(ctx context.Context, input model.PollOptionQ
 
 	return pollOptionConnections, nil
 }
-
-// SessionID is the resolver for the sessionId field.
-func (r *pollOptionQueryResolver) SessionID(ctx context.Context, obj *model.PollOptionQuery, data uuid.UUID) error {
-	panic(fmt.Errorf("not implemented: SessionID - sessionId"))
-}
-
-// PollOptionQuery returns graph.PollOptionQueryResolver implementation.
-func (r *Resolver) PollOptionQuery() graph.PollOptionQueryResolver {
-	return &pollOptionQueryResolver{r}
-}
-
-type pollOptionQueryResolver struct{ *Resolver }

@@ -30,7 +30,7 @@ type PollOptionUpdate struct {
 }
 
 type PollOptionQuery struct {	
-	VoteID 			uuid.UUID 	`json:"vote_id" example:"00000000-0000-0000-0000-000000000000"`
+	SessionID 	uuid.UUID 	`json:"session_id" example:"00000000-0000-0000-0000-000000000000"`
 	PollID 			uint64 			`json:"poll_id" example:"1"`
 	Name	   		string 			`json:"name" example:"name"`
 	First     	int       	`json:"first" binding:"min=1" example:"1"`

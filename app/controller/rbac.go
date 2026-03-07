@@ -25,7 +25,7 @@ func NewRbacController() RbacController {
 // @Success 200 {string} string "ok"
 // @Router /rbac/init [get]
 func (r RbacController) Initial(c *gin.Context) {
-	userId, exists := c.Get("id")
+	userId, exists := c.Get("userId")
 	if !exists {
 		c.JSON(http.StatusUnauthorized, gin.H{
 			"status": -1,
@@ -64,7 +64,7 @@ func (r RbacController) Initial(c *gin.Context) {
 	// Creator role
 	creator := string(enum.Creator)
 	actions := []string{"create", "read", "update", "delete"}
-	resources := []string{"vote", "question", "candidate", "password", "ballot"}
+	resources := []string{"session", "poll", "poll_option", "invitation", "ballot"}
 
 	for _, res := range resources {
 		for _, act := range actions {

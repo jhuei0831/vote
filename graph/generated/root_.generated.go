@@ -40,7 +40,6 @@ type ResolverRoot interface {
 	Session() SessionResolver
 	BallotQuery() BallotQueryResolver
 	InvitationCreate() InvitationCreateResolver
-	PollOptionQuery() PollOptionQueryResolver
 }
 
 type DirectiveRoot struct {
