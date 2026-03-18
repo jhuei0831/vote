@@ -40,6 +40,12 @@ input InvitationQuery {
   before: String
 }
 
+type ValidateInviteResult {
+  success: Boolean!
+  jwt: String
+  message: String
+}
+
 extend type Query {
   invitations(input: InvitationQuery!): [InvitationConnection!]!
     @hasPermission(resource: "invitation", action: "read")
@@ -56,4 +62,6 @@ extend type Mutation {
 
   deleteInvitation(ids: [UInt64!]!): [Invitation!]!
     @hasPermission(resource: "invitation", action: "delete")
+
+  validateInviteCode(session_id: String!, code: String!): ValidateInviteResult!
 }

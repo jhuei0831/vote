@@ -36,7 +36,7 @@ func (a VoterController) VoterLogin(c *gin.Context) {
 	ctx, cancel := context.WithTimeout(c.Request.Context(), 5*time.Second)
 	defer cancel()
 
-	var form model.VoterLogin
+	var form model.VoterVerify
 	if err := c.BindJSON(&form); err != nil {
 		utils.HandleError(c, http.StatusBadRequest, -1, "Invalid params", err)
 		return

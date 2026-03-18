@@ -7,7 +7,7 @@ scalar UInt64
 directive @hasPermission(
   resource: String!
   action: String!
-) on FIELD_DEFINITION
+) on FIELD_DEFINITION | OBJECT
 
 """
 Pagination information for paginated results.

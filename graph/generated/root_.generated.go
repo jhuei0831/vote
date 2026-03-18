@@ -96,21 +96,22 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
-		CreateBallot     func(childComplexity int, input model.BallotCreate) int
-		CreateInvitation func(childComplexity int, input model.InvitationCreate) int
-		CreatePoll       func(childComplexity int, input model.PollCreate) int
-		CreatePollOption func(childComplexity int, input model.PollOptionCreate) int
-		CreateSession    func(childComplexity int, input model.SessionCreate) int
-		CreateUser       func(childComplexity int, input model.UserCreate) int
-		DeleteBallot     func(childComplexity int, voterID uint64) int
-		DeleteInvitation func(childComplexity int, ids []uint64) int
-		DeletePoll       func(childComplexity int, ids []uint64) int
-		DeletePollOption func(childComplexity int, ids []uint64) int
-		DeleteSession    func(childComplexity int, uuids []uuid.UUID) int
-		UpdateInvitation func(childComplexity int, ids []uint64, input model.InvitationUpdate) int
-		UpdatePoll       func(childComplexity int, id uint64, input model.PollUpdate) int
-		UpdatePollOption func(childComplexity int, id uint64, input model.PollOptionUpdate) int
-		UpdateSession    func(childComplexity int, uuid uuid.UUID, input model.SessionUpdate) int
+		CreateBallot       func(childComplexity int, input model.BallotCreate) int
+		CreateInvitation   func(childComplexity int, input model.InvitationCreate) int
+		CreatePoll         func(childComplexity int, input model.PollCreate) int
+		CreatePollOption   func(childComplexity int, input model.PollOptionCreate) int
+		CreateSession      func(childComplexity int, input model.SessionCreate) int
+		CreateUser         func(childComplexity int, input model.UserCreate) int
+		DeleteBallot       func(childComplexity int, voterID uint64) int
+		DeleteInvitation   func(childComplexity int, ids []uint64) int
+		DeletePoll         func(childComplexity int, ids []uint64) int
+		DeletePollOption   func(childComplexity int, ids []uint64) int
+		DeleteSession      func(childComplexity int, uuids []uuid.UUID) int
+		UpdateInvitation   func(childComplexity int, ids []uint64, input model.InvitationUpdate) int
+		UpdatePoll         func(childComplexity int, id uint64, input model.PollUpdate) int
+		UpdatePollOption   func(childComplexity int, id uint64, input model.PollOptionUpdate) int
+		UpdateSession      func(childComplexity int, uuid uuid.UUID, input model.SessionUpdate) int
+		ValidateInviteCode func(childComplexity int, sessionID string, code string) int
 	}
 
 	PageInfo struct {
@@ -206,6 +207,12 @@ type ComplexityRoot struct {
 		Account func(childComplexity int) int
 		Email   func(childComplexity int) int
 		ID      func(childComplexity int) int
+	}
+
+	ValidateInviteResult struct {
+		JWT     func(childComplexity int) int
+		Message func(childComplexity int) int
+		Success func(childComplexity int) int
 	}
 }
 
@@ -582,6 +589,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Mutation.UpdateSession(childComplexity, args["uuid"].(uuid.UUID), args["input"].(model.SessionUpdate)), true
+
+	case "Mutation.validateInviteCode":
+		if e.complexity.Mutation.ValidateInviteCode == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_validateInviteCode_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.ValidateInviteCode(childComplexity, args["session_id"].(string), args["code"].(string)), true
 
 	case "PageInfo.endCursor":
 		if e.complexity.PageInfo.EndCursor == nil {
@@ -1025,6 +1044,27 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.User.ID(childComplexity), true
 
+	case "ValidateInviteResult.jwt":
+		if e.complexity.ValidateInviteResult.JWT == nil {
+			break
+		}
+
+		return e.complexity.ValidateInviteResult.JWT(childComplexity), true
+
+	case "ValidateInviteResult.message":
+		if e.complexity.ValidateInviteResult.Message == nil {
+			break
+		}
+
+		return e.complexity.ValidateInviteResult.Message(childComplexity), true
+
+	case "ValidateInviteResult.success":
+		if e.complexity.ValidateInviteResult.Success == nil {
+			break
+		}
+
+		return e.complexity.ValidateInviteResult.Success(childComplexity), true
+
 	}
 	return 0, false
 }
@@ -1216,7 +1256,7 @@ scalar UInt64
 directive @hasPermission(
   resource: String!
   action: String!
-) on FIELD_DEFINITION
+) on FIELD_DEFINITION | OBJECT
 
 """
 Pagination information for paginated results.
@@ -1276,6 +1316,12 @@ input InvitationQuery {
   before: String
 }
 
+type ValidateInviteResult {
+  success: Boolean!
+  jwt: String
+  message: String
+}
+
 extend type Query {
   invitations(input: InvitationQuery!): [InvitationConnection!]!
     @hasPermission(resource: "invitation", action: "read")
@@ -1292,6 +1338,8 @@ extend type Mutation {
 
   deleteInvitation(ids: [UInt64!]!): [Invitation!]!
     @hasPermission(resource: "invitation", action: "delete")
+
+  validateInviteCode(session_id: String!, code: String!): ValidateInviteResult!
 }`, BuiltIn: false},
 	{Name: "../poll.graphqls", Input: `directive @withPollOptions(withPollOptions: Boolean!) on FIELD_DEFINITION
 

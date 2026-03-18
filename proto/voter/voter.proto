@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package voter;
+
+option go_package = "vote/proto/voter";
+
+// VoterService provides RPC methods for validating invite codes and issuing JWTs
+service VoterService {
+  // ValidateInviteCode validates an invite code and returns a JWT token for authenticated access
+  rpc ValidateInviteCode(ValidateRequest) returns (ValidateResponse);
+}
+
+message ValidateRequest {
+  // UUID string, e.g. "550e8400-e29b-41d4-a716-446655440000"
+  string session_id = 1;
+  string code = 2;
+}
+
+message ValidateResponse {
+  bool success = 1;
+  string jwt = 2;
+  string message = 3;
+}

@@ -25,6 +25,7 @@ type MutationResolver interface {
 	CreateInvitation(ctx context.Context, input model.InvitationCreate) ([]*model.Invitation, error)
 	UpdateInvitation(ctx context.Context, ids []uint64, input model.InvitationUpdate) ([]*model.Invitation, error)
 	DeleteInvitation(ctx context.Context, ids []uint64) ([]*model.Invitation, error)
+	ValidateInviteCode(ctx context.Context, sessionID string, code string) (*model.ValidateInviteResult, error)
 	CreatePoll(ctx context.Context, input model.PollCreate) (*model.Poll, error)
 	UpdatePoll(ctx context.Context, id uint64, input model.PollUpdate) (*model.Poll, error)
 	DeletePoll(ctx context.Context, ids []uint64) ([]*model.Poll, error)
@@ -235,6 +236,22 @@ func (ec *executionContext) field_Mutation_updateSession_args(ctx context.Contex
 		return nil, err
 	}
 	args["input"] = arg1
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_validateInviteCode_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "session_id", ec.unmarshalNString2string)
+	if err != nil {
+		return nil, err
+	}
+	args["session_id"] = arg0
+	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "code", ec.unmarshalNString2string)
+	if err != nil {
+		return nil, err
+	}
+	args["code"] = arg1
 	return args, nil
 }
 
@@ -783,6 +800,55 @@ func (ec *executionContext) fieldContext_Mutation_deleteInvitation(ctx context.C
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_deleteInvitation_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_validateInviteCode(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Mutation_validateInviteCode,
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.resolvers.Mutation().ValidateInviteCode(ctx, fc.Args["session_id"].(string), fc.Args["code"].(string))
+		},
+		nil,
+		ec.marshalNValidateInviteResult2ᚖvoteᚋappᚋmodelᚐValidateInviteResult,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Mutation_validateInviteCode(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "success":
+				return ec.fieldContext_ValidateInviteResult_success(ctx, field)
+			case "jwt":
+				return ec.fieldContext_ValidateInviteResult_jwt(ctx, field)
+			case "message":
+				return ec.fieldContext_ValidateInviteResult_message(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ValidateInviteResult", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_validateInviteCode_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -2591,6 +2657,13 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		case "deleteInvitation":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_deleteInvitation(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "validateInviteCode":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_validateInviteCode(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++

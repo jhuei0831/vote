@@ -401,6 +401,93 @@ func (ec *executionContext) fieldContext_InvitationEdge_cursor(_ context.Context
 	return fc, nil
 }
 
+func (ec *executionContext) _ValidateInviteResult_success(ctx context.Context, field graphql.CollectedField, obj *model.ValidateInviteResult) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_ValidateInviteResult_success,
+		func(ctx context.Context) (any, error) {
+			return obj.Success, nil
+		},
+		nil,
+		ec.marshalNBoolean2bool,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_ValidateInviteResult_success(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ValidateInviteResult",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ValidateInviteResult_jwt(ctx context.Context, field graphql.CollectedField, obj *model.ValidateInviteResult) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_ValidateInviteResult_jwt,
+		func(ctx context.Context) (any, error) {
+			return obj.JWT, nil
+		},
+		nil,
+		ec.marshalOString2string,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_ValidateInviteResult_jwt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ValidateInviteResult",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ValidateInviteResult_message(ctx context.Context, field graphql.CollectedField, obj *model.ValidateInviteResult) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_ValidateInviteResult_message,
+		func(ctx context.Context) (any, error) {
+			return obj.Message, nil
+		},
+		nil,
+		ec.marshalOString2string,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_ValidateInviteResult_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ValidateInviteResult",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 // endregion **************************** field.gotpl *****************************
 
 // region    **************************** input.gotpl *****************************
@@ -756,6 +843,49 @@ func (ec *executionContext) _InvitationEdge(ctx context.Context, sel ast.Selecti
 	return out
 }
 
+var validateInviteResultImplementors = []string{"ValidateInviteResult"}
+
+func (ec *executionContext) _ValidateInviteResult(ctx context.Context, sel ast.SelectionSet, obj *model.ValidateInviteResult) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, validateInviteResultImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("ValidateInviteResult")
+		case "success":
+			out.Values[i] = ec._ValidateInviteResult_success(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "jwt":
+			out.Values[i] = ec._ValidateInviteResult_jwt(ctx, field, obj)
+		case "message":
+			out.Values[i] = ec._ValidateInviteResult_message(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 // endregion **************************** object.gotpl ****************************
 
 // region    ***************************** type.gotpl *****************************
@@ -933,6 +1063,20 @@ func (ec *executionContext) unmarshalNInvitationQuery2voteᚋappᚋmodelᚐInvit
 func (ec *executionContext) unmarshalNInvitationUpdate2voteᚋappᚋmodelᚐInvitationUpdate(ctx context.Context, v any) (model.InvitationUpdate, error) {
 	res, err := ec.unmarshalInputInvitationUpdate(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNValidateInviteResult2voteᚋappᚋmodelᚐValidateInviteResult(ctx context.Context, sel ast.SelectionSet, v model.ValidateInviteResult) graphql.Marshaler {
+	return ec._ValidateInviteResult(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNValidateInviteResult2ᚖvoteᚋappᚋmodelᚐValidateInviteResult(ctx context.Context, sel ast.SelectionSet, v *model.ValidateInviteResult) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._ValidateInviteResult(ctx, sel, v)
 }
 
 // endregion ***************************** type.gotpl *****************************

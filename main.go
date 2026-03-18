@@ -1,14 +1,15 @@
 package main
 
 import (
-	"os"
+    "os"
 
-	"vote/app/config"
-	"vote/app/database"
-	"vote/app/middleware"
+    "vote/app/config"
+    "vote/app/database"
+    "vote/app/middleware"
+    "vote/internal/grpcserver"
 
-	"github.com/gin-gonic/gin"
-	"github.com/joho/godotenv"
+    "github.com/gin-gonic/gin"
+    "github.com/joho/godotenv"
 )
 
 // @title Gin swagger
@@ -24,43 +25,42 @@ import (
 // @in header
 // @name Authorization
 func main() {
-	envErr := godotenv.Load()
-	if envErr != nil {
-		panic(envErr)
-	}
+    if err := godotenv.Load(); err != nil {
+        panic(err)
+    }
 
-	port := os.Getenv("PORT")
-	server := SetRouter()
-	err := server.Run(":" + port)
-	if err != nil {
-		panic(err)
-	}
+    // Initialize database
+    dbConfig := database.DbConfig()
+    _, err := database.Initialize(dbConfig)
+    if err != nil {
+        panic(err)
+    }
+    
+    // Initialize RBAC
+    _, _, err = database.Rbac()
+    if err != nil {
+        panic(err)
+    }
+
+    // Start gRPC server in background
+    go func() {
+        grpcserver.StartGRPCServer("50051")
+    }()
+
+    // Start HTTP server (blocking)
+    port := os.Getenv("PORT")
+    server := SetRouter()
+    if err := server.Run(":" + port); err != nil {
+        panic(err)
+    }
 }
 
 func SetRouter() *gin.Engine {
-	// Load .env file
-	if err := godotenv.Load(); err != nil {
-		panic(err)
-	}
-
-	// Initialize database
-	dbConfig := database.DbConfig()
-	_, err := database.Initialize(dbConfig)
-	if err != nil {
-		panic(err)
-	}
-	
-	// Initialize RBAC
-	_, _, err = database.Rbac()
-	if err != nil {
-		panic(err)
-	}
-
-	server := gin.Default()
-	server.Use(middleware.GinContextToContextMiddleware())
-	server.Use(middleware.CORSMiddleware())
-	server.Use(middleware.LoggerToFile())
-	config.Routes(server, config.RedisStore())
-
-	return server
+    server := gin.Default()
+    server.Use(middleware.GinContextToContextMiddleware())
+    server.Use(middleware.CORSMiddleware())
+    server.Use(middleware.LoggerToFile())
+    config.Routes(server, config.RedisStore())
+    
+    return server
 }

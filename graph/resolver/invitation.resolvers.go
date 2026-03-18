@@ -8,9 +8,11 @@ import (
 	"context"
 	"fmt"
 	"vote/app/model"
+	pb "vote/proto/voter"
 	"vote/app/service"
 	"vote/app/utils"
 	graph "vote/graph/generated"
+	"vote/internal/grpcclient"
 
 	"github.com/vektah/gqlparser/v2/gqlerror"
 )
@@ -68,6 +70,33 @@ func (r *mutationResolver) DeleteInvitation(ctx context.Context, ids []uint64) (
 		return nil, err
 	}
 	return invitations, nil
+}
+
+// ValidateInviteCode is the resolver for the validateInviteCode field.
+func (r *mutationResolver) ValidateInviteCode(ctx context.Context, sessionID string, code string) (*model.ValidateInviteResult, error) {
+	client := grpcclient.GetVoterServiceClient()
+
+	response, err := client.ValidateInviteCode(ctx, &pb.ValidateRequest{
+		SessionId: sessionID,
+		Code:      code,
+	})
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to validate invite code: %w", err)
+	}
+
+	if !response.Success {
+		return &model.ValidateInviteResult{
+			Success: false,
+			Message: response.Message,
+		}, nil
+	}
+
+	return &model.ValidateInviteResult{
+		Success: true,
+		JWT:     response.Jwt,
+		Message: response.Message,
+	}, nil
 }
 
 // Invitations is the resolver for the invitations field.

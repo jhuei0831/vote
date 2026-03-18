@@ -1,10 +1,14 @@
 package service
 
 import (
+	"context"
+	"fmt"
 	"vote/app/database"
+	"vote/app/middleware"
 	"vote/app/model"
 	"vote/app/repository"
 	"vote/app/utils"
+	pb "vote/proto/voter"
 
 	"github.com/google/uuid"
 )
@@ -17,10 +21,10 @@ func NewInvitationService() InvitationService {
 }
 
 // GetInvitation retrieves an invitation based on the provided vote ID and invitation string.
-func (p InvitationService) GetInvitation(voteId uuid.UUID, invitation string) (*model.Invitation, error) {
+func (p InvitationService) GetInvitation(sessionId uuid.UUID, invitation string) (*model.Invitation, error) {
 	invitationModel := model.Invitation{}
 	err := database.SqlSession.
-		Where("vote_id = ? AND invitation = ? AND status = true", voteId, invitation).
+		Where("session_id = ? AND code_hash = ? AND status = true", sessionId, invitation).
 		First(&invitationModel).
 		Error
 
@@ -32,7 +36,7 @@ func (p InvitationService) GetInvitation(voteId uuid.UUID, invitation string) (*
 }
 
 // GetInvitations retrieves all invitations based on the provided vote ID and query parameters.
-func (p InvitationService) GetInvitations(voteId uuid.UUID, invitationQuery *model.InvitationQuery) ([]*model.InvitationConnection, error) {
+func (p InvitationService) GetInvitations(sessionId uuid.UUID, invitationQuery *model.InvitationQuery) ([]*model.InvitationConnection, error) {
 	invitations, total, err := repository.NewInvitationRepository().GetInvitations(invitationQuery)
 	if err != nil {
 		return nil, err
@@ -62,8 +66,8 @@ func (p InvitationService) DecryptInvitation(invitation string) (string, error) 
 }
 
 // CreateInvitation Create invitations can encrypt and decrypt
-func (p InvitationService) CreateInvitation(voteId uuid.UUID, number uint, length uint, format string) ([]*model.Invitation, error) {
-	invitations, err := repository.NewInvitationRepository().CreateInvitations(voteId, number, length, format)
+func (p InvitationService) CreateInvitation(sessionId uuid.UUID, number uint, length uint, format string) ([]*model.Invitation, error) {
+	invitations, err := repository.NewInvitationRepository().CreateInvitations(sessionId, number, length, format)
 	if err != nil {
 		return nil, err
 	}
@@ -72,8 +76,8 @@ func (p InvitationService) CreateInvitation(voteId uuid.UUID, number uint, lengt
 }
 
 // UpdateInvitationStatus updates the status of invitations based on the provided vote ID and invitation IDs.
-func (p InvitationService) UpdateInvitationStatus(voteId uuid.UUID, invitationIDs []uint64, status bool) ([]*model.Invitation, error) {
-	invitations, err := repository.NewInvitationRepository().UpdateInvitationStatus(voteId, invitationIDs, status)
+func (p InvitationService) UpdateInvitationStatus(sessionId uuid.UUID, invitationIDs []uint64, status bool) ([]*model.Invitation, error) {
+	invitations, err := repository.NewInvitationRepository().UpdateInvitationStatus(sessionId, invitationIDs, status)
 	if err != nil {
 		return nil, err
 	}
@@ -89,4 +93,73 @@ func (p InvitationService) DeleteInvitation(ids []uint64, userInfo model.UserInf
 	}
 
 	return invitations, nil
+}
+
+// VerifyInviteCode verifies an invite code using the gRPC VoterService.
+func (p InvitationService) VerifyInviteCode(ctx context.Context, req *pb.ValidateRequest) (*pb.ValidateResponse, error) {
+	code := req.GetCode()
+	sessionIDStr := req.GetSessionId()
+
+	if code == "" {
+		return &pb.ValidateResponse{
+			Success: false,
+			Message: "Invite code cannot be empty",
+		}, nil
+	}
+
+	hashCode, err := (&utils.Invitation{}).Encrypt(code)
+	if err != nil {
+		return &pb.ValidateResponse{
+			Success: false,
+			Message: "Failed to encrypt invite code",
+		}, nil
+	}
+
+	// Check invitation exist
+	sessionId, err := uuid.Parse(sessionIDStr)
+	if err != nil {
+		return &pb.ValidateResponse{
+			Success: false,
+			Message: "Invalid session ID format",
+		}, nil
+	}
+
+	invitation, err := p.GetInvitation(sessionId, hashCode)
+	fmt.Println(code)
+	fmt.Println(hashCode)
+	fmt.Println(invitation)
+	if err != nil {
+		return &pb.ValidateResponse{
+			Success: false,
+			Message: fmt.Sprintf("failed to validate invitation: %v", err),
+		}, nil
+	}
+
+	// Record invitation usage
+	invitationUsage := model.InvitationUsage{
+		InvitationID: invitation.ID,
+		VoterTempID:  uuid.New(),
+	}
+
+	insertErr := database.SqlSession.Model(&model.InvitationUsage{}).Create(&invitationUsage).Error
+	if insertErr != nil {
+		return &pb.ValidateResponse{
+			Success: false,
+			Message: fmt.Sprintf("failed to record invitation usage: %v", insertErr),
+		}, nil
+	}
+
+	tokenString, _, err := middleware.GenVoterToken(invitation.ID, sessionId, false)
+	if err != nil {
+		return &pb.ValidateResponse{
+			Success: false,
+			Message: fmt.Sprintf("failed to generate JWT token: %v", err),
+		}, nil
+	}
+
+	return &pb.ValidateResponse{
+		Success: true,
+		Jwt:     tokenString,
+		Message: "Invite code verified successfully",
+	}, nil
 }

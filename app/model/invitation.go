@@ -78,7 +78,13 @@ type VoterInfo struct {
 	IsVoted 		bool
 }
 
-type VoterLogin struct {
+type VoterVerify struct {
 	SessionID uuid.UUID `json:"session_id" binding:"required" example:"00000000-0000-0000-0000-000000000000"`
 	CodeHash 	string    `json:"code_hash" binding:"required" example:"code_hash"`
+}
+
+type ValidateInviteResult struct {
+	Success bool   `json:"success"`
+	JWT     string `json:"jwt,omitempty"`
+	Message string `json:"message,omitempty"`
 }
