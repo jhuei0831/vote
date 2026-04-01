@@ -7,12 +7,13 @@ package graph
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"vote/app/model"
-	pb "vote/proto/voter"
 	"vote/app/service"
 	"vote/app/utils"
 	graph "vote/graph/generated"
 	"vote/internal/grpcclient"
+	pb "vote/proto/voter"
 
 	"github.com/vektah/gqlparser/v2/gqlerror"
 )
@@ -91,6 +92,21 @@ func (r *mutationResolver) ValidateInviteCode(ctx context.Context, sessionID str
 			Message: response.Message,
 		}, nil
 	}
+
+	// Set the token in the cookie
+	graphqlService := service.NewGraphqlService()
+	gc, err := graphqlService.GinContextFromContext(ctx)
+	if err != nil {
+		return &model.ValidateInviteResult{
+			Success: false,
+			Message: "Failed to set cookie",
+		}, nil
+	}
+	gc.SetSameSite(http.SameSiteNoneMode)
+	gc.SetCookie("voter-token", response.Jwt, 3600, "/", "", true, true)
+
+	// gc.SetCookie("user-token", "", -1, "/", "", true, true)
+	// gc.SetCookie("user-refresh_token", "", -1, "/", "", true, true)
 
 	return &model.ValidateInviteResult{
 		Success: true,

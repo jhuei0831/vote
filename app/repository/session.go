@@ -21,7 +21,7 @@ func (v SessionRepository) GetSessionByUUID(uuid uuid.UUID) (*model.Session, err
 
 	err := database.SqlSession.
 		Where("uuid = ?", uuid).
-		Preload("Polls").
+		Preload("Polls.PollOptions").
 		First(&session).Error
 
 	return session, err

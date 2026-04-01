@@ -2206,30 +2206,7 @@ func (ec *executionContext) _Query_session(ctx context.Context, field graphql.Co
 			fc := graphql.GetFieldContext(ctx)
 			return ec.resolvers.Query().Session(ctx, fc.Args["uuid"].(*uuid.UUID), fc.Args["withPolls"].(bool))
 		},
-		func(ctx context.Context, next graphql.Resolver) graphql.Resolver {
-			directive0 := next
-
-			directive1 := func(ctx context.Context) (any, error) {
-				resource, err := ec.unmarshalNString2string(ctx, "session")
-				if err != nil {
-					var zeroVal *model.Session
-					return zeroVal, err
-				}
-				action, err := ec.unmarshalNString2string(ctx, "read")
-				if err != nil {
-					var zeroVal *model.Session
-					return zeroVal, err
-				}
-				if ec.directives.HasPermission == nil {
-					var zeroVal *model.Session
-					return zeroVal, errors.New("directive hasPermission is not implemented")
-				}
-				return ec.directives.HasPermission(ctx, nil, directive0, resource, action)
-			}
-
-			next = directive1
-			return next
-		},
+		nil,
 		ec.marshalOSession2ᚖvoteᚋappᚋmodelᚐSession,
 		true,
 		false,

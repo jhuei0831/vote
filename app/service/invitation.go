@@ -25,6 +25,7 @@ func (p InvitationService) GetInvitation(sessionId uuid.UUID, invitation string)
 	invitationModel := model.Invitation{}
 	err := database.SqlSession.
 		Where("session_id = ? AND code_hash = ? AND status = true", sessionId, invitation).
+		Preload("Ballots").
 		First(&invitationModel).
 		Error
 
@@ -125,9 +126,6 @@ func (p InvitationService) VerifyInviteCode(ctx context.Context, req *pb.Validat
 	}
 
 	invitation, err := p.GetInvitation(sessionId, hashCode)
-	fmt.Println(code)
-	fmt.Println(hashCode)
-	fmt.Println(invitation)
 	if err != nil {
 		return &pb.ValidateResponse{
 			Success: false,
@@ -149,7 +147,8 @@ func (p InvitationService) VerifyInviteCode(ctx context.Context, req *pb.Validat
 		}, nil
 	}
 
-	tokenString, _, err := middleware.GenVoterToken(invitation.ID, sessionId, false)
+	isVoted := len(invitation.Ballots) > 0
+	tokenString, _, err := middleware.GenVoterToken(invitationUsage, sessionId, isVoted)
 	if err != nil {
 		return &pb.ValidateResponse{
 			Success: false,

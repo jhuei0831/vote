@@ -61,9 +61,9 @@ func (r *mutationResolver) DeleteSession(ctx context.Context, uuids []uuid.UUID)
 
 // Session is the resolver for the session field.
 func (r *queryResolver) Session(ctx context.Context, uuid *uuid.UUID, withPolls bool) (*model.Session, error) {
-	if err := service.NewAuthorizationService().AuthorizeSessionAccess(ctx, uuid, "read session"); err != nil {
-		return nil, err
-	}
+	// if err := service.NewAuthorizationService().AuthorizeSessionAccess(ctx, uuid, "read session"); err != nil {
+	// 	return nil, err
+	// }
 
 	session, err := service.NewSessionService().GetSession(*uuid)
 

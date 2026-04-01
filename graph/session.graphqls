@@ -56,7 +56,7 @@ input SessionQuery {
 
 extend type Query {
   session(uuid: UUID, withPolls: Boolean!): Session
-    @hasPermission(resource: "session", action: "read")
+    # @hasPermission(resource: "session", action: "read")
   sessions(input: SessionQuery, withPolls: Boolean!): [SessionConnection!]! 
     @hasPermission(resource: "session", action: "read")
 }

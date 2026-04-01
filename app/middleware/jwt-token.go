@@ -5,6 +5,7 @@ import (
 	"os"
 	"strings"
 	"time"
+	"vote/app/model"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
@@ -28,6 +29,7 @@ type UserClaims struct {
 // VoterClaims represents voter JWT token claims
 type VoterClaims struct {
 	ID      uint64    `json:"id"`
+	VoterTempID uuid.UUID `json:"voterTempID"`
 	SessionID  uuid.UUID `json:"sessionID"`
 	IsVoted bool      `json:"isVoted"`
 	jwt.RegisteredClaims
@@ -50,9 +52,10 @@ func GenUserToken(Id uint64, account string, roles []string) (string, string, er
 }
 
 // GenVoterToken generates voter JWT token
-func GenVoterToken(Id uint64, sessionID uuid.UUID, isVoted bool) (string, string, error) {
+func GenVoterToken(invitationUsage model.InvitationUsage, sessionID uuid.UUID, isVoted bool) (string, string, error) {
 	accessClaims := VoterClaims{
-			ID:      Id,
+			ID:      invitationUsage.ID,
+			VoterTempID: invitationUsage.VoterTempID,	
 			SessionID:  sessionID,
 			IsVoted: isVoted,
 			RegisteredClaims: jwt.RegisteredClaims{
